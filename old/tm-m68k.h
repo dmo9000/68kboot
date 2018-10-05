@@ -1,0 +1,34 @@
+//#define L_eprintf
+#define L_umulsi3
+#define L_mulsi3
+#define L_udivsi3
+#define L_divsi3
+#define L_umodsi3
+#define L_modsi3
+#define L_lshrsi3
+#define L_lshlsi3
+#define L_ashrsi3
+#define L_ashlsi3
+#define L_divdf3
+#define L_muldf3
+#define L_negdf2
+#define L_adddf3
+#define L_subdf3
+#define L_cmpdf2
+//#define L_fixunsdfsi
+#define L_fixdfsi
+#define L_floatsidf
+#define L_addsf3
+#define L_negsf2
+#define L_subsf3
+#define L_cmpsf2
+#define L_mulsf3
+#define L_divsf3
+#define L_truncdfsf2
+#define L_extendsfdf2
+#define L_bb_init_func
+
+/* C++ magic -- leave out for now */
+//#define L_builtin_new
+//#define L_builtin_New
+//#define L_builtin_del
