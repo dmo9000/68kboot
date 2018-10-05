@@ -242,12 +242,13 @@ int ext2_list_directory(uint32_t directory_inode)
         if (nm_uint16(iter_inode.i_mode) & S_IWOTH) perms[8] = 'w';
         if (nm_uint16(iter_inode.i_mode) & S_IXOTH) perms[9] = 'x';
 
-        printf("%10ld %s %5u %5u %8lu %s\r\n",
+        printf("%10ld %s %5u %5u %8lu %s%c\r\n",
                nm_uint32(current_entry.inode),
                perms,
                nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
                nm_uint32(iter_inode.i_size),
-               current_entry.name);
+               current_entry.name,
+               (perms[0] == 'd' ? '/' : '\0'));
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
             /* looks like we have reached the end of the directory */
