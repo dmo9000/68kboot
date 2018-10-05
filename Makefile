@@ -16,9 +16,11 @@ main:	$(OBJS)
 		strncmp.o dump.o disk.o	devices.o ext2.o modules.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
-
+	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec main main.srec
 	/usr/local/gcc-68k/bin/m68k-elf-strip main
+	ls -l main
+	size -A -d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
