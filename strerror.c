@@ -38,6 +38,10 @@ const char *strerror(int en)
     case ENOTSUPP:
         return (const char *) "Operation not supported";
         break;
+    case EISDIR:
+        return (const char *) "Is a directory";
+        break;
+    
     }
 
     return "Unknown error!";

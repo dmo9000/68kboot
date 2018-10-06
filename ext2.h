@@ -1,3 +1,6 @@
+#ifndef __EXT2_H__
+#define __EXT2_h__
+
 #include "types.h"
 #include "stdbool.h"
 #include "devices.h"
@@ -39,6 +42,9 @@
 #define S_IROTH 00004
 #define S_IWOTH 00002
 #define S_IXOTH 00001
+
+
+#define FILENAME_MAX    256
 
 typedef struct ext2_super_block
 {
@@ -199,3 +205,5 @@ uint32_t ext2_path_to_inode(char *path);
 int ext2_list_directory(uint32_t directory_inode);
 int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug);
 
+
+#endif /* __EXT2_H__ */

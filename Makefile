@@ -34,13 +34,20 @@ install:
 
 
 8mb:
-	dd if=/dev/zero of=8mb.img count=65536 bs=128
-	mke2fs ./8mb.img
-	sudo mount 8mb.img mnt
-	sudo chown -R dan:dan mnt
-	echo "Hello world 1" > mnt/hello1.txt
-	echo "Hello world 2" > mnt/hello2.txt
-	mkdir -p mnt/foo/bar/baz
-	ls --inode -ln mnt
-	sync
-	sudo umount mnt
+	@dd if=/dev/zero of=8mb.img count=65536 bs=128
+	@mke2fs ./8mb.img
+	@sudo mount 8mb.img mnt
+	@sudo chown -R dan:dan mnt
+	@echo "Hello world 1" > mnt/hello1.txt 2>&1
+	@echo "Hello world 2" > mnt/hello2.txt 2>&1
+	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@mkdir -p mnt/foo/bar/baz
+	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@for FN in `seq 1 5`; do 	\
+		dd if=/dev/urandom of=mnt/test-$${FN}.bin bs=1024 count=$${FN} 1>/dev/null 2>&1 ; \
+		done
+	@ls --inode -ln mnt
+	@sync
+	@sudo umount mnt

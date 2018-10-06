@@ -5,7 +5,6 @@
 #include "modules.h"
 #include "dump.h"
 #include "devices.h"
-#include "ext2.h"
 #include "assert.h"
 #include "byteorder.h"
 #include "disk.h"
@@ -344,8 +343,9 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
     uint32_t sector_offset = 0;
     //uint32_t sector_count = 0;
     uint32_t remaining = size;
-    uint32_t byte_read_count = 0;
+    //uint32_t byte_read_count = 0;
     uint32_t current_offset = 0;
+    uint32_t bytes_available = 0;
     unsigned char *ptr = buf;
     //printf("cpm_read(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, buf, size);
 
@@ -362,20 +362,22 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
     current_sector = start_sector;
     current_offset = sector_offset;
 
+
+
     while (remaining > 0) {
         assert(remaining > current_offset);
-        byte_read_count = ((remaining - current_offset) > SECTOR_SIZE ? SECTOR_SIZE : remaining);
-        //printf("remaining = %u, byte_read_count = %u\r\n", remaining, byte_read_count);
+        assert(current_offset <= SECTOR_SIZE);
+        bytes_available = SECTOR_SIZE - current_offset;
+        if (bytes_available > remaining) {
+            bytes_available = remaining;
+            }
         disk_read_sector(current_sector);
-        //printf("memcpy(0x%08lx, 0xF000, %u)\r\n", ptr, (remaining == SECTOR_SIZE ? SECTOR_SIZE : remaining));
-        memcpy(ptr, (const void *) 0xF000 + current_offset, byte_read_count);
-        remaining -= byte_read_count;
-        ptr+= byte_read_count;
+        memcpy(ptr, (const void *) 0xF000 + current_offset, bytes_available);
+        remaining -= bytes_available;
+        ptr+= bytes_available;
         current_offset = 0;
         current_sector++;
     }
-    //ptr_dump(buf);
-    //assert(NULL);
     return 0;
 }
 
@@ -473,6 +475,5 @@ int cat(char *s)
         perror("open");
         return 0;
         }
-    assert(NULL);
     return 0;
 }

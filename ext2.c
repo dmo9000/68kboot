@@ -1,3 +1,5 @@
+
+
 #include "string.h"
 #include "stdio.h"
 #include "stdbool.h"
@@ -7,6 +9,7 @@
 #include "ext2.h"
 #include "assert.h"
 #include "byteorder.h"
+#include "errno.h"
 
 /* https://stackoverflow.com/questions/12768371/why-is-root-directory-always-stored-in-inode-two */
 
@@ -189,6 +192,7 @@ found_rootfs:
 
 int ext2_list_directory(uint32_t directory_inode)
 {
+    char fnbuf[FILENAME_MAX];
     int i = 0;
     ext2_dir_entry current_entry;
     ext2_inode my_inode;
@@ -227,6 +231,12 @@ int ext2_list_directory(uint32_t directory_inode)
         assert(current_entry.file_type < 3);
         assert(ext2_inode_lookup(nm_uint32(current_entry.inode), &iter_inode, false));
 
+        /*
+            if (nm_uint16(current_entry.rec_len) == 0) {
+                return 1;
+            }
+        */
+
         memset(&perms, 0, 12);
         memset(&perms, '-', 10);
         perms[0] = dir_entry_type[current_entry.file_type];
@@ -242,18 +252,35 @@ int ext2_list_directory(uint32_t directory_inode)
         if (nm_uint16(iter_inode.i_mode) & S_IWOTH) perms[8] = 'w';
         if (nm_uint16(iter_inode.i_mode) & S_IXOTH) perms[9] = 'x';
 
+        memset(&fnbuf, 0, FILENAME_MAX);
+        assert(current_entry.name_len < FILENAME_MAX);
+        memcpy(&fnbuf, &current_entry.name, current_entry.name_len);
+
+        /*
+        printf("%010u:0x%08lx: %08u-> %8u %10ld %s %5u %5u %8lu %s%c\r\n",
+               inode_index, directory_address + directory_offset,
+               current_entry.name_len,
+               nm_uint16(current_entry.rec_len),
+               nm_uint32(current_entry.inode),
+               perms,
+               nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
+               nm_uint32(iter_inode.i_size),
+               fnbuf,
+               (perms[0] == 'd' ? '/' : '\0'));
+        */
+
         printf("%10ld %s %5u %5u %8lu %s%c\r\n",
                nm_uint32(current_entry.inode),
                perms,
                nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
                nm_uint32(iter_inode.i_size),
-               current_entry.name,
+               fnbuf,
                (perms[0] == 'd' ? '/' : '\0'));
+
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
             /* looks like we have reached the end of the directory */
             return 1;
-
         }
         inode_index ++;
         directory_offset += nm_uint16(current_entry.rec_len);
@@ -360,15 +387,22 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
         assert(current_entry.file_type < 3);
         assert(ext2_inode_lookup(nm_uint32(current_entry.inode), &iter_inode, false));
 
-        //      printf("%4d %s\r\n",
-        //            nm_uint32(current_entry.inode),
-        //           current_entry.name);
-        if (strlen(current_entry.name) == strlen(pathelement) &&
-                strncmp(current_entry.name, pathelement, strlen(pathelement)) == 0) {
+        if (nm_uint16(current_entry.rec_len) == 0) {
+            //          printf("--- end of directory --- \r\n");
+            /* end of directory */
+            return 0;
+        }
+
+
+        //      printf(" -> %4d %u/%u | %s\r\n", nm_uint32(current_entry.inode), current_entry.name_len, strlen(pathelement), current_entry.name);
+        if ((current_entry.name_len == strlen(pathelement)) &&
+                strncmp(current_entry.name, pathelement, current_entry.name_len) == 0) {
+//           printf("--> returning %lu\r\n", nm_uint32(current_entry.inode));
             return nm_uint32(current_entry.inode);
         }
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
+            //         printf("-- end of directory (2)? --\r\n");
             /* looks like we have reached the end of the directory */
             return 0;
         }
@@ -386,18 +420,21 @@ bool isdirectory(uint32_t inode)
 {
     ext2_inode target_inode;
     memset(&target_inode, 0, sizeof(ext2_inode));
+    if (!ext2_rootfs.active) {
+            return false;
+            }
     assert(ext2_inode_lookup(inode, &target_inode, false));
     //printf("isdirectory(%lu) == 0x%04x?\r\n", inode, (uint16_t) nm_uint16(target_inode.i_mode) & 0xE000);
     if ((nm_uint16(target_inode.i_mode) & 0xE000) == 0x4000) {
         return true;
-        } 
+    }
     switch (nm_uint16(target_inode.i_mode) & 0xE000) {
     case 0x4000:
-    //    printf("isdirectory(%lu) == true\r\n", inode);
+        //    printf("isdirectory(%lu) == true\r\n", inode);
         return true;
         break;
     case 0x8000:
-    //   printf("isdirectory(%lu) == false\r\n", inode);
+        //   printf("isdirectory(%lu) == false\r\n", inode);
         return false;
         break;
     default:
@@ -422,12 +459,23 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
-//    printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
+   // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
+   
+    if (!ext2_rootfs.active ) {
+        errno = EIO;
+        return 0;
+        }
+   
+   
     if (p[0] == '/') {
         /* if leading slash specified, path is absolute, so switch to EXT2_ROOT_INODE before descending */
-        printf("[root pivot]\r\n");
-        puts("\r\n");
+        //printf("[root pivot]\r\n");
+        //puts("\r\n");
         current_inode = EXT2_ROOT_INODE;
+        if (strlen(p) == 1) {
+            /* just looking for root inode thanks */
+            return current_inode;
+            }
         p++;
     }
     // printf("[");
@@ -442,17 +490,17 @@ uint32_t ext2_path_to_inode(char *path)
 //   puts("]\r\n");
 
     if (current_inode == 0) {
-            return 0;
-            }
+        return 0;
+    }
 
     assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
     switch ((nm_uint16(recurse_inode.i_mode) & 0xE000)) {
     case 0x4000:
         /* directory - open and search it for name */
-//        printf("inode %lu: it's a directory!\r\n", current_inode);
+        //      printf("inode %lu: it's a directory!\r\n", current_inode);
         lookup_inode = ext2_get_inode_from_dirent(current_inode, (char *) &path_element);
         if (!lookup_inode) {
-        //    printf("%s: not found\r\n", path_element);
+            //    printf("%s: not found\r\n", path_element);
             return 0;
         }
 //       printf("lookup_inode = %u\r\n", lookup_inode);
@@ -461,9 +509,9 @@ uint32_t ext2_path_to_inode(char *path)
 
         switch ((nm_uint16(target_inode.i_mode) & 0xE000)) {
         case 0x4000:
-//            printf("inode %lu: it's a directory!\r\n", lookup_inode);
+            //          printf("inode %lu: it's a directory!\r\n", lookup_inode);
             if (strlen(p)) {
-//                printf("we need to go deeper!\r\n");
+                //            printf("we need to go deeper!\r\n");
                 //assert(NULL);
                 p++;
                 ext2_rootfs.cwd_inode = lookup_inode;
@@ -473,7 +521,7 @@ uint32_t ext2_path_to_inode(char *path)
             return lookup_inode;
             break;
         case 0x8000:
-            //          printf("inode %lu: it's a file!\r\n", lookup_inode);
+            //                printf("inode %lu: it's a file!\r\n", lookup_inode);
             if (strlen(p)) {
                 /* wanted to go further, but we must terminate here */
                 return lookup_inode;
@@ -490,7 +538,7 @@ uint32_t ext2_path_to_inode(char *path)
         break;
     case 0x8000:
         /* it's a regular file */
-        printf("inode %lu: it's a regular file!\r\n", current_inode);
+//        printf("inode %lu: it's a regular file!\r\n", current_inode);
         assert(NULL);
         break;
     default:
