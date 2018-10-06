@@ -441,6 +441,10 @@ uint32_t ext2_path_to_inode(char *path)
     }
 //   puts("]\r\n");
 
+    if (current_inode == 0) {
+            return 0;
+            }
+
     assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
     switch ((nm_uint16(recurse_inode.i_mode) & 0xE000)) {
     case 0x4000:
@@ -448,7 +452,7 @@ uint32_t ext2_path_to_inode(char *path)
 //        printf("inode %lu: it's a directory!\r\n", current_inode);
         lookup_inode = ext2_get_inode_from_dirent(current_inode, (char *) &path_element);
         if (!lookup_inode) {
-            printf("%s: not found\r\n", path_element);
+        //    printf("%s: not found\r\n", path_element);
             return 0;
         }
 //       printf("lookup_inode = %u\r\n", lookup_inode);
@@ -482,7 +486,7 @@ uint32_t ext2_path_to_inode(char *path)
             assert(NULL);
             break;
         }
-        return (NULL);
+        return ((uint32_t) NULL);
         break;
     case 0x8000:
         /* it's a regular file */

@@ -1,4 +1,6 @@
 #include "types.h"
+#include "stdbool.h"
+#include "devices.h"
 
 #define EXT2_SUPER_MAGIC    	0xEF53
 #define EXT2_MIN_BLOCK_SIZE     1024

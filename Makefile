@@ -2,7 +2,7 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 OBJS=main.o printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o disk.o devices.o ext2.o \
-		modules.o
+		modules.o open.o strerror.o perror.o
 
 # LOL don't use -m68000 because gcc breaks, and so apparently does Mushashi
 #
@@ -12,8 +12,9 @@ all: main 8mb
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 main:	$(OBJS)
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 main.o printf.o memset.o itoa.o strtoul.o memcpy.o \
-		strncmp.o dump.o disk.o	devices.o ext2.o modules.o \
+#	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 main.o printf.o memset.o itoa.o strtoul.o memcpy.o \
+#		strncmp.o dump.o disk.o	devices.o ext2.o modules.o 
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 $(OBJS) 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main

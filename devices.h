@@ -1,3 +1,6 @@
+#ifndef __DEVICES_H__
+#define __DEVICES_H__
+
 #define MAX_DEVICES		64
 
 /* devices types */
@@ -36,3 +39,5 @@ int dev_register(char *name, int type, int maj, int min, unsigned long addr, uns
         int (*read)(struct _device *, unsigned char *, long unsigned int), 
         int (*write));
 
+
+#endif /* __DEVICES_H__ */

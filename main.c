@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+#include "fcntl.h"
 #include "modules.h"
 #include "dump.h"
 #include "devices.h"
@@ -21,6 +22,7 @@ int select_disk(char *s);
 int get_inode(char *s);
 int ls(char *s);
 int cd(char *s);
+int cat(char *s); 
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -30,6 +32,7 @@ const jmpTable jmptbl[] = {
     {get_inode, "inode"},
     {ls, "ls"},
     {cd, "cd"},
+    {cat, "cat"},
     {0x0, ""}
 };
 
@@ -457,5 +460,19 @@ int cd(char *s)
         break;
     }
 
+    return 0;
+}
+
+int cat(char *s)
+{
+
+    int cat_fd = 0;
+    cat_fd = open(s, O_RDONLY);
+
+    if (cat_fd == -1) {
+        perror("open");
+        return 0;
+        }
+    assert(NULL);
     return 0;
 }
