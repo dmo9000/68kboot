@@ -176,7 +176,7 @@ typedef struct ext2_fs {
 	  	uint16_t block_size;
 		struct ext2_super_block blck;
         ext2_group_desc group_descriptor;
-	   	_device *device; 
+	   	_device *device;
 		unsigned int blocks_per_group;
 		unsigned int blocks_count;
 		unsigned int block_groups;

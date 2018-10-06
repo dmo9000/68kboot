@@ -7,13 +7,13 @@ extern char DFS;
 int modules(char *payload)
 {
     int jumpIndex = 0;
-    jmpTable *cmdptr = NULL;    
+    jmpTable *cmdptr = NULL;
 
     printf("\r\n");
     cmdptr = (jmpTable*) &jmptbl[jumpIndex];
     while (cmdptr->cmdptr) {
         printf("%16s  %c  0x%04lx\r\n", cmdptr->command, DFS, (unsigned long) cmdptr->cmdptr);
-        jumpIndex++; 
+        jumpIndex++;
         cmdptr = (jmpTable *) &jmptbl[jumpIndex];
         }
     puts("\r\n");

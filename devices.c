@@ -36,10 +36,10 @@ int dev_list()
 	printf("id\tname\ttype\tmaj\tmin\tseek    \tread    \twrite    \toffset\r\n");
     puts("\r\n");
 
-	for (i = 0; i< device_free; i++) 
+	for (i = 0; i< device_free; i++)
 		{
 		printf("%02u\t%-4s\t%04u\t%03u\t%03u\t0x%08lx\t0x%08lx\t0x%08lx\t0x%08lx\r\n",
-				i, devices[i].name, devices[i].type, 
+				i, devices[i].name, devices[i].type,
 				devices[i].maj, devices[i].min, (uint32_t) devices[i].seek,
 				(uint32_t) devices[i].read, (uint32_t) devices[i].write, devices[i].offset);
         puts("\r\n");

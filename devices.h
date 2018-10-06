@@ -18,7 +18,7 @@
 /* this crappy interface needs a rewrite */
 
 typedef struct _device {
-						unsigned char name[16]; 
+						unsigned char name[16];
 						unsigned char type;
 						unsigned int maj;
 						unsigned int min;
@@ -35,8 +35,8 @@ typedef struct _device {
 
 int dev_list();
 int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
-        int (*seek)(struct _device *, uint32_t), 
-        int (*read)(struct _device *, unsigned char *, long unsigned int), 
+        int (*seek)(struct _device *, uint32_t),
+        int (*read)(struct _device *, unsigned char *, long unsigned int),
         int (*write));
 
 

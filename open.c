@@ -24,7 +24,7 @@ int open(const char *pathname, int flags)
             }
 
     if (isdirectory(file_inode)) {
-            errno = EISDIR; 
+            errno = EISDIR;
             return -1;
             }
 

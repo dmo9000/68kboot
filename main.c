@@ -21,7 +21,7 @@ int select_disk(char *s);
 int get_inode(char *s);
 int ls(char *s);
 int cd(char *s);
-int cat(char *s); 
+int cat(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -87,7 +87,7 @@ int main()
 
     while (1) {
         //printf("%s%u/boot> ", (is_big_endian() ? "be" : "le"), sizeof(unsigned int)*8);
-        printf("boot> "); 
+        printf("boot> ");
         memset(&command, 0, 2048);
         c = getchar();
         while (c != '\r') {

@@ -12,7 +12,7 @@ typedef struct _fd {
                     uint8_t state;
                     ext2_inode inode;
                     int flags;
-                   } _fd; 
+                   } _fd;
 
 int open(const char *pathname, int flags);
 

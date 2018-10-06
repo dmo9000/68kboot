@@ -460,13 +460,13 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode target_inode;
     char *p = path;
    // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
-   
+
     if (!ext2_rootfs.active ) {
         errno = EIO;
         return 0;
         }
-   
-   
+
+
     if (p[0] == '/') {
         /* if leading slash specified, path is absolute, so switch to EXT2_ROOT_INODE before descending */
         //printf("[root pivot]\r\n");
