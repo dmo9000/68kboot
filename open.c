@@ -31,14 +31,13 @@ int open(const char *pathname, int flags)
 
     new_fd= fcntl_open_inode(file_inode, flags);
     if (new_fd == -1) {
-            errno = ENFILE;
             return -1;
             }
     printf("fd = %d\r\n", new_fd); 
     
 
     errno = 0;
-    return -1;
+    return new_fd;
 
 }
 

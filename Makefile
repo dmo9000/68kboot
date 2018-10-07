@@ -2,10 +2,8 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 OBJS=main.o printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o disk.o devices.o ext2.o \
-		modules.o open.o strerror.o perror.o fcntl.o
+		modules.o open.o strerror.o perror.o fcntl.o close.o
 
-# LOL don't use -m68000 because gcc breaks, and so apparently does Mushashi
-#
 all: main 8mb
 
 %.o: %.c

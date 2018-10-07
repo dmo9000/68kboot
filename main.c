@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+#include "unistd.h"
 #include "fcntl.h"
 #include "modules.h"
 #include "dump.h"
@@ -475,5 +476,13 @@ int cat(char *s)
         perror("open");
         return 0;
         }
+    printf("closing %d\r\n", cat_fd);
+
+    if (close(cat_fd) == -1) {
+        perror("close");
+        return 0;
+        };
+
+
     return 0;
 }

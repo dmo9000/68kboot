@@ -18,6 +18,7 @@ typedef struct _fd {
                     uint32_t inode;
                     uint32_t offset; 
                     uint32_t limit; 
+                    ext2_inode fd_inode;
                    } _fd;
 
 int open(const char *pathname, int flags);
@@ -25,5 +26,6 @@ int open(const char *pathname, int flags);
 
 int fcntl_find_free_fd();
 int fcntl_open_inode(uint32_t inode, int flags);
+int fcntl_close(int fildes);
 
 #endif /* __FCNTL_H__ */

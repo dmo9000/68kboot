@@ -41,6 +41,9 @@ const char *strerror(int en)
     case EISDIR:
         return (const char *) "Is a directory";
         break;
+    case EFBIG:
+        return (const char *) "File too large";
+        break;
 
     }
 
