@@ -500,7 +500,9 @@ uint32_t ext2_path_to_inode(char *path)
         //      printf("inode %lu: it's a directory!\r\n", current_inode);
         lookup_inode = ext2_get_inode_from_dirent(current_inode, (char *) &path_element);
         if (!lookup_inode) {
+            errno = ENOENT;
             //    printf("%s: not found\r\n", path_element);
+            
             return 0;
         }
 //       printf("lookup_inode = %u\r\n", lookup_inode);

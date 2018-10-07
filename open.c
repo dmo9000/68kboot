@@ -8,6 +8,7 @@
 int open(const char *pathname, int flags)
 {
     uint32_t file_inode = 0;
+    int new_fd = 0;
     //printf("open(%s, %u)\r\n", pathname, flags);
     assert(flags == O_RDONLY);
 
@@ -27,6 +28,14 @@ int open(const char *pathname, int flags)
             errno = EISDIR;
             return -1;
             }
+
+    new_fd= fcntl_open_inode(file_inode, flags);
+    if (new_fd == -1) {
+            errno = ENFILE;
+            return -1;
+            }
+    printf("fd = %d\r\n", new_fd); 
+    
 
     errno = 0;
     return -1;
