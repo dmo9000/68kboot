@@ -173,7 +173,7 @@ typedef struct ext2_dir_entry
 } ext2_dir_entry;
 
 typedef struct ext2_fs {
-	  	uint16_t block_size;
+	  	uint32_t block_size;
 		struct ext2_super_block blck;
         ext2_group_desc group_descriptor;
 	   	_device *device;
@@ -188,8 +188,8 @@ typedef struct ext2_fs {
 		unsigned long inode_bitmap;
 		unsigned long inode_bitmap_s;
 		unsigned long inode_table;
-		unsigned char ibuffer[EXT2_IBUFFER_SIZE];
-		unsigned char dbuffer[EXT2_DBUFFER_SIZE];
+		//unsigned char ibuffer[EXT2_IBUFFER_SIZE];
+		//unsigned char dbuffer[EXT2_DBUFFER_SIZE];
 		unsigned long active;
         uint16_t device_number;
         uint32_t cwd_inode;

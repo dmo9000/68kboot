@@ -69,6 +69,7 @@ int fcntl_open_inode(uint32_t inode, int flags)
     file_descriptor[new_fd].flags = flags;
     /* position at start of file */
     file_descriptor[new_fd].offset = 0;
+    file_descriptor[new_fd].fs = &ext2_rootfs;
     return new_fd;
 }
 
@@ -94,4 +95,12 @@ int fcntl_close(int fildes)
     errno = 0;
     return 0;
 
+}
+
+_fd *fcntl_get_descriptor(int fd)
+{
+
+    printf("my->fd = %d\r\n", fd);
+    assert(!(fd < 0 || fd >= MAX_FDS));
+    return (_fd *) &file_descriptor[fd];
 }

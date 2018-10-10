@@ -469,6 +469,8 @@ int cd(char *s)
 int cat(char *s)
 {
 
+    char buffer[4096];
+    int rd = 0;
     int cat_fd = 0;
     cat_fd = open(s, O_RDONLY);
 
@@ -476,7 +478,15 @@ int cat(char *s)
         perror("open");
         return 0;
         }
-    printf("closing %d\r\n", cat_fd);
+
+    memset(&buffer, 0, 4096);
+    rd = read(cat_fd, &buffer, 4096);
+
+    if (rd == -1) {
+            perror("read");
+            } else {
+            printf("rd = %d\r\n", rd);
+            }
 
     if (close(cat_fd) == -1) {
         perror("close");
