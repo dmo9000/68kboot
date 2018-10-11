@@ -204,6 +204,8 @@ bool isdirectory(uint32_t inode);
 uint32_t ext2_path_to_inode(char *path);
 int ext2_list_directory(uint32_t directory_inode);
 int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug);
+uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id);
+uint32_t ext2_block_read(ext2_fs *fs, uint32_t dma_addr, uint32_t block_id);
 
 
 #endif /* __EXT2_H__ */

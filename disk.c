@@ -32,7 +32,7 @@ int disk_set_dma(uint32_t addr)
 
 int disk_read_sector(uint32_t sector)
 {
-  //  printf("disk_read_sector(0x%08x)\r\n", sector);
+    //  printf("disk_read_sector(0x%08x)\r\n", sector);
     uint32_t *p = (uint32_t *)((char *)DISK_READ);
     p[0] = sector;
     return 0;

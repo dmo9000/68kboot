@@ -34,8 +34,8 @@ install:
 	@mke2fs ./8mb.img
 	@sudo mount 8mb.img mnt
 	@sudo chown -R dan:dan mnt
-	@echo "Hello world 1" > mnt/hello1.txt 2>&1
-	@echo "Hello world 2" > mnt/hello2.txt 2>&1
+	@printf "Hello world 1\r\n" > mnt/hello1.txt 2>&1
+	@printf "Hello world 2\r\n" > mnt/hello2.txt 2>&1
 	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@mkdir -p mnt/foo/bar/baz

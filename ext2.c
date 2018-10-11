@@ -421,8 +421,8 @@ bool isdirectory(uint32_t inode)
     ext2_inode target_inode;
     memset(&target_inode, 0, sizeof(ext2_inode));
     if (!ext2_rootfs.active) {
-            return false;
-            }
+        return false;
+    }
     assert(ext2_inode_lookup(inode, &target_inode, false));
     //printf("isdirectory(%lu) == 0x%04x?\r\n", inode, (uint16_t) nm_uint16(target_inode.i_mode) & 0xE000);
     if ((nm_uint16(target_inode.i_mode) & 0xE000) == 0x4000) {
@@ -459,12 +459,12 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
-   // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
+    // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
 
     if (!ext2_rootfs.active ) {
         errno = EIO;
         return 0;
-        }
+    }
 
 
     if (p[0] == '/') {
@@ -475,7 +475,7 @@ uint32_t ext2_path_to_inode(char *path)
         if (strlen(p) == 1) {
             /* just looking for root inode thanks */
             return current_inode;
-            }
+        }
         p++;
     }
     // printf("[");
@@ -502,7 +502,7 @@ uint32_t ext2_path_to_inode(char *path)
         if (!lookup_inode) {
             errno = ENOENT;
             //    printf("%s: not found\r\n", path_element);
-            
+
             return 0;
         }
 //       printf("lookup_inode = %u\r\n", lookup_inode);
@@ -554,3 +554,30 @@ uint32_t ext2_path_to_inode(char *path)
 
 }
 
+
+uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
+{
+
+    assert(!(file_block_id < 0 || file_block_id >= EXT2_NDIR_BLOCKS));
+    if (file_block_id >=0 && file_block_id < EXT2_NDIR_BLOCKS) {
+        printf("inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
+        return nm_uint32(e2i->i_block[file_block_id]);
+    }
+
+    /* TODO: indirect blocks */
+    /* TODO: double indirect blocks */
+    /* TODO: triple indirect blocks */
+
+    assert(NULL);
+    return 0;
+}
+
+
+uint32_t ext2_block_read(ext2_fs *fs, uint32_t dma_addr, uint32_t block_id)
+{
+
+    printf("ext2_block_read([%u], 0x%08lx, 0x%08lx)\r\n", fs->device_number, dma_addr, block_id);
+    devices[fs->device_number].seek(&devices[fs->device_number], block_id * fs->block_size);
+    devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) dma_addr, fs->block_size);
+    return 1;
+}

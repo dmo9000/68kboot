@@ -87,14 +87,14 @@ extern bool continue_or_exit ()
     while (1) {
         c = getchar();
         switch(c) {
-            case 'Y':
-            case 'y':
-                return true;
-            case 'N':
-            case 'n':
-                return false;
-            default:
-                break;
-            }
+        case 'Y':
+        case 'y':
+            return true;
+        case 'N':
+        case 'n':
+            return false;
+        default:
+            break;
+        }
     }
 }

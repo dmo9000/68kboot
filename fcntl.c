@@ -16,8 +16,8 @@ void initialize_file_table()
     int i = 0;
 
     for (i = 0; i < MAX_FDS; i++) {
-        file_descriptor[i].state = FD_STATE_UNUSED; 
-        }
+        file_descriptor[i].state = FD_STATE_UNUSED;
+    }
 
     file_descriptor[0].state = FD_STATE_STDIN;
     file_descriptor[1].state = FD_STATE_STDOUT;
@@ -33,35 +33,35 @@ int fcntl_find_free_fd()
     int i = 0;
 
     if (!file_table_initialized) {
-            initialize_file_table();
-            }
+        initialize_file_table();
+    }
 
     for (i = 0; i < MAX_FDS; i++) {
         if (file_descriptor[i].state  == FD_STATE_UNUSED) {
             return i;
-            }
         }
+    }
     return -1;
 
 }
 
-int fcntl_open_inode(uint32_t inode, int flags) 
+int fcntl_open_inode(uint32_t inode, int flags)
 {
     int new_fd = -1;
 
     new_fd = fcntl_find_free_fd();
 
     if (new_fd == -1) {
-                errno = EMFILE;
-                return -1; 
-            }
+        errno = EMFILE;
+        return -1;
+    }
 
     assert(ext2_inode_lookup(inode, &file_descriptor[new_fd].fd_inode, false));
     if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= (EXT2_NDIR_BLOCKS * ext2_rootfs.block_size))) {
-            /* quick check for now - we can only handle files with direct blocks, anything else is too large */
-                errno = EFBIG;
-                return -1;
-            } 
+        /* quick check for now - we can only handle files with direct blocks, anything else is too large */
+        errno = EFBIG;
+        return -1;
+    }
 
     file_descriptor[new_fd].state = FD_STATE_OPEN;
     file_descriptor[new_fd].inode = inode;
@@ -81,12 +81,12 @@ int fcntl_close(int fildes)
     if (fildes < 0 || fildes >= MAX_FDS) {
         errno = EBADF;
         return -1;
-        }
+    }
 
     if (file_descriptor[fildes].state != FD_STATE_OPEN) {
         errno = EBADF;
         return -1;
-        }
+    }
 
     file_descriptor[fildes].state = FD_STATE_UNUSED;
     file_descriptor[fildes].inode = 0;

@@ -16,25 +16,25 @@ int open(const char *pathname, int flags)
     //printf("file_inode = %lu\r\n", file_inode);
 
     if (file_inode == 0) {
-            /* file not found */
-            if (!errno) {
-                /* catch all, if errno not already set */
-                errno = ENOENT;
-                }
-            return -1;
-            }
+        /* file not found */
+        if (!errno) {
+            /* catch all, if errno not already set */
+            errno = ENOENT;
+        }
+        return -1;
+    }
 
     if (isdirectory(file_inode)) {
-            errno = EISDIR;
-            return -1;
-            }
+        errno = EISDIR;
+        return -1;
+    }
 
     new_fd= fcntl_open_inode(file_inode, flags);
     if (new_fd == -1) {
-            return -1;
-            }
-    printf("fd = %d\r\n", new_fd); 
-    
+        return -1;
+    }
+    printf("fd = %d\r\n", new_fd);
+
 
     errno = 0;
     return new_fd;

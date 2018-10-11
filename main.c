@@ -327,7 +327,7 @@ isWhitespace (char c)
 
 int cpmsim_seek(struct _device *d, uint32_t address)
 {
-    //printf("cpm_seek(d->%s, %lu)\r\n", d->name, address);
+    //printf("cpm_seek(d->%s, 0x%08lx)\r\n", d->name, address);
     /* not aligned to sector boundary */
     //assert(!(address % SECTOR_SIZE));
     d->offset = address;
@@ -348,7 +348,7 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
     uint32_t current_offset = 0;
     uint32_t bytes_available = 0;
     unsigned char *ptr = buf;
-    //printf("cpm_read(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, buf, size);
+    //printf("cpm_read(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
 
     start_sector = d->offset / SECTOR_SIZE;
     sector_offset = d->offset % SECTOR_SIZE;
@@ -371,7 +371,7 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
         bytes_available = SECTOR_SIZE - current_offset;
         if (bytes_available > remaining) {
             bytes_available = remaining;
-            }
+        }
         disk_read_sector(current_sector);
         memcpy(ptr, (const void *) 0xF000 + current_offset, bytes_available);
         remaining -= bytes_available;
@@ -447,7 +447,7 @@ int cd(char *s)
     if (!target_inode) {
         printf("%s: directory does not exist\r\n", s);
         return 0;
-        }
+    }
 
     switch(isdirectory(target_inode)) {
     case true:
@@ -471,27 +471,31 @@ int cat(char *s)
 
     char buffer[4096];
     int rd = 0;
+    int i = 0;
     int cat_fd = 0;
     cat_fd = open(s, O_RDONLY);
 
     if (cat_fd == -1) {
         perror("open");
         return 0;
-        }
+    }
 
     memset(&buffer, 0, 4096);
     rd = read(cat_fd, &buffer, 4096);
 
     if (rd == -1) {
-            perror("read");
-            } else {
-            printf("rd = %d\r\n", rd);
-            }
+        perror("read");
+    } else {
+        //printf("rd = %d\r\n", rd);
+        for (i = 0; i < rd; i++) {
+            putchar(buffer[i]);
+        }
+    }
 
     if (close(cat_fd) == -1) {
         perror("close");
         return 0;
-        };
+    };
 
 
     return 0;

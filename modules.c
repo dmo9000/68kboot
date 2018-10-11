@@ -15,7 +15,7 @@ int modules(char *payload)
         printf("%16s  %c  0x%04lx\r\n", cmdptr->command, DFS, (unsigned long) cmdptr->cmdptr);
         jumpIndex++;
         cmdptr = (jmpTable *) &jmptbl[jumpIndex];
-        }
+    }
     puts("\r\n");
 
     payload = NULL;
