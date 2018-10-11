@@ -497,6 +497,7 @@ int cat(char *s)
         return 0;
     };
 
+    puts("\r\n");
 
     return 0;
 }

@@ -33,7 +33,7 @@ int open(const char *pathname, int flags)
     if (new_fd == -1) {
         return -1;
     }
-    printf("fd = %d\r\n", new_fd);
+    //printf("fd = %d\r\n", new_fd);
 
 
     errno = 0;

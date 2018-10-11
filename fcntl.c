@@ -77,7 +77,7 @@ int fcntl_close(int fildes)
 {
 
 
-    printf("fcntl_close(%d)\r\n", fildes);
+    //printf("fcntl_close(%d)\r\n", fildes);
     if (fildes < 0 || fildes >= MAX_FDS) {
         errno = EBADF;
         return -1;
@@ -100,7 +100,7 @@ int fcntl_close(int fildes)
 _fd *fcntl_get_descriptor(int fd)
 {
 
-    printf("my->fd = %d\r\n", fd);
+//    printf("my->fd = %d\r\n", fd);
     assert(!(fd < 0 || fd >= MAX_FDS));
     return (_fd *) &file_descriptor[fd];
 }

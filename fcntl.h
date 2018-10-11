@@ -6,21 +6,21 @@
 
 #define MAX_FDS     16
 #define FD_STATE_UNUSED    -1
-#define FD_STATE_STDIN      0 
-#define FD_STATE_STDOUT     1 
+#define FD_STATE_STDIN      0
+#define FD_STATE_STDOUT     1
 #define FD_STATE_STDERR     2
 #define FD_STATE_OPEN       10
 
 
 typedef struct _fd {
-                    char state;
-                    int flags;
-                    uint32_t inode;
-                    uint32_t offset; 
-                    uint32_t limit; 
-                    ext2_inode fd_inode;
-                    ext2_fs *fs;
-                   } _fd;
+    char state;
+    int flags;
+    uint32_t inode;
+    uint32_t offset;
+    uint32_t limit;
+    ext2_inode fd_inode;
+    ext2_fs *fs;
+} _fd;
 
 int open(const char *pathname, int flags);
 

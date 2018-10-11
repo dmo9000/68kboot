@@ -560,7 +560,7 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
 
     assert(!(file_block_id < 0 || file_block_id >= EXT2_NDIR_BLOCKS));
     if (file_block_id >=0 && file_block_id < EXT2_NDIR_BLOCKS) {
-        printf("inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
+        //printf("-- inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
         return nm_uint32(e2i->i_block[file_block_id]);
     }
 

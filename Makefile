@@ -22,7 +22,7 @@ main:	$(OBJS)
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
 clean:
-	rm -f main main.out main.srec *.o 
+	rm -f main main.out main.srec *.o 8mb.img 
 
 install:
 	cp main.out ~/git-local/68kp/Musashi/diskc.cpm.fs
@@ -41,9 +41,25 @@ install:
 	@mkdir -p mnt/foo/bar/baz
 	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	@for FN in `seq 1 5`; do 	\
-		dd if=/dev/urandom of=mnt/test-$${FN}.bin bs=1024 count=$${FN} 1>/dev/null 2>&1 ; \
+	#@for FN in `seq 1 5`; do 	\
+#		dd if=/dev/urandom of=mnt/test-$${FN}.bin bs=1024 count=$${FN} 1>/dev/null 2>&1 ; \
+#		done
+	@for FN in `seq 1 16`; do	\
+		printf "This file is hopefully probably exactly 1,024 bytes long .....\r\n" >> mnt/1k-file.txt ; \
 		done
+	@for FN in `seq 1 32`; do	\
+		printf "This file is hopefully probably exactly 2,048 bytes long .....\r\n" >> mnt/2k-file.txt ; \
+		done
+	@for FN in `seq 1 1024`; do	\
+		printf "1" >> mnt/3k-file.txt ; \
+		done
+	@for FN in `seq 1 1024`; do	\
+		printf "2" >> mnt/3k-file.txt ; \
+		done
+	@for FN in `seq 1 1024`; do	\
+		printf "3" >> mnt/3k-file.txt ; \
+		done
+
 	@ls --inode -ln mnt
 	@sync
 	@sudo umount mnt

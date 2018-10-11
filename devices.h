@@ -18,26 +18,26 @@
 /* this crappy interface needs a rewrite */
 
 typedef struct _device {
-						unsigned char name[16];
-						unsigned char type;
-						unsigned int maj;
-						unsigned int min;
-						unsigned long offset;
-						unsigned long addr;
-						unsigned long size;
+    unsigned char name[16];
+    unsigned char type;
+    unsigned int maj;
+    unsigned int min;
+    unsigned long offset;
+    unsigned long addr;
+    unsigned long size;
 //						int (*seek)();
-                        int (*seek)(struct _device *, uint32_t);
+    int (*seek)(struct _device *, uint32_t);
 //						int (*read)();
-                        int (*read)(struct _device *, unsigned char *, long unsigned int);
-						int (*write)();
+    int (*read)(struct _device *, unsigned char *, long unsigned int);
+    int (*write)();
 
-					   } _device;
+} _device;
 
 int dev_list();
 int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
-        int (*seek)(struct _device *, uint32_t),
-        int (*read)(struct _device *, unsigned char *, long unsigned int),
-        int (*write));
+                 int (*seek)(struct _device *, uint32_t),
+                 int (*read)(struct _device *, unsigned char *, long unsigned int),
+                 int (*write));
 
 
 #endif /* __DEVICES_H__ */
