@@ -18,11 +18,11 @@ ssize_t read(int fd, void *buf, size_t count)
     uint32_t fs_block_id = 0;
 
     uint32_t remaining = count;
-    uint32_t bytes_to_read = 0;
+    //uint32_t bytes_to_read = 0;
 
     uint32_t total_available = 0;
     uint32_t bytes_available_in_this_block = 0;
-    uint32_t total_size = 0;
+    //uint32_t total_size = 0;
     uint32_t still_available = 0;
     uint32_t total_bytes_read = 0;
     void *ptr = NULL;
