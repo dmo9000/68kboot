@@ -50,7 +50,7 @@ ssize_t read(int fd, void *buf, size_t count)
 
         fs_block_id = ext2_get_inode_block(&descriptor->fd_inode, file_block_id);
         //printf("++ target offset = (0x%08lx+0x%08lx:0x%08lx+0x%08lx)\r\n", fs_block_id, file_block_offset, (
-        //           fs_block_id * descriptor->fs->block_size), file_block_offset);
+         //          fs_block_id * descriptor->fs->block_size), file_block_offset);
 
         //assert(ext2_block_read(descriptor->fs, 0xE000, fs_block_id));
 
@@ -68,7 +68,6 @@ ssize_t read(int fd, void *buf, size_t count)
         remaining -= bytes_available_in_this_block;
         ptr += bytes_available_in_this_block;
         total_bytes_read += bytes_available_in_this_block;
-        ///printf("read %lu bytes, total_available=%lu, discard=%lu\r\n", bytes_available_in_this_block, total_available, remaining-total_available);
         still_available = ( remaining < total_available ? remaining : total_available );
         //printf("++ read %lu bytes, total_available=%lu, read_remaining=%lu, still_available=%lu\r\n", bytes_available_in_this_block, total_available, remaining, still_available);
     }

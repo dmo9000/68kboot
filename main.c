@@ -483,13 +483,19 @@ int cat(char *s)
     memset(&buffer, 0, 4096);
     rd = read(cat_fd, &buffer, 4096);
 
-    if (rd == -1) {
-        perror("read");
-    } else {
-        //printf("rd = %d\r\n", rd);
-        for (i = 0; i < rd; i++) {
-            putchar(buffer[i]);
+    while (rd != 0) {
+        if (rd == -1) {
+            perror("read");
+            puts("\r\n");
+            return 0;
+        } else {
+            //printf("rd = %d\r\n", rd);
+            for (i = 0; i < rd; i++) {
+                putchar(buffer[i]);
+            }
         }
+        memset(&buffer, 0, 4096);
+        rd = read(cat_fd, &buffer, 4096);
     }
 
     if (close(cat_fd) == -1) {
@@ -498,6 +504,5 @@ int cat(char *s)
     };
 
     puts("\r\n");
-
     return 0;
 }

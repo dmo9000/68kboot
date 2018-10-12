@@ -41,25 +41,12 @@ install:
 	@mkdir -p mnt/foo/bar/baz
 	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	#@for FN in `seq 1 5`; do 	\
-#		dd if=/dev/urandom of=mnt/test-$${FN}.bin bs=1024 count=$${FN} 1>/dev/null 2>&1 ; \
-#		done
-	@for FN in `seq 1 16`; do	\
-		printf "This file is hopefully probably exactly 1,024 bytes long .....\r\n" >> mnt/1k-file.txt ; \
+	@for FN1 in `seq 0 11` ; do \
+		for FN2 in `seq 1 1024`; do	\
+			printf "%x" $${FN1} >> mnt/testfile.txt ; \
+			done	\
 		done
-	@for FN in `seq 1 32`; do	\
-		printf "This file is hopefully probably exactly 2,048 bytes long .....\r\n" >> mnt/2k-file.txt ; \
-		done
-	@for FN in `seq 1 1024`; do	\
-		printf "1" >> mnt/3k-file.txt ; \
-		done
-	@for FN in `seq 1 1024`; do	\
-		printf "2" >> mnt/3k-file.txt ; \
-		done
-	@for FN in `seq 1 1024`; do	\
-		printf "3" >> mnt/3k-file.txt ; \
-		done
-
+	
 	@ls --inode -ln mnt
 	@sync
 	@sudo umount mnt
