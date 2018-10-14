@@ -17,6 +17,8 @@
 
 /* this crappy interface needs a rewrite */
 
+#define MAX_CACHE_BLOCKS    10
+
 typedef struct _device {
     unsigned char name[16];
     unsigned char type;
@@ -30,7 +32,9 @@ typedef struct _device {
 //						int (*read)();
     int (*read)(struct _device *, unsigned char *, long unsigned int);
     int (*write)();
-
+    /* super stupid block cache */
+    uint32_t cache_index[MAX_CACHE_BLOCKS];
+    unsigned char cache_blocks[MAX_CACHE_BLOCKS][128];    
 } _device;
 
 int dev_list();
