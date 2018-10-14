@@ -519,7 +519,7 @@ int load(char *s)
             puts("\r\n");
             return 0;
         } else {
-            printf("rd = %d\r\n", rd);
+            //printf("rd = %d\r\n", rd);
             memptr +=rd;
         }
         rd = read(load_fd, memptr, 4096);
@@ -530,7 +530,6 @@ int load(char *s)
         return 0;
     };
 
-    puts("\r\n");
     return 0;
 }
 
