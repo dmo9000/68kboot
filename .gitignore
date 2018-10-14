@@ -3,4 +3,6 @@
 main
 main.out
 main.srec
-
+newmain
+newmain.out
+newmain.srec

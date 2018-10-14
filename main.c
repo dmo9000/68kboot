@@ -14,7 +14,7 @@ void do_exit(int d);
 
 extern ext2_fs ext2_rootfs;
 
-#define CPM_EXIT        (0xff7ffc)
+//#define CPM_EXIT        (0xff7ffc)
 #define SECTOR_SIZE    128
 #define exit(expr)  do_exit(expr)
 
@@ -23,6 +23,7 @@ int get_inode(char *s);
 int ls(char *s);
 int cd(char *s);
 int cat(char *s);
+int load(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -33,6 +34,7 @@ const jmpTable jmptbl[] = {
     {ls, "ls"},
     {cd, "cd"},
     {cat, "cat"},
+    {load, "load"},
     {0x0, ""}
 };
 
@@ -70,12 +72,14 @@ void _ASSERT(char *error, char *file, int line)
     exit(1);
 }
 
+/*
 void do_exit(int d)
 {
     unsigned int * p = (unsigned int *)((char *)CPM_EXIT);
     p[0] = d;
     while (1) { }
 }
+*/
 
 int main()
 {
@@ -120,22 +124,6 @@ int getchar()
 {
     char *  p = (char *) 0xff1002;
     return p[0];
-}
-
-int putchar(int c)
-{
-    char * p = (char *)0xff1002;
-    p[0] = c;
-    return 0;
-}
-
-int puts(const char *s)
-{
-    while (s[0] != '\0') {
-        putchar(s[0]);
-        s++;
-    }
-    return 0;
 }
 
 size_t strlen(const char *t)
@@ -506,3 +494,41 @@ int cat(char *s)
     puts("\r\n");
     return 0;
 }
+
+int load(char *s)
+{
+
+    int rd = 0;
+    int load_fd = 0;
+    void *memptr = (void *) 0x100000;
+
+    load_fd = open(s, O_RDONLY);
+
+    if (load_fd == -1) {
+        perror("open");
+        return 0;
+    }
+
+    rd = read(load_fd, memptr, 4096);
+
+    while (rd != 0) {
+        if (rd == -1) {
+            perror("read");
+            puts("\r\n");
+            return 0;
+        } else {
+            printf("rd = %d\r\n", rd);
+            memptr +=rd;
+        }
+        rd = read(load_fd, memptr, 4096);
+    }
+
+    if (close(load_fd) == -1) {
+        perror("close");
+        return 0;
+    };
+
+    puts("\r\n");
+    return 0;
+}
+
