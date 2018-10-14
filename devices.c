@@ -6,8 +6,6 @@
 _device devices[MAX_DEVICES];
 int device_free = 0;
 
-//int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size, int (*seek), int (*read), int (*write))
-//int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size, int (*seek)(struct _device *, uint32_t), int (*read), int (*write))
 int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
                  int (*seek)(struct _device *, uint32_t),
                  int (*read)(struct _device *, unsigned char *, long unsigned int),

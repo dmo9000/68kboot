@@ -24,6 +24,7 @@ int ls(char *s);
 int cd(char *s);
 int cat(char *s);
 int load(char *s);
+int run(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -35,6 +36,7 @@ const jmpTable jmptbl[] = {
     {cd, "cd"},
     {cat, "cat"},
     {load, "load"},
+    {run, "run"},
     {0x0, ""}
 };
 
@@ -532,3 +534,14 @@ int load(char *s)
     return 0;
 }
 
+int run(char *s) 
+{
+    
+    int c = 0;
+    int (*newmain)(int argc, char *argv[]);
+    newmain = (void *) 0x100000;
+    c = newmain(0, NULL);
+    //printf("[program returned %d]\r\n", c);
+    return 0;
+
+}
