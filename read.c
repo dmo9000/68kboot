@@ -32,9 +32,9 @@ ssize_t read(int fd, void *buf, size_t count)
     assert(descriptor);
 
     if (descriptor->offset >= (EXT2_NDIR_BLOCKS * descriptor->fs->block_size)) {
-        printf("read() - offset %lu is out of range\r\n", descriptor->offset);
-        errno = EIO;
-        return -1;
+        //printf("read() - offset %lu is out of range\r\n", descriptor->offset);
+        /* EOF - return 0 */
+        return 0;
     }
 
     total_available = nm_uint32(descriptor->fd_inode.i_size) - descriptor->offset;

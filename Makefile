@@ -2,7 +2,7 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 OBJS=main.o printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o disk.o devices.o ext2.o \
-		modules.o open.o strerror.o perror.o fcntl.o close.o read.o
+		modules.o open.o strerror.o perror.o fcntl.o close.o read.o 
 
 all: main 8mb
 
@@ -41,6 +41,7 @@ install:
 	@mkdir -p mnt/foo/bar/baz
 	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@cp texttest.txt mnt/
 	@for FN1 in `seq 0 11` ; do \
 		for FN2 in `seq 1 1024`; do	\
 			printf "%x" $${FN1} >> mnt/testfile.txt ; \
