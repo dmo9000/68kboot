@@ -555,7 +555,7 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
     assert(!(file_block_id < 0 || file_block_id >= (EXT2_NDIR_BLOCKS + ext2_rootfs.block_size / sizeof(uint32_t))));
 
     /*
-    printf("/ INDIRECT BLOCK id=%lu (%lu) indirect_block_index = 0x%lx, address = 0x%08lx \r\n", 
+    printf("/ INDIRECT BLOCK id=%lu (%lu) indirect_block_index = 0x%lx, address = 0x%08lx \r\n",
                     file_block_id, file_block_id - EXT2_NDIR_BLOCKS,
                     nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]),
                     nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]) * ext2_rootfs.block_size);
@@ -567,9 +567,9 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
     //printf("icp[1] = 0x%08lx\r\n", icp);
     icp+= file_block_id - EXT2_NDIR_BLOCKS;
     //printf("icp[2] = 0x%08lx\r\n", icp);
-    //printf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp)); 
+    //printf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp));
     //ptr_dump(&indirect_cache);
-    return nm_uint32(*icp); 
+    return nm_uint32(*icp);
 
 
     /* TODO: double indirect blocks */

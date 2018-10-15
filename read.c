@@ -31,18 +31,20 @@ ssize_t read(int fd, void *buf, size_t count)
 
     assert(descriptor);
 
+//    printf("read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
+
     if (descriptor->offset >= (EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size)) {
-        //printf("read() - offset %lu is out of range\r\n", descriptor->offset);
+        printf("read() - offset %lu is out of range\r\n", descriptor->offset);
         // EOF - return 0 */
         //return 0;
-       errno = EIO;
-        return -1; 
+        errno = EIO;
+        return -1;
     }
 
-    if (descriptor >= descriptor->fd_inode.i_size) {
-            // EOF
-            return 0;
-            }
+    if (descriptor->offset >= nm_uint32(descriptor->fd_inode.i_size)) {
+        // EOF
+        return 0;
+    }
 
     total_available = nm_uint32(descriptor->fd_inode.i_size) - descriptor->offset;
     still_available = ( remaining < total_available ? remaining : total_available );
@@ -57,13 +59,18 @@ ssize_t read(int fd, void *buf, size_t count)
 
         fs_block_id = ext2_get_inode_block(&descriptor->fd_inode, file_block_id);
         //printf("++ target offset = (0x%08lx+0x%08lx:0x%08lx+0x%08lx)\r\n", fs_block_id, file_block_offset, (
-         //          fs_block_id * descriptor->fs->block_size), file_block_offset);
+        //          fs_block_id * descriptor->fs->block_size), file_block_offset);
 
         //assert(ext2_block_read(descriptor->fs, 0xE000, fs_block_id));
 
         bytes_available_in_this_block = descriptor->fs->block_size - file_block_offset;
+        /*
         if (bytes_available_in_this_block > nm_uint32(descriptor->fd_inode.i_size)) {
             bytes_available_in_this_block = nm_uint32(descriptor->fd_inode.i_size);
+        }
+        */
+        if (bytes_available_in_this_block > still_available) {
+            bytes_available_in_this_block = still_available;
         }
 
         //printf("++ total available=%lu, bytes available in this block=%lu, read_remaining=%lu\r\n", total_available, bytes_available_in_this_block, remaining);

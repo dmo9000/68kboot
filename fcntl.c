@@ -59,7 +59,7 @@ int fcntl_open_inode(uint32_t inode, int flags)
     assert(ext2_inode_lookup(inode, &file_descriptor[new_fd].fd_inode, false));
     /*
     if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= (EXT2_NDIR_BLOCKS * ext2_rootfs.block_size))) {
-        // quick check for now - we can only handle files with direct blocks, anything else is too large 
+        // quick check for now - we can only handle files with direct blocks, anything else is too large
         errno = EFBIG;
         return -1;
     }

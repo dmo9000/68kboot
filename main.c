@@ -488,6 +488,7 @@ int cat(char *s)
         memset(&buffer, 0, 4096);
         rd = read(cat_fd, &buffer, 4096);
     }
+    //printf("*rd = %d\r\n", rd);
 
     if (close(cat_fd) == -1) {
         perror("close");
@@ -520,7 +521,8 @@ int load(char *s)
             puts("\r\n");
             return 0;
         } else {
-            //printf("rd = %d\r\n", rd);
+            //       printf("rd = %d\r\n", rd);
+            //       puts("\r\n");
             memptr +=rd;
         }
         rd = read(load_fd, memptr, 4096);
@@ -534,9 +536,9 @@ int load(char *s)
     return 0;
 }
 
-int run(char *s) 
+int run(char *s)
 {
-    
+
     int c = 0;
     int (*newmain)(int argc, char *argv[]);
     newmain = (void *) 0x100000;

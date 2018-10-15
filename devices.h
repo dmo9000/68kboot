@@ -34,7 +34,7 @@ typedef struct _device {
     int (*write)();
     /* super stupid block cache */
     uint32_t cache_index[MAX_CACHE_BLOCKS];
-    unsigned char cache_blocks[MAX_CACHE_BLOCKS][128];    
+    unsigned char cache_blocks[MAX_CACHE_BLOCKS][128];
 } _device;
 
 int dev_list();
