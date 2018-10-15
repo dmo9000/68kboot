@@ -540,9 +540,10 @@ int run(char *s)
 {
 
     int c = 0;
+    char *args[4] = { "foo", "bar", "baz", NULL };
     int (*newmain)(int argc, char *argv[]);
     newmain = (void *) 0x100000;
-    c = newmain(0, NULL);
+    c = newmain(3, args);
     //printf("[program returned %d]\r\n", c);
     return 0;
 

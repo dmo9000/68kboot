@@ -35,7 +35,7 @@ newmain:	$(LIB_OBJS)
 
 
 clean:
-	rm -f main main.out main.srec *.o 8mb.img 
+	rm -f main main.out main.srec newmain newmain.out newmain.srec *.o 8mb.img 
 
 install:
 	cp main.out ~/git-local/68kp/Musashi/diskc.cpm.fs
