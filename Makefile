@@ -56,7 +56,7 @@ install:
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@cp texttest.txt mnt/
 	@cp newmain.out mnt/newmain.out
-	@for FN1 in `seq 0 11` ; do \
+	@for FN1 in `seq 0 12` ; do \
 		for FN2 in `seq 1 1024`; do	\
 			printf "%x" $${FN1} >> mnt/testfile.txt ; \
 			done	\

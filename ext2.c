@@ -10,6 +10,7 @@
 #include "assert.h"
 #include "byteorder.h"
 #include "errno.h"
+#include "dump.h"
 
 /* https://stackoverflow.com/questions/12768371/why-is-root-directory-always-stored-in-inode-two */
 
@@ -50,22 +51,8 @@ int ext2_probe()
     unsigned char buffer[4096];
     unsigned int i = 0, j = 0;
     ext2_super_block *blck = NULL;
-    //ext2_group_desc  *gr_desc = NULL;
     unsigned long offset = 0;
     void *p = &buffer;
-    //void *b = &buffer;
-    //unsigned char *z = NULL;
-    //unsigned long block_offset = 0;
-    /* lookup variables ; move these later on */
-    /*
-    uint32_t inode_block_group = 0;
-    uint32_t inode_index = 0;
-    uint32_t containing_block = 0;
-    uint32_t inode_offset = 0;
-    */
-
-    //ext2_inode my_inode;
-
 
     for (i = 0; i <= device_free ; i++) {
         if (devices[i].type == DEVTYPE_BLOCK) {
@@ -346,7 +333,7 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
         printf("i_block pointers:\r\n  ");
         for (i = 0; i < EXT2_N_BLOCKS ; i++) {
             if (nm_uint32(my_inode->i_block[i])) {
-                printf("[%08lx:%08lx] ", nm_uint32(my_inode->i_block[i]), nm_uint32(my_inode->i_block[i]) * ext2_rootfs.block_size);
+                printf("[%u: %08lx:%08lx] ", i, nm_uint32(my_inode->i_block[i]), nm_uint32(my_inode->i_block[i]) * ext2_rootfs.block_size);
             }
         }
         printf("\r\n");
@@ -558,17 +545,24 @@ uint32_t ext2_path_to_inode(char *path)
 uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
 {
 
-    assert(!(file_block_id < 0 || file_block_id >= EXT2_NDIR_BLOCKS));
     if (file_block_id >=0 && file_block_id < EXT2_NDIR_BLOCKS) {
         //printf("-- inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
         return nm_uint32(e2i->i_block[file_block_id]);
     }
 
-    /* TODO: indirect blocks */
+    assert(!(file_block_id < 0 || file_block_id >= (EXT2_NDIR_BLOCKS + ext2_rootfs.block_size / sizeof(uint32_t))));
+
+    printf("/* INDIRECT BLOCK id=%lu (%lu) indirect_block_index = 0x%lx */\r\n", 
+                    file_block_id, file_block_id - EXT2_NDIR_BLOCKS,
+                    nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]));
+
+    ext2_block_read(&ext2_rootfs, 0xF000, nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]));
+    ptr_dump(0xF000);
+
     /* TODO: double indirect blocks */
     /* TODO: triple indirect blocks */
 
-    assert(NULL);
+    assert((file_block_id < (EXT2_NDIR_BLOCKS)));
     return 0;
 }
 

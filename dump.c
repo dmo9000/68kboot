@@ -35,7 +35,7 @@ int dump(char *payload)
         return -1;
     }
 
-    while (lines < 23 && addr <= 0xffffffff) {
+    while (lines < 16 && addr <= 0xffffffff) {
         printf("0x%08lx %c ", addr, DFS);
         for (i = 0 ; i < 16; i++) {
             ptr = (unsigned char *) addr + i;
@@ -62,7 +62,7 @@ int dump(char *payload)
         addr += 16;
         lines++;
 
-        if (lines >= 23) {
+        if (lines >= 16) {
             if (continue_or_exit()) {
                 lines = 0;
                 printf("\r\n");

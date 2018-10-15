@@ -70,6 +70,7 @@ int cpmsim_read(struct _device *d, unsigned char *buf, unsigned long size);
 
 void _ASSERT(char *error, char *file, int line)
 {
+    puts("\r\n");
     printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
     exit(1);
 }

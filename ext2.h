@@ -16,6 +16,7 @@
 
 #define EXT2_NDIR_BLOCKS        12
 #define EXT2_IND_BLOCK          EXT2_NDIR_BLOCKS
+#define EXT2_IND_BLOCKS         256
 #define EXT2_DIND_BLOCK         (EXT2_IND_BLOCK + 1)
 #define EXT2_TIND_BLOCK         (EXT2_DIND_BLOCK + 1)
 #define EXT2_N_BLOCKS           (EXT2_TIND_BLOCK + 1)
