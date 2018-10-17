@@ -4,7 +4,7 @@ CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 			modules.o strerror.o perror.o puts.o putchar.o 
 
-BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o 
+BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
  
 
 all: $(MADLIBC_OBJS) $(BDOS_OBJS) main.o newmain.o main newmain 8mb

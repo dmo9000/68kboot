@@ -8,6 +8,7 @@
 #include "devices.h"
 #include "assert.h"
 #include "byteorder.h"
+#include "bdos.h"
 #include "disk.h"
 
 void do_exit(int d);
@@ -91,6 +92,7 @@ int main()
     unsigned char c = 0;
     static char command[2048];
 
+    bdos_init();
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
 
     while (1) {
