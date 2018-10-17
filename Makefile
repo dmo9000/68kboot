@@ -2,7 +2,7 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 LIB_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o disk.o devices.o ext2.o \
-		modules.o open.o strerror.o perror.o fcntl.o close.o read.o puts.o putchar.o exit.o 
+		modules.o open.o strerror.o perror.o fcntl.o close.o read.o puts.o putchar.o exit.o vfs.o 
 
 all: main.o newmain.o main newmain 8mb
 
