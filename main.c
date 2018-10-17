@@ -548,6 +548,6 @@ int run(char *s)
     newmain = (void *) 0x100000;
     c = newmain(&bdvt, 3, args);
     //printf("[program returned %d]\r\n", c);
-    return 0;
+    return c;
 
 }

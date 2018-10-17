@@ -10,3 +10,9 @@ void do_exit(int d)
     while (1) { }
 }
 
+void exit(int d)
+{
+    do_exit(d);
+    while (1) { }
+}
+
