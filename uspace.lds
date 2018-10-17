@@ -10,7 +10,11 @@ ENTRY(_start)
 SEARCH_DIR("/usr/local/gcc-68k/m68k-elf/lib");
 SECTIONS
 {
-
+   . = 0x100000; 
+   .start : 
+    {
+        *(.start)
+    } 
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x80000000)); . = SEGMENT_START("text-segment", 0x80000000) + SIZEOF_HEADERS;
 
