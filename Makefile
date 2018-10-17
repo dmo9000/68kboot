@@ -25,7 +25,7 @@ main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
 newmain:	$(MADLIBC_OBJS) crt0.o newmain.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100000 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
+	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
