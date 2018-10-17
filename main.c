@@ -14,6 +14,7 @@
 void do_exit(int d);
 
 extern ext2_fs ext2_rootfs;
+extern _bdos_vtable bdvt;
 
 //#define CPM_EXIT        (0xff7ffc)
 #define SECTOR_SIZE    128
@@ -543,9 +544,9 @@ int run(char *s)
 
     int c = 0;
     char *args[4] = { "foo", "bar", "baz", NULL };
-    int (*newmain)(int argc, char *argv[]);
+    int (*newmain)(_bdos_vtable *btvt, int argc, char *argv[]);
     newmain = (void *) 0x100000;
-    c = newmain(3, args);
+    c = newmain(&bdvt, 3, args);
     //printf("[program returned %d]\r\n", c);
     return 0;
 
