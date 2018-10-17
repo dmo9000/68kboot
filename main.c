@@ -97,8 +97,7 @@ int main()
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
 
     while (1) {
-        //printf("%s%u/boot> ", (is_big_endian() ? "be" : "le"), sizeof(unsigned int)*8);
-        printf("boot> ");
+        printf("shim> ");
         memset(&command, 0, 2048);
         c = getchar();
         while (c != '\r') {
