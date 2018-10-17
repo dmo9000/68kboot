@@ -7,12 +7,12 @@ MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
  
 
-all: $(MADLIBC_OBJS) $(BDOS_OBJS) main.o newmain.o main newmain 8mb
+all: main newmain 8mb
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-main:	$(LIB_OBJS)
+main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
@@ -24,16 +24,16 @@ main:	$(LIB_OBJS)
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
-newmain:	$(LIB_OBJS)
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o newmain --gc-sections --defsym=_start=main -Ttext=0x100000 $(MADLIBC_OBJS) newmain.o 	\
+newmain:	$(MADLIBC_OBJS) crt0.o newmain.o
+	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100000 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec newmain newmain.srec
-	/usr/local/gcc-68k/bin/m68k-elf-strip newmain
+	#/usr/local/gcc-68k/bin/m68k-elf-strip newmain
 	ls -l newmain
 	size -A -d newmain
-	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary newmain newmain.out
+	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary newmain newmain.out
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
 

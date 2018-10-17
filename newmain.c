@@ -4,13 +4,17 @@
 #include "fcntl.h"
 #include "bdos.h"
 
-int main(_bdos_vtable *btvt, int argc, char *argv[])
+extern _bdos_vtable *btvt;
+
+int main(_bdos_vtable *my_btvt, int argc, char *argv[])
 {
 
     char buffer[4096];
     int fd = 0;
     int i = 0;
     int rd = 0;
+
+    btvt = my_btvt;
 
     printf("Hello world! vtdb.magic = 0x%08lx\r\n", btvt->magic);
     printf("received %d arguments\r\n", argc);
@@ -20,7 +24,7 @@ int main(_bdos_vtable *btvt, int argc, char *argv[])
     puts("\r\n");
 
 
-    fd = btvt->_open("/hello1.txt", O_RDONLY);
+    fd = btvt->_open("/testfile.txt", O_RDONLY);
 
     printf("fd = %d\r\n", fd);
 
