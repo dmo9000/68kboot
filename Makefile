@@ -1,16 +1,19 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
-LIB_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o disk.o devices.o ext2.o \
-		modules.o open.o strerror.o perror.o fcntl.o close.o read.o puts.o putchar.o exit.o vfs.o 
+MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
+			modules.o strerror.o perror.o puts.o putchar.o 
 
-all: main.o newmain.o main newmain 8mb
+BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o 
+ 
+
+all: $(MADLIBC_OBJS) $(BDOS_OBJS) main.o newmain.o main newmain 8mb
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 main:	$(LIB_OBJS)
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 $(LIB_OBJS) main.o 	\
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
@@ -22,7 +25,7 @@ main:	$(LIB_OBJS)
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
 newmain:	$(LIB_OBJS)
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o newmain --gc-sections --defsym=_start=main -Ttext=0x100000 $(LIB_OBJS) newmain.o 	\
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o newmain --gc-sections --defsym=_start=main -Ttext=0x100000 $(MADLIBC_OBJS) newmain.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
@@ -38,8 +41,8 @@ clean:
 	rm -f main main.out main.srec newmain newmain.out newmain.srec *.o 8mb.img 
 
 install:
-	cp main.out ~/git-local/68kp/Musashi/diskc.cpm.fs
-	cp 8mb.img ~/git-local/68kp/Musashi/8mb.img
+	cp main.out ~/git-local/68kp/diskc.cpm.fs
+	cp 8mb.img ~/git-local/68kp/8mb.img
 
 
 8mb:
