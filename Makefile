@@ -13,12 +13,12 @@ all: main newmain 8mb
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o main --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o 	\
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o main -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o 	\
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec main main.srec
-	/usr/local/gcc-68k/bin/m68k-elf-strip main
+	#/usr/local/gcc-68k/bin/m68k-elf-strip main
 	ls -l main
 	size -A -d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out

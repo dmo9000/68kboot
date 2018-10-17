@@ -10,14 +10,13 @@ extern int main(int argc, char *argv[]);
 
 _bdos_vtable *btvt = NULL;
 
+int _start(int argc, char *argv[])  __attribute__((section(".start")));
 
-
-int _start(_bdos_vtable *my_btvt, int argc, char *argv[])  __attribute__((section(".start")));
-
-int _start(_bdos_vtable *my_btvt, int argc, char *argv[])  
+int _start(int argc, char *argv[])
 {
 
-    btvt = my_btvt;
+//    btvt = my_btvt;
+    btvt = (_bdos_vtable *) 0x400;
 #ifdef DEBUG
     printf("*** _start() *** btvt->magic = 0x%08lx\r\n", btvt->magic);
 #endif /* DEBUG */
