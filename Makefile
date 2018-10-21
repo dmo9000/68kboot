@@ -24,10 +24,11 @@ main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
 	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
-newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o
+newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
 		assert.o exit.o \
-		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a \
+		malloc.o sbrk.o
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec newmain newmain.srec

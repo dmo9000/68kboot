@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 #include "unistd.h"
 #include "fcntl.h"
 #include "bdos.h"
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     int fd = 0;
     int i = 0;
     int rd = 0;
+    unsigned char *somemem = NULL;
 
     // printf("Hello world! vtdb.magic = 0x%08lx\r\n", btvt->magic);
 
@@ -38,7 +40,13 @@ int main(int argc, char *argv[])
             putchar(buffer[i]);
         }
         btvt->_close(fd);
-    }
+   }
+    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
+   somemem = my_malloc(0x100000);
+  printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
+    printf("freeing ...\r\n");
+    free(somemem);
+  printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
 
     puts("\r\n");
 //    return 0;

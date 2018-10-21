@@ -175,6 +175,10 @@ SECTIONS
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(32 / 8);
   _end = .; PROVIDE (end = .);
+   .heap_marker :
+    {
+        *(.heap_marker)
+    }
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
@@ -216,7 +220,9 @@ SECTIONS
   .debug_macro    0 : { *(.debug_macro) }
   .debug_addr     0 : { *(.debug_addr) }
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
+
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
+
 }
 
 
