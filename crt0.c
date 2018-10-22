@@ -6,7 +6,7 @@
 
 extern void *_end;
 
-#define DEBUG
+//#define DEBUG
 
 extern int main(int argc, char *argv[]);
 
@@ -17,7 +17,7 @@ int _start(int argc, char *argv[])  __attribute__((section(".start")));
 int _start(int argc, char *argv[])
 {
     void *heap_marker = NULL;
-    void *heap_marker2 = NULL; 
+    void *heap_marker2 = NULL;
     btvt = (_bdos_vtable *) 0x400;
     heap_marker = get_heap_marker();
     heap_marker2 = _end;
@@ -26,7 +26,13 @@ int _start(int argc, char *argv[])
     printf("*** _start() *** btvt->magic = 0x%08lx, heap_marker = 0x%08lx, _end = 0x%08lx\r\n", btvt->magic, heap_marker, &_end);
 #endif /* DEBUG */
     assert(btvt->magic == 0xf0e0f0e0);
-    init_heap(); 
+    if (btvt->ver_rev < 2) {
+        printf("This program requires BDOS v0.0.2 (minimum) to run.\r\n");
+        puts("\r\n");
+        return 0;
+    }
+
+    init_heap();
 
     return main(argc, argv);
 

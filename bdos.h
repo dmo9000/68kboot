@@ -1,9 +1,14 @@
 #include "stddef.h"
 
-
+#define VERSION_MAJOR       0
+#define VERSION_MINOR       0
+#define VERSION_REVISION    2
 
 typedef struct _bdos_vtable {
     uint32_t magic;
+    uint8_t ver_maj;
+    uint8_t ver_min;
+    uint8_t ver_rev;
     int (*_open)(const char *pathname, int flags);
     off_t (*_lseek)(int fd, off_t offset, int whence);
     ssize_t (*_read)(int fd, void *buf, size_t count);

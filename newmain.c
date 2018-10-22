@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     int i = 0;
     int rd = 0;
     unsigned char *somemem = NULL;
+    uint32_t mallsize = 1;
 
     // printf("Hello world! vtdb.magic = 0x%08lx\r\n", btvt->magic);
 
@@ -33,20 +34,32 @@ int main(int argc, char *argv[])
 
 //    printf("fd = %d\r\n", fd);
 
-    if (fd != -1) {
-        rd = btvt->_read(fd, &buffer, 4096);
-//       printf("rd = %d\r\n", rd);
-        for (i = 0; i < rd; i++) {
-            putchar(buffer[i]);
-        }
-        btvt->_close(fd);
-   }
-    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
-   somemem = my_malloc(0x100000);
-  printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
-    printf("freeing ...\r\n");
-    free(somemem);
-  printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
+    /*
+        if (fd != -1) {
+            rd = btvt->_read(fd, &buffer, 4096);
+            for (i = 0; i < rd; i++) {
+                putchar(buffer[i]);
+            }
+            btvt->_close(fd);
+       }
+    */
+
+//    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
+    printf("malloc(%lu) = ", mallsize);
+    somemem = my_malloc(mallsize);
+    while (somemem != NULL && mallsize < 0xFFFFFFFF && mallsize > 0) {
+        printf("0x%08lx\r\n", somemem);
+        my_free(somemem);
+        mallsize = mallsize << 1;
+        printf("malloc(%lu) = ", mallsize);
+        somemem = my_malloc(mallsize);
+    }
+
+    printf("... FAILED\r\n");
+//    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
+//    printf("freeing ...\r\n");
+//    free(somemem);
+//    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
 
     puts("\r\n");
 //    return 0;
