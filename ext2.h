@@ -1,5 +1,5 @@
 #ifndef __EXT2_H__
-#define __EXT2_h__
+#define __EXT2_H__
 
 #include "types.h"
 #include "stdbool.h"

@@ -11,6 +11,16 @@
 #define FD_STATE_STDERR     2
 #define FD_STATE_OPEN       10
 
+typedef struct {
+    int id;
+    int oflags;
+    /* FIXME: should be off_t ? */
+    uint32_t offset;
+//    FCB fcb;
+    int fd;
+} _cfd;
+
+
 
 typedef struct _fd {
     char state;

@@ -1,4 +1,3 @@
-
 #include "stddef.h"
 #include "stdbool.h"
 #include "types.h"
@@ -15,6 +14,8 @@ struct  _iobuf {
 };
 
 typedef struct _iobuf FILE;
+
+#include "fcntl_private.h"
 
 #define stdin           (&filehandles[0])
 #define stdout          (&filehandles[1])

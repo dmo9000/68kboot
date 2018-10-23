@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
 
     // printf("Hello world! vtdb.magic = 0x%08lx\r\n", btvt->magic);
 
-        printf("received %d arguments\r\n", argc);
-        for (i = 0; i < argc; i++) {
-            printf(" -> %d: %s\r\n", i, argv[i]);
-            }
-        puts("\r\n");
+    printf("received %d arguments\r\n", argc);
+    for (i = 0; i < argc; i++) {
+        printf(" -> %d: %s\r\n", i, argv[i]);
+    }
+    puts("\r\n");
 
     fd = btvt->_open("/hello1.txt", O_RDONLY);
 
@@ -44,13 +44,13 @@ int main(int argc, char *argv[])
 
 //    printf("sbrk(0) = 0x%08lx\r\n", sbrk(0));
     printf("malloc(%lu) = ", mallsize);
-    somemem = my_malloc(mallsize);
+    somemem = malloc(mallsize);
     while (somemem != NULL && mallsize < 0xFFFFFFFF && mallsize > 0) {
         printf("0x%08lx\r\n", somemem);
-        my_free(somemem);
+        free(somemem);
         mallsize = mallsize << 1;
         printf("malloc(%lu) = ", mallsize);
-        somemem = my_malloc(mallsize);
+        somemem = malloc(mallsize);
     }
 
     printf("... FAILED\r\n");

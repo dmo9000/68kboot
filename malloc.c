@@ -17,7 +17,7 @@ struct header_t *get_free_block(size_t size)
     return NULL;
 }
 
-void *my_malloc(size_t size)
+void *malloc(size_t size)
 {
     size_t total_size;
     void *block;
@@ -50,7 +50,7 @@ void *my_malloc(size_t size)
     return (void*)(header + 1);
 }
 
-void my_free(void *block)
+void free(void *block)
 {
     struct header_t *header, *tmp;
     void *programbreak;

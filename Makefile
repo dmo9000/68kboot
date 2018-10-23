@@ -7,7 +7,9 @@ MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
  
 
-all: main newmain 8mb
+#all: main newmain 8mb
+all: main newmain md5sum 8mb
+
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -18,11 +20,9 @@ main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec main main.srec
-	#/usr/local/gcc-68k/bin/m68k-elf-strip main
 	ls -l main
 	size -A -d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
-	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
 
 newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
@@ -30,13 +30,23 @@ newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a \
 		malloc.o sbrk.o
 
-	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec newmain newmain.srec
-	#/usr/local/gcc-68k/bin/m68k-elf-strip newmain
 	ls -l newmain
 	size -A -d newmain
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary newmain newmain.out
-	#/usr/local/gcc-68k/bin/m68k-elf-objdump -d main.o
+
+md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o
+	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) md5sum.o    \
+		assert.o exit.o \
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a \
+		malloc.o sbrk.o
+
+	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec md5sum md5sum.srec
+	ls -l md5sum
+	size -A -d md5sum
+	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary md5sum md5sum.out
+
+
 
 
 clean:

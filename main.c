@@ -543,7 +543,7 @@ bool iswhitespace(char c)
 {
     if (c == 32 || c == '\t') {
         return true;
-        }
+    }
 
     return false;
 }
@@ -559,43 +559,43 @@ int run(char *s)
     char *args[MAX_ARGS];
     int c = 0;
     //printf("args = [%s]\r\n", s);
-    
+
     for (i = 0; i < MAX_ARGS; i++) {
         args[i] = NULL;
-        }
-    
+    }
+
     ap = s;
     al = 0;
     i = 0;
     while (s[i] != '\0' && s[i] != '\n' && s[i] != '\r' && argc < MAX_ARGS) {
         if (iswhitespace(s[i])) {
             if (al) {
-                args[argc] = ap;        
+                args[argc] = ap;
                 s[i] = '\0';
-                //printf("new_arg[%d:%s]\r\n", argc, args[argc]); 
+                //printf("new_arg[%d:%s]\r\n", argc, args[argc]);
                 argc++;
                 al = 0;
-                }
-            } else {
-                if (!al) {
-                    ap = s + i;
-                    }
-                   // printf("%d:%d:%c\r\n", i, al, s[i]);
-                al++;
-            } 
-            i++;
+            }
+        } else {
+            if (!al) {
+                ap = s + i;
+            }
+            // printf("%d:%d:%c\r\n", i, al, s[i]);
+            al++;
         }
+        i++;
+    }
 
     if (al) {
         args[argc] = ap;
-        //printf("last_arg[%d:%s]\r\n", argc, args[argc]); 
+        //printf("last_arg[%d:%s]\r\n", argc, args[argc]);
         argc++;
-        }
+    }
 
 
     for (i = 0; i < argc; i++) {
         printf("args[%d] = [%s]\r\n", i, args[i]);
-        }
+    }
 
 
     //int (*newmain)(_bdos_vtable *btvt, int argc, char *argv[]);
