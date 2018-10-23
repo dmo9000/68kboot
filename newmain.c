@@ -22,13 +22,11 @@ int main(int argc, char *argv[])
 
     // printf("Hello world! vtdb.magic = 0x%08lx\r\n", btvt->magic);
 
-    /*
         printf("received %d arguments\r\n", argc);
         for (i = 0; i < argc; i++) {
-            printf("%d: %s\r\n", i, argv[i]);
+            printf(" -> %d: %s\r\n", i, argv[i]);
             }
         puts("\r\n");
-    */
 
     fd = btvt->_open("/hello1.txt", O_RDONLY);
 

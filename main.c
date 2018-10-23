@@ -56,6 +56,7 @@ mathRegister parseFactor ();
 bool isTerminator (char c);
 bool isWhitespace (char c);
 
+#define MAX_ARGS    16
 #define MAX_STRING  80
 
 char parseString[MAX_STRING];
@@ -538,16 +539,70 @@ int load(char *s)
     return 0;
 }
 
+bool iswhitespace(char c)
+{
+    if (c == 32 || c == '\t') {
+        return true;
+        }
+
+    return false;
+}
+
 int run(char *s)
 {
 
+    int i = 0;
+    int argc = 0;
+    int al = 0;
+    int argcount = 0;
+    char *ap = NULL;
+    char *args[MAX_ARGS];
     int c = 0;
-    char *args[4] = { "foo", "bar", "baz", NULL };
+    //printf("args = [%s]\r\n", s);
+    
+    for (i = 0; i < MAX_ARGS; i++) {
+        args[i] = NULL;
+        }
+    
+    ap = s;
+    al = 0;
+    i = 0;
+    while (s[i] != '\0' && s[i] != '\n' && s[i] != '\r' && argc < MAX_ARGS) {
+        if (iswhitespace(s[i])) {
+            if (al) {
+                args[argc] = ap;        
+                s[i] = '\0';
+                //printf("new_arg[%d:%s]\r\n", argc, args[argc]); 
+                argc++;
+                al = 0;
+                }
+            } else {
+                if (!al) {
+                    ap = s + i;
+                    }
+                   // printf("%d:%d:%c\r\n", i, al, s[i]);
+                al++;
+            } 
+            i++;
+        }
+
+    if (al) {
+        args[argc] = ap;
+        //printf("last_arg[%d:%s]\r\n", argc, args[argc]); 
+        argc++;
+        }
+
+
+    for (i = 0; i < argc; i++) {
+        printf("args[%d] = [%s]\r\n", i, args[i]);
+        }
+
+
     //int (*newmain)(_bdos_vtable *btvt, int argc, char *argv[]);
     int (*newmain)(int argc, char *argv[]);
     newmain = (void *) 0x100000;
     //c = newmain(&bdvt, 3, args);
-    c = newmain(3, args);
+    c = newmain(argc, args);
     //printf("[program returned %d]\r\n", c);
     return c;
 
