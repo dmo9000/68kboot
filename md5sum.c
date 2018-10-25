@@ -180,7 +180,10 @@ main(int argc, char **argv)
     else for(c = 0; c < argc; c++) {
             fd = fopen(argv[c],"r");
             if(fd==NULL) {
-                fprintf(stderr, "md5sum: can't open %s\n", argv[c]);
+                /* TODO: fprintf() not supported */
+                //fprintf(stderr, "md5sum: can't open %s\n", argv[c]);
+                printf("md5sum: can't open %s\n", argv[c]);
+                
                 continue;
             }
             sum(fd, argv[c]);
