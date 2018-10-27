@@ -1,18 +1,18 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <stddef.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl_private.h>
-#include "cpmbdos.h"
-#include "cpm_sysfunc.h"
-#include "ansi_term.h"
-#include "tty.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "stdbool.h"
+#include "types.h"
+#include "stddef.h"
+#include "unistd.h"
+#include "fcntl.h"
+#include "string.h"
+#include "errno.h"
+#include "stat.h"
+#include "fcntl_private.h"
+//#include "cpmbdos.h"
+//#include "cpm_sysfunc.h"
+//#include "ansi_term.h"
+//#include "tty.h"
 
 /*
 		If you are writing an emulator at BDOS level, you need to be aware of how CP/M uses the bytes EX, S2, and CR. Some programs (such as the Digital Research linker,
@@ -77,12 +77,12 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
         /* if the file was not opened in binary mode, we should respect that character 0x1A is the EOF marker */
         eofptr = memchr((const char *) ptr, 0x1A, size * nmemb);
         if (eofptr) {
-            stream->_limit = CFD[stream->_file].offset + (eofptr - ptr);
+            stream->_limit = CFD[stream->_file].offset + (eofptr - (char *) ptr);
             stream->_eof = true;
             //CFD[stream->_file].offset = stream->_limit;
             //printf("current offset = %lu\n", CFD[stream->_file].offset);
             //`printf("rewind = %d\n", (SSIZE_MAX - (eofptr - ptr)));
-            CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - ptr));
+            CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - (char *) ptr));
             stream->_limit = CFD[stream->_file].offset;
         } else {
         }
