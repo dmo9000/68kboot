@@ -1,18 +1,18 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <stddef.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl_private.h>
-#include "cpmbdos.h"
-#include "cpm_sysfunc.h"
-#include "ansi_term.h"
-#include "tty.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "stdbool.h"
+#include "types.h"
+#include "stddef.h"
+#include "unistd.h"
+#include "fcntl.h"
+#include "string.h"
+#include "errno.h"
+#include "stat.h"
+#include "fcntl_private.h"
+//#include "cpmbdos.h"
+//#include "cpm_sysfunc.h"
+//#include "ansi_term.h"
+//#include "tty.h"
 
 /*
 		If you are writing an emulator at BDOS level, you need to be aware of how CP/M uses the bytes EX, S2, and CR. Some programs (such as the Digital Research linker,
@@ -33,9 +33,11 @@ FILE *fopen(const char *path, const char *mode)
     int oflags = 0;
     FILE *myfhptr = NULL;
     ssize_t initial_size = 0;
+    /*
     if (!_fds_init_done) {
         _fds_init();
     }
+    */
 
     if (strncmp(mode, "r", 1) == 0) {
         oflags = O_RDONLY;
@@ -61,19 +63,28 @@ FILE *fopen(const char *path, const char *mode)
     }
     errno = 0;
     /* get free filehandle */
+    /*
     fh = _find_free_filehandle();
     if (fh == -1) {
         close(fd);
         errno = ENFILE;
         return NULL;
     }
+    */
+    myfhptr = malloc(sizeof(FILE *));
     errno = 0;
-    filehandles[fh]._file = fd;
-    filehandles[fh]._eof = false;
-    filehandles[fh]._limit = initial_size;
-    memset(&filehandles[fh]._flags, 0, 4);
-    strncpy((const char *) &filehandles[fh]._flags, (const char *) mode, 3);
-    myfhptr = &filehandles[fh];
+
+    myfhptr->_file = fd;
+    myfhptr->_eof = false;
+    myfhptr->_limit = initial_size;
+    memset(myfhptr->_flags, 0, 4);
+    strncpy(myfhptr->_flags, (const char *) *mode, 3);
+  //  filehandles[fh]._file = fd;
+  //  filehandles[fh]._eof = false;
+   // filehandles[fh]._limit = initial_size;
+ //   memset(&filehandles[fh]._flags, 0, 4);
+//    strncpy((const char *) &filehandles[fh]._flags, (const char *) mode, 3);
+//    myfhptr = &filehandles[fh];
     return (FILE*) myfhptr;
 
 }

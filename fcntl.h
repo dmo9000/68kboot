@@ -2,7 +2,10 @@
 #define __FCNTL_H__
 #include "ext2.h"
 
-#define O_RDONLY    0
+#define O_RDONLY        00
+#define O_WRONLY        01
+#define O_TRUNC     01000
+#define O_RDWR         02
 
 #define MAX_FDS     16
 #define FD_STATE_UNUSED    -1
