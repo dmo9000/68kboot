@@ -160,6 +160,7 @@ main(int argc, char **argv)
 {
     int c;
     FILE *fd;
+    printf("argc = %d\r\n", argc);
 
     argv++;
     argc--;
@@ -175,20 +176,33 @@ main(int argc, char **argv)
         argc--;
     }
 
-    if(argc == 0)
+
+    if(argc == 0) {
+        printf("doing sum on stdin...\r\n");
         sum(stdin,0);
-    else for(c = 0; c < argc; c++) {
+    }
+    else
+    {   
+        printf("-> %d:%d\r\n", c, argc);
+        for(c = c; c < argc; c++) {
+            printf("** %d\r\n", c); 
+            printf("fopen(%s)\r\n", argv[c]);
             fd = fopen(argv[c],"r");
+
             if(fd==NULL) {
                 /* TODO: fprintf() not supported */
                 //fprintf(stderr, "md5sum: can't open %s\n", argv[c]);
-                printf("md5sum: can't open %s\n", argv[c]);
-                
-                continue;
+                printf("md5sum: can't open %s\r\n", argv[c]);
+                return 1;
+                //continue;
             }
+            printf("running sum(%d, '%s')\r\n", fd, argv[c]);
             sum(fd, argv[c]);
             fclose(fd);
         }
+    }
+    puts("\r\n");
+    return 0;
 }
 
 void

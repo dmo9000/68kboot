@@ -50,7 +50,7 @@ md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl
 
 
 clean:
-	rm -f main main.out main.srec newmain newmain.out newmain.srec *.o 8mb.img 
+	rm -f main main.out main.srec newmain newmain.out newmain.srec md5sum md5sum.out md5sumsrec *.o 8mb.img hello?.txt
 
 install:
 	cp main.out ~/git-local/68kp/diskc.cpm.fs
@@ -62,8 +62,10 @@ install:
 	@mke2fs ./8mb.img
 	@sudo mount 8mb.img mnt
 	@sudo chown -R dan:dan mnt
-	@printf "Hello world 1\r\n" > mnt/hello1.txt 2>&1
-	@printf "Hello world 2\r\n" > mnt/hello2.txt 2>&1
+	@printf "Hello world 1\r\n" > hello1.txt 2>&1
+	@printf "Hello world 2\r\n" > hello2.txt 2>&1
+	@cp hello1.txt mnt/hello1.txt
+	@cp hello2.txt mnt/hello2.txt
 	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@mkdir -p mnt/foo/bar/baz

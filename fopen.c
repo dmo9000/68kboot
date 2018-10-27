@@ -56,6 +56,7 @@ FILE *fopen(const char *path, const char *mode)
     }
     errno = 0;
     fd = open(path, oflags);
+    printf("fopen(), fd = %d\r\n", fd);
 
     if (fd < 0) {
         /* pass through errno */
