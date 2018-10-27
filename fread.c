@@ -77,13 +77,13 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
         /* if the file was not opened in binary mode, we should respect that character 0x1A is the EOF marker */
         eofptr = memchr((const char *) ptr, 0x1A, size * nmemb);
         if (eofptr) {
-            stream->_limit = CFD[stream->_file].offset + (eofptr - (char *) ptr);
+           // stream->_limit = CFD[stream->_file].offset + (eofptr - (char *) ptr);
             stream->_eof = true;
             //CFD[stream->_file].offset = stream->_limit;
             //printf("current offset = %lu\n", CFD[stream->_file].offset);
             //`printf("rewind = %d\n", (SSIZE_MAX - (eofptr - ptr)));
-            CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - (char *) ptr));
-            stream->_limit = CFD[stream->_file].offset;
+         //   CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - (char *) ptr));
+        //    stream->_limit = CFD[stream->_file].offset;
         } else {
         }
     }

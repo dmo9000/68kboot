@@ -4,7 +4,7 @@ CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 			modules.o strerror.o perror.o puts.o putchar.o strcmp.o strncpy.o memchr.o 
 
-BDOS_OBJS=fcntl.o open.o read.o close.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
+BDOS_OBJS=fcntl.o kopen.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
  
 
 #all: main newmain 8mb
@@ -35,9 +35,9 @@ newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o
 	size -A -d newmain
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary newmain newmain.out
 
-md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl_uspace.o malloc.o fopen.o fread.o fclose.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) md5sum.o    \
-		assert.o exit.o fcntl_uspace.o fopen.o fread.o fclose.o	\
+md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl_uspace.o malloc.o fopen.o fread.o fclose.o ustdio.o
+	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o md5sum --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) md5sum.o    \
+		assert.o exit.o fcntl_uspace.o fopen.o fread.o fclose.o	ustdio.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a \
 		malloc.o sbrk.o
 
@@ -71,6 +71,7 @@ install:
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@cp texttest.txt mnt/
 	@cp newmain.out mnt/newmain.out
+	@cp md5sum.out mnt/md5sum.out
 	@for FN1 in `seq 0 255` ; do \
 		for FN2 in `seq 1 512`; do	\
 			printf "%02x" $${FN1} >> mnt/testfile.txt ; \
