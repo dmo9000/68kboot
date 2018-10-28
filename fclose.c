@@ -33,8 +33,10 @@ int fclose(FILE *stream)
 
     /* FIXME: probably should call close()! */
 
+    close(stream->_file);
     stream->_file = -1;
     errno = 0;
+    free(stream);
     return 0;
 }
 

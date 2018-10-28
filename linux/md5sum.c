@@ -245,8 +245,7 @@ sum(FILE *fd, char *name)
         printf("%s",pr64);
     }
     if(name)
-        printf("\t%s", name);
-    printf("\n");
+        printf("\t%s\r\n", name);
     free(buf);
 }
 
