@@ -9,6 +9,7 @@
 #include "errno.h"
 #include "stat.h"
 #include "fcntl_private.h"
+#include "assert.h"
 //#include "cpmbdos.h"
 //#include "cpm_sysfunc.h"
 //#include "ansi_term.h"
@@ -37,19 +38,26 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
         return -1;
     }
 
-    for (i = 0; i < nmemb; i++) {
-        rd = read(stream->_file, myptr, size);
-        if (rd == 0) {
-            /* END OF FILE REACHED */
-            stream->_eof = true;
-            //printf("HARD EOF REACHED\n");
-            //exit(1);
-            /*
-            if (ftell(stream) != stream->_limit) {
-            printf("HARD EOF REACHED, BUT LIMIT IS MISMATCHED\n");
-            }
-            */
+//    printf("fread(0x%08lx, stream->_file = %d)\r\n", stream, fileno(stream));
+
+    assert(fileno(stream));
+
+//    for (i = 0; i < nmemb; i++) {
+    rd = read(stream->_file, myptr, size * nmemb);
+    if (rd > 0) {
+        return rd / size;
+    }
+    if (rd == 0) {
+        /* END OF FILE REACHED */
+        stream->_eof = true;
+//            printf("HARD EOF REACHED\n");
+        //exit(1);
+        /*
+        if (ftell(stream) != stream->_limit) {
+        printf("HARD EOF REACHED, BUT LIMIT IS MISMATCHED\n");
         }
+        */
+//       }
 
         if (rd == -1) {
             printf("fread() error; errno = %d [%s]\n", errno, strerror(errno));
@@ -77,13 +85,13 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
         /* if the file was not opened in binary mode, we should respect that character 0x1A is the EOF marker */
         eofptr = memchr((const char *) ptr, 0x1A, size * nmemb);
         if (eofptr) {
-           // stream->_limit = CFD[stream->_file].offset + (eofptr - (char *) ptr);
+            // stream->_limit = CFD[stream->_file].offset + (eofptr - (char *) ptr);
             stream->_eof = true;
             //CFD[stream->_file].offset = stream->_limit;
             //printf("current offset = %lu\n", CFD[stream->_file].offset);
             //`printf("rewind = %d\n", (SSIZE_MAX - (eofptr - ptr)));
-         //   CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - (char *) ptr));
-        //    stream->_limit = CFD[stream->_file].offset;
+            //   CFD[stream->_file].offset -= (SSIZE_MAX - (eofptr - (char *) ptr));
+            //    stream->_limit = CFD[stream->_file].offset;
         } else {
         }
     }
@@ -93,3 +101,8 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     return ritems;
 }
 
+int fileno(FILE *f)
+{
+
+    return f->_file;
+}

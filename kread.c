@@ -31,7 +31,8 @@ ssize_t read(int fd, void *buf, size_t count)
 
     assert(descriptor);
 
-//    printf("read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
+    //printf("read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
+//    printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
 
     if (descriptor->offset >= (EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size)) {
         printf("read() - offset %lu is out of range\r\n", descriptor->offset);

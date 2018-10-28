@@ -6,8 +6,8 @@ strcmp(s1, s2)
 char *s1, *s2;
 {
 
-        while (*s1 == *s2++)
-                if (*s1++=='\0')
-                        return(0);
-        return(*s1 - *--s2);
-        }
+    while (*s1 == *s2++)
+        if (*s1++=='\0')
+            return(0);
+    return(*s1 - *--s2);
+}

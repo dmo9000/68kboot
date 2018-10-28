@@ -74,12 +74,13 @@ install:
 	@cp texttest.txt mnt/
 	@cp newmain.out mnt/newmain.out
 	@cp md5sum.out mnt/md5sum.out
+	@cp /dev/null testfile.txt
 	@for FN1 in `seq 0 255` ; do \
 		for FN2 in `seq 1 512`; do	\
-			printf "%02x" $${FN1} >> mnt/testfile.txt ; \
+			printf "%02x" $${FN1} >> testfile.txt ; \
 			done	\
 		done
-	
+	@cp testfile.txt mnt/	
 	@ls --inode -ln mnt
 	@sync
 	@sudo umount mnt

@@ -594,7 +594,7 @@ int run(char *s)
 
 
     for (i = 0; i < argc; i++) {
-        printf("args[%d] = [%s]\r\n", i, args[i]);
+//        printf("args[%d] = [%s]\r\n", i, args[i]);
     }
 
 
