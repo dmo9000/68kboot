@@ -71,6 +71,7 @@ install:
 	@mkdir -p mnt/foo/bar/baz
 	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@dd if=/dev/urandom of=mnt/1mb.bin bs=1024 count=1024 1>/dev/null 
 	@cp texttest.txt mnt/
 	@cp newmain.out mnt/newmain.out
 	@cp md5sum.out mnt/md5sum.out
