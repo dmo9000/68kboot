@@ -182,10 +182,10 @@ main(int argc, char **argv)
         sum(stdin,0);
     }
     else
-    {   
+    {
 //        printf("-> %d:%d\r\n", c, argc);
         for(c = c; c < argc; c++) {
-//            printf("** %d\r\n", c); 
+//            printf("** %d\r\n", c);
             fd = fopen(argv[c],"r");
 
 //            printf("fopen(%s)= 0x%lx\r\n", argv[c], fd);
@@ -202,7 +202,7 @@ main(int argc, char **argv)
             fclose(fd);
         }
     }
-    puts("\r\n");
+    //puts("\r\n");
     return 0;
 }
 

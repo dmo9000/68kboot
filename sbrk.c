@@ -11,7 +11,7 @@ extern void *_end;
 void init_heap()
 {
 //    printf("init_heap()\r\n");
-    puts("\r\n");
+    //puts("\r\n");
     heap_ptr = &_end;
     heap_next = heap_ptr;
 
