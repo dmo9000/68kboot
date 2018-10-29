@@ -248,7 +248,8 @@ parseFactor ()
             //printf("%u: %s ? %s\n", jmpIndex, jmptbl[jmpIndex].command, parseString);
             if (strncmp
                     (jmptbl[jmpIndex].command, parseString,
-                     strlen (jmptbl[jmpIndex].command)) == 0)
+                     strlen (jmptbl[jmpIndex].command)) == 0 &&
+                    strlen (jmptbl[jmpIndex].command) == strlen(parseString))
             {
                 command_was_executed = true;
                 return jumpPtr (x);
@@ -256,6 +257,15 @@ parseFactor ()
             jmpIndex++;
             jumpPtr = jmptbl[jmpIndex].cmdptr;
         }
+
+        /* finally, search the root directory for the command */
+
+        if (search_path(parseString)) {
+            //printf("found executable=[%s], args=[%s]\r\n", parseString, x);
+            load(parseString);
+            return run(x);
+            }
+
 
         printf ("syntax error: %s\r\n", parseString);
         errorFlag = true;
@@ -606,4 +616,14 @@ int run(char *s)
     //printf("[program returned %d]\r\n", c);
     return c;
 
+}
+
+int search_path(char *s)
+{
+
+    if (ext2_path_to_inode(s)) {
+        return 1;
+        }
+
+    return 0;
 }
