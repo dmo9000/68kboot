@@ -26,8 +26,8 @@ int _start(int argc, char *argv[])
     printf("*** _start() *** btvt->magic = 0x%08lx, heap_marker = 0x%08lx, _end = 0x%08lx\r\n", btvt->magic, heap_marker, &_end);
 #endif /* DEBUG */
     assert(btvt->magic == 0xf0e0f0e0);
-    if (btvt->ver_rev < 2) {
-        printf("This program requires BDOS v0.0.2 (minimum) to run.\r\n");
+    if (btvt->ver_rev < 3) {
+        printf("This program requires BDOS v0.0.3 (minimum) to run.\r\n");
         puts("\r\n");
         return 0;
     }

@@ -2,7 +2,7 @@
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       0
-#define VERSION_REVISION    2
+#define VERSION_REVISION    3 
 
 typedef struct _bdos_vtable {
     uint32_t magic;
