@@ -56,32 +56,36 @@ install:
 	cp main.out ~/git-local/68kp/diskc.cpm.fs
 	cp 8mb.img ~/git-local/68kp/8mb.img
 
+testfile.txt:
+	cp /dev/null testfile.txt
+	for FN1 in `seq 0 255` ; do \
+    for FN2 in `seq 1 512`; do  \
+      printf "%02x" $${FN1} >> testfile.txt ; \
+      done  \
+    done
 
-8mb:
-	@dd if=/dev/zero of=8mb.img count=65536 bs=128
-	@mke2fs ./8mb.img
-	@sudo mount 8mb.img mnt
-	@sudo chown -R dan:dan mnt
-	@printf "Hello world 1\r\n" > hello1.txt 2>&1
-	@printf "Hello world 2\r\n" > hello2.txt 2>&1
-	@cp hello1.txt mnt/hello1.txt
-	@cp hello2.txt mnt/hello2.txt
-	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	@mkdir -p mnt/foo/bar/baz
-	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	@dd if=/dev/urandom of=mnt/1mb.bin bs=1024 count=1024 1>/dev/null 
-	@cp texttest.txt mnt/
-	@cp newmain.out mnt/newmain.out
-	@cp md5sum.out mnt/md5sum.out
-	@cp /dev/null testfile.txt
-	@for FN1 in `seq 0 255` ; do \
-		for FN2 in `seq 1 512`; do	\
-			printf "%02x" $${FN1} >> testfile.txt ; \
-			done	\
-		done
-	@cp testfile.txt mnt/	
-	@ls --inode -ln mnt
-	@sync
-	@sudo umount mnt
+1mb.bin:
+	dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null 
+
+8mb: testfile.txt 1mb.bin
+	dd if=/dev/zero of=8mb.img count=65536 bs=128
+	mke2fs ./8mb.img
+	sudo mount 8mb.img mnt
+	sudo chown -R dan:dan mnt
+	printf "Hello world 1\r\n" > hello1.txt 2>&1
+	printf "Hello world 2\r\n" > hello2.txt 2>&1
+	cp hello1.txt mnt/hello1.txt
+	cp hello2.txt mnt/hello2.txt
+	dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	mkdir -p mnt/foo/bar/baz
+	dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	cp 1mb.bin mnt/
+	cp texttest.txt mnt/
+	cp newmain.out mnt/newmain.out
+	cp md5sum.out mnt/md5sum.out
+	cp testfile.txt mnt/	
+	ls --inode -ln mnt
+	sync
+	sudo umount mnt
