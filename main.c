@@ -29,6 +29,7 @@ int cat(char *s);
 int load(char *s);
 int run(char *s);
 int run_f16(char *s);
+int run_f16f(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -42,6 +43,7 @@ const jmpTable jmptbl[] = {
     {load, "load"},
     {run, "run"},
     {run_f16, "f16"},
+    {run_f16f, "f16f"},
     {0x0, ""}
 };
 
@@ -73,6 +75,8 @@ size_t strlen(const char *t);
 
 int cpmsim_seek(struct _device *, uint32_t);
 int cpmsim_read(struct _device *d, unsigned char *buf, unsigned long size);
+
+ext2_inode my_inode;
 
 void _ASSERT(char *error, char *file, int line)
 {
@@ -145,7 +149,7 @@ size_t strlen(const char *t)
 
 int get_inode(char *s)
 {
-    ext2_inode my_inode;
+    //ext2_inode my_inode;
     uint32_t inode_number = 0;
     inode_number = strtoul(s, NULL, 10);
 //    printf("get_inode(%s)[%lu]\r\n", s, inode_number);
@@ -631,6 +635,8 @@ int search_path(char *s)
     return 0;
 }
 
+
+
 int run_f16(char *s)
 {
     uint32_t addr = 0;
@@ -638,19 +644,40 @@ int run_f16(char *s)
     uint16_t result = 0;
     char *p = NULL;
     x = s;
-    printf("md5(%s)\r\n", s);
    
-    printf("x= %s\r\n", x);
     addr = parseFactor();
     while (iswhitespace(x[0])) {
         x++;
         }
-    printf("x= %s\r\n", x);
     len = parseFactor();
-    printf("addr = 0x%lx, len = 0x%lx\r\n", addr, len);
     p = (char *) addr;
     result = fletcher16(p, len);
-    printf("fletcher16 result = 0x%x\r\n", result);
+    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", addr, len, result);
     return 0;
+}
+
+int run_f16f(char *s) 
+{
+	//ext2_inode i;
+	uint32_t inode = 0;
+  uint16_t result = 0;
+
+	inode = ext2_path_to_inode(s);
+	if (!inode) {
+		printf("f16f: %s not found\r\n", s);
+		return 0;
+		}
+
+	if (isdirectory(inode)) {
+			printf("f16: %s is a directory\r\n", s);
+			return 0;
+			}
+	ext2_inode_lookup(inode, &my_inode, false);
+	printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size)); 
+	load(s);
+	printf("loaded %s...\r\n");
+	result = fletcher16(0x100000, nm_uint32(my_inode.i_size));
+  printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", 0x10000, nm_uint32(my_inode.i_size), result);
+	return 0;
 
 }
