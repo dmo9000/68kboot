@@ -10,6 +10,7 @@
 #include "byteorder.h"
 #include "bdos.h"
 #include "disk.h"
+#include "fletcher16.h"
 
 void do_exit(int d);
 
@@ -27,7 +28,7 @@ int cd(char *s);
 int cat(char *s);
 int load(char *s);
 int run(char *s);
-int run_md5(char *s);
+int run_f16(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -40,7 +41,7 @@ const jmpTable jmptbl[] = {
     {cat, "cat"},
     {load, "load"},
     {run, "run"},
-//    {run_md5, "md5"},
+    {run_f16, "f16"},
     {0x0, ""}
 };
 
@@ -630,10 +631,12 @@ int search_path(char *s)
     return 0;
 }
 
-int run_md5(char *s)
+int run_f16(char *s)
 {
     uint32_t addr = 0;
     uint32_t len = 0;
+    uint16_t result = 0;
+    char *p = NULL;
     x = s;
     printf("md5(%s)\r\n", s);
    
@@ -645,7 +648,9 @@ int run_md5(char *s)
     printf("x= %s\r\n", x);
     len = parseFactor();
     printf("addr = 0x%lx, len = 0x%lx\r\n", addr, len);
-    md5_main(addr, len);
+    p = (char *) addr;
+    result = fletcher16(p, len);
+    printf("fletcher16 result = 0x%x\r\n", result);
     return 0;
 
 }
