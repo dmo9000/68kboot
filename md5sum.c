@@ -162,8 +162,11 @@ main(int argc, char **argv)
     FILE *fd;
 //    printf("argc = %d\r\n", argc);
 
-    argv++;
-    argc--;
+    if (argc > 1) {
+        argv++;
+        argc--;
+    }
+    /*
     if(argc>0 && strcmp(argv[0],"-d")==0) {
         debug++;
         argv++;
@@ -175,7 +178,8 @@ main(int argc, char **argv)
         argv++;
         argc--;
     }
-
+    */
+    hex++;
 
     if(argc == 0) {
         printf("doing sum on stdin...\r\n");
