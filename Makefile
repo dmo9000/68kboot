@@ -14,8 +14,8 @@ all: main newmain md5sum 8mb
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o md5.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o main -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o md5.o	\
+main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o 
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o main -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main

@@ -27,6 +27,7 @@ int cd(char *s);
 int cat(char *s);
 int load(char *s);
 int run(char *s);
+int run_md5(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -39,6 +40,7 @@ const jmpTable jmptbl[] = {
     {cat, "cat"},
     {load, "load"},
     {run, "run"},
+//    {run_md5, "md5"},
     {0x0, ""}
 };
 
@@ -626,4 +628,24 @@ int search_path(char *s)
         }
 
     return 0;
+}
+
+int run_md5(char *s)
+{
+    uint32_t addr = 0;
+    uint32_t len = 0;
+    x = s;
+    printf("md5(%s)\r\n", s);
+   
+    printf("x= %s\r\n", x);
+    addr = parseFactor();
+    while (iswhitespace(x[0])) {
+        x++;
+        }
+    printf("x= %s\r\n", x);
+    len = parseFactor();
+    printf("addr = 0x%lx, len = 0x%lx\r\n", addr, len);
+    md5_main(addr, len);
+    return 0;
+
 }
