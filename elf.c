@@ -17,57 +17,6 @@ extern volatile struct proc *curproc;
 extern struct i386tss *dummytss;
 extern _kernel_info k_info;
 
-int elf_startproc(struct proc *p)
-{
-//	printf("elf_startproc(%u, %u)\n", p->pid, p->md.tss_nr);
-	unsigned long a = 0;	
-
-//	mm_displaybitmap(&k_info);
-
-	disable();
-
-	gdt[SEL_DUMMYTSS + 5] &= 0xf0;
-	gdt[SEL_DUMMYTSS + 5] |= 9;
-
-	i386ltr (SEL_DUMMYTSS/8);
-
-	/* turn of busy bit of process p */
-
-	gdt[p->md.tss_nr * 8 + 5] &= 0xf0;
-	gdt[p->md.tss_nr * 8 + 5] |= 9;
-
-//  kmemcpy(p->md.tss, dummytss, sizeof(struct i386tss));
-	
-  p->md.tss->eax = 0;
-  p->md.tss->ebx = 0;
-  p->md.tss->ecx = 0;
-  p->md.tss->edx = 0;
-  p->md.tss->ebp = 0;
-  p->md.tss->esi = 0;
-  p->md.tss->edi = 0;
-  p->md.tss->eip = 0x800000;
-  p->md.tss->eflags = 0x000202; 
-  p->md.tss->cs =  SEL_USERCODE +3;
-  p->md.tss->ss =  SEL_USERDATA +3;	
-  p->md.tss->ds =  SEL_USERDATA;
-  p->md.tss->es =  SEL_USERDATA;
-  p->md.tss->esp = 0xa00000;	
-//	p->md.tss->trap = 0x1;
-  p->md.tss->ss0 = SEL_DATA;
-  p->md.tss->esp0 = 0xb00000; 
-//  p->md.tss->iobase = 0x1000;
-  machdep_pagedir_init(p);
-//  p->md.tss->cr3 = (u_int32_t) p->md.pagedir;
-   p->md.tss->cr3 = p->md.pagedir; 
-//   p->md.tss->cr3 = k_info.pg_dir; 
-
-  curproc = NULL;
-
-  machdep_pswitch(p);
-
-	printf("elf_startproc: not reached?? \n");
-  return (0);	
-}	
 	
 
 int elf_check_magic(unsigned long addr, unsigned long length)
