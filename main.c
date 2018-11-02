@@ -133,11 +133,13 @@ int main()
     return 0;
 }
 
+/*
 int getchar()
 {
     char *  p = (char *) 0xff1002;
     return p[0];
 }
+*/
 
 size_t strlen(const char *t)
 {

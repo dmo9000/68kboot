@@ -2,13 +2,13 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
-			modules.o strerror.o perror.o puts.o putchar.o strcmp.o strncpy.o memchr.o 
+			modules.o strerror.o perror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o 
 
 BDOS_OBJS=fcntl.o kopen.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o 
  
 
 #all: main newmain 8mb
-all: bootldr main newmain md5sum 8mb
+all: bootldr main newmain md5sum bootldr.img 8mb
 
 
 %.o: %.c
@@ -24,13 +24,17 @@ main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o fletcher16.o
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
 
 bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o 
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) bootldr.o \
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) bootldr.o exit.o \
     /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
 	ls -l bootldr 
 	size -A -d bootldr
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary bootldr bootldr.out
 
+bootldr.img: bootldr
+	dd if=/dev/zero of=bootldr.img bs=128 count=256
+	dd conv=notrunc if=bootldr.out of=bootldr.img
+	dd if=main.out of=bootldr.img bs=128 seek=256 oflag=append conv=notrunc
 
 newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
@@ -58,10 +62,12 @@ md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl
 
 
 clean:
-	rm -f main *.out *.srec *.o bootldr main newmain 8mb.img hello?.txt
+	rm -f main *.out *.srec *.o bootldr main newmain *.img hello?.txt
 
 install:
-	cp main.out ~/git-local/68kp/diskc.cpm.fs
+	#cp main.out ~/git-local/68kp/diskc.cpm.fs
+	#cp bootldr.out ~/git-local/68kp/diskc.cpm.fs
+	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
 	cp 8mb.img ~/git-local/68kp/8mb.img
 
 testfile.txt:
