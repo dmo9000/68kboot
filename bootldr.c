@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 	int end_sector = 1024;		/* 64K - need to increase this if main.out gets too large */
 	int current_sector = start_sector;
 	int (*run_vector)(int argc, char *argv[]);
+	int sector_count = 0;
 
   off_t dma_addr = 0x500;
 
@@ -21,7 +22,10 @@ int main(int argc, char *argv[])
 			disk_read_sector(current_sector);
 			current_sector++;
 			dma_addr += 0x80;
-			putchar('.');
+			sector_count ++;
+			if (!(sector_count % 8)) {
+				putchar('.');	
+				}
 			}
 	putchar('\r');
 	putchar('\n');

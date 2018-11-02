@@ -165,7 +165,8 @@ main(int argc, char **argv)
 //    printf("argc = %d\r\n", argc);
 
 	if (!argc) {
-			printf("usage: md5sum <filename\r\n");
+			printf("usage: md5sum <filename>\r\n");
+			puts("\r\n");
 			exit(1);
 			}
     if (argc > 1) {
