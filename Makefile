@@ -8,7 +8,7 @@ BDOS_OBJS=fcntl.o kopen.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o 
  
 
 #all: main newmain 8mb
-all: main newmain md5sum 8mb
+all: bootldr main newmain md5sum 8mb
 
 
 %.o: %.c
@@ -17,12 +17,20 @@ all: main newmain md5sum 8mb
 main:	$(BDOS_OBJS) $(MADLIBC_OBJS) main.o fletcher16.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o main -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) main.o fletcher16.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
-
 	#/usr/local/gcc-68k/bin/m68k-elf-nm --print-size --size-sort --radix=d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec main main.srec
 	ls -l main
 	size -A -d main
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary main main.out
+
+bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o 
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr -T kspace.lds  --gc-sections --defsym=_start=main -Ttext=0x0500 $(MADLIBC_OBJS) $(BDOS_OBJS) bootldr.o \
+    /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
+	ls -l bootldr 
+	size -A -d bootldr
+	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary bootldr bootldr.out
+
 
 newmain:	$(MADLIBC_OBJS) crt0.o newmain.o assert.o exit.o sbrk.o malloc.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o newmain --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) newmain.o 	\
@@ -50,7 +58,7 @@ md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl
 
 
 clean:
-	rm -f main main.out main.srec newmain newmain.out newmain.srec md5sum md5sum.out md5sumsrec *.o 8mb.img hello?.txt
+	rm -f main *.out *.srec *.o bootldr main newmain 8mb.img hello?.txt
 
 install:
 	cp main.out ~/git-local/68kp/diskc.cpm.fs
