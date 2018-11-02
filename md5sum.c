@@ -5,6 +5,8 @@ typedef unsigned int uint;
 typedef unsigned char byte;
 extern int enc64(char*,byte*,int);
 
+#define exit(n) 	return n;
+
 /*
  *  rfc1321 requires that I include this.  The code is new.  The constants
  *  all come from the rfc (hence the copyright).  We trade a table for the
@@ -162,6 +164,10 @@ main(int argc, char **argv)
     FILE *fd;
 //    printf("argc = %d\r\n", argc);
 
+	if (!argc) {
+			printf("usage: md5sum <filename\r\n");
+			exit(1);
+			}
     if (argc > 1) {
         argv++;
         argc--;

@@ -1,11 +1,11 @@
 8mb.img
 *.o
-main
-main.out
-main.srec
-newmain
-newmain.out
-newmain.srec
+shim
+shim.out
+shim.srec
+malltest
+malltest.out
+malltest.srec
 md5sum
 md5sum.out
 md5sum.srec

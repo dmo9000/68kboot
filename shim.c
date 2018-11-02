@@ -103,6 +103,7 @@ int main()
 
     bdos_init();
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
+		select_disk("4");
 
     while (1) {
         printf("shim> ");
@@ -124,7 +125,7 @@ int main()
         result = parseSum ();
         if (!errorFlag && !command_was_executed)
         {
-            printf ("result = %u\r\n", result);
+            //printf ("result = %u\r\n", result);
         }
         errorFlag = false;
         length = 0;
