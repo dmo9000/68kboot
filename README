@@ -2,7 +2,18 @@
 
 We now have a tiny 162-byte bootloader, which loads sectors 258-1024 of the currently selected disk
 to memory starting at address 0x500. This is the BDOS image, and once it starts it will erase the 
-256 bytes used to contain the bootloader an replace it with the BDOS vtable.
+256 bytes used to contain the bootloader and replace it with the BDOS vtable.
+
+The bootloader image is padded out with zeros to 32K to fit into the boot track neatly. The BDOS
+follows in the image, but has 256 bytes zero'd out at the start for the BDOS table, hence start
+reading at sector 258 to memory location 0x500. 
+
+This should be backwards compatible for now, however, it means that the BDOS image (main.out) can grow
+up to 64K in size before we need to patch the bootloader again, since we are now not restricted by 
+the size of the boot track anymore (32K).
+
+Next feature to be added will be ELF support, to be verified with the f16 and f16f modules that were
+added. Once ELF support is verified, support for running legacy "raw" executables will be dropped. 
 
 --
 

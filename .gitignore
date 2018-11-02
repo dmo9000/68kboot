@@ -9,5 +9,10 @@ newmain.srec
 md5sum
 md5sum.out
 md5sum.srec
+bootldr
+bootldr.out
+bootldr.srec
+bootldr.img
 hello?.txt
 linux/md5sum.linux
+
