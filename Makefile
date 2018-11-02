@@ -75,7 +75,7 @@ install:
 				echo "shim.out is too large (>32K)" ;	\
 				exit	1	; \
 			else			\
-				echo "shim.out: size is okay (<= 64K)" ;				\
+				echo "shim.out:    size is okay (<= 64K)" ;				\
 			fi )
 	
 
