@@ -63,6 +63,21 @@ install:
 	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
 	cp 8mb.img ~/git-local/68kp/8mb.img
 	ls -l *.out
+	@( SIZE_BOOT=`stat -c %s bootldr.out` ;	\
+	if [ $${SIZE_BOOT} -gt 32768 ]; then	\
+				echo "bootldr.out is too large (>32K)" ;	\
+				exit	1	; \
+			else			\
+				echo "bootldr.out: size is okay (<= 32K)" ;				\
+			fi )
+	@( SIZE_SHIM=`stat -c %s shim.out` ;		\
+	if [ $${SIZE_SHIM} -gt 65536 ]; then	\
+				echo "shim.out is too large (>32K)" ;	\
+				exit	1	; \
+			else			\
+				echo "shim.out: size is okay (<= 64K)" ;				\
+			fi )
+	
 
 testfile.txt:
 	cp /dev/null testfile.txt
