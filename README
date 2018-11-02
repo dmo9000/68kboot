@@ -1,27 +1,9 @@
-We have a problem. 
+2/11/2018
 
-The bootloader will only load 32767 bytes.
-Our shim binary is now 31956 bytes long, only leaving 811 bytes for 
-an ELF loader. In addition, I'd like to implement more BDOS functions. 
+We now have a tiny 162-byte bootloader, which loads sectors 258-1024 of the currently selected disk
+to memory starting at address 0x500. This is the BDOS image, and once it starts it will erase the 
+256 bytes used to contain the bootloader an replace it with the BDOS vtable.
 
-It's simply too big. There are a few other possible strategies: 
-
-1) implement an executable compressor/decompressor
-
-		gzip -9 gets it down to 13078 
-		bzip2 -9 does worse, only 13367
-		lzf is even worse, 16455, but it might make up for it in decompressor size
-		lz4 -9 is ok, 15961, but the decoder might be able to be just a few bytes in 68K assembly
-
-	unfortunately, this a losing battle. It's only going to save us so much on its own. 
-
-2)	create a new bootloader which loads shim at a higher address (0x8400 seems to be the minimum base address) 
-		if you allow 32K for a bootloader. 
-
-3) Move the shim shell to a secondary binary, leaving the BDOS interface in the first binary?
-   Will probably shrink things a lot, but again there is the problem with #1 above as the BDOS grows. 
-
-4) apply general reduction strategies to the binaries. May be hard to find more compiler optimizations ...
 --
 
 Fletcher-16:

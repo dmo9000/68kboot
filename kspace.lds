@@ -10,7 +10,7 @@ ENTRY(_start)
 SEARCH_DIR("/usr/local/gcc-68k/m68k-elf/lib");
 SECTIONS
 {
-   . = 0x400; 
+   . = 0x0400; 
    .bdos_vtable : 
     {
         *(.bdos_vtable)

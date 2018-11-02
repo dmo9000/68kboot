@@ -33,15 +33,15 @@ int run_f16f(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
-//    {dev_list, "devices"},
-//    {dump, "dump"},
-//    {modules, "?"},
-//    {get_inode, "inode"},
+    {dev_list, "devices"},
+    {dump, "dump"},
+    {modules, "?"},
+    {get_inode, "inode"},
     {ls, "ls"},
-//    {cd, "cd"},
-//    {cat, "cat"},
-//    {load, "load"},
-//    {run, "run"},
+    {cd, "cd"},
+    {cat, "cat"},
+    {load, "load"},
+    {run, "run"},
     {run_f16, "f16"},
     {run_f16f, "f16f"},
     {0x0, ""}
@@ -116,7 +116,8 @@ int main()
         }
         puts("\r\n");
         if (length == 0) {
-            return 0;
+            //return 0;
+						exit(1);
         }
 
         x = (char *) &command;
