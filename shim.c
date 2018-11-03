@@ -103,7 +103,7 @@ int main()
 
     bdos_init();
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
-		select_disk("4");
+    select_disk("4");
 
     while (1) {
         printf("shim> ");
@@ -118,7 +118,7 @@ int main()
         puts("\r\n");
         if (length == 0) {
             //return 0;
-						exit(1);
+            exit(1);
         }
 
         x = (char *) &command;
@@ -275,7 +275,7 @@ parseFactor ()
             //printf("found executable=[%s], args=[%s]\r\n", parseString, x);
             load(parseString);
             return run(x);
-            }
+        }
 
 
         printf ("syntax error: %s\r\n", parseString);
@@ -634,7 +634,7 @@ int search_path(char *s)
 
     if (ext2_path_to_inode(s)) {
         return 1;
-        }
+    }
 
     return 0;
 }
@@ -648,11 +648,11 @@ int run_f16(char *s)
     uint16_t result = 0;
     char *p = NULL;
     x = s;
-   
+
     addr = parseFactor();
     while (iswhitespace(x[0])) {
         x++;
-        }
+    }
     len = parseFactor();
     p = (char *) addr;
     result = fletcher16(p, len);
@@ -660,28 +660,28 @@ int run_f16(char *s)
     return 0;
 }
 
-int run_f16f(char *s) 
+int run_f16f(char *s)
 {
-	//ext2_inode i;
-	uint32_t inode = 0;
-  uint16_t result = 0;
+    //ext2_inode i;
+    uint32_t inode = 0;
+    uint16_t result = 0;
 
-	inode = ext2_path_to_inode(s);
-	if (!inode) {
-		printf("f16f: %s not found\r\n", s);
-		return 0;
-		}
+    inode = ext2_path_to_inode(s);
+    if (!inode) {
+        printf("f16f: %s not found\r\n", s);
+        return 0;
+    }
 
-	if (isdirectory(inode)) {
-			printf("f16: %s is a directory\r\n", s);
-			return 0;
-			}
-	ext2_inode_lookup(inode, &my_inode, false);
-	printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size)); 
-	load(s);
-	printf("loaded %s...\r\n");
-	result = fletcher16(0x100000, nm_uint32(my_inode.i_size));
-  printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", 0x10000, nm_uint32(my_inode.i_size), result);
-	return 0;
+    if (isdirectory(inode)) {
+        printf("f16: %s is a directory\r\n", s);
+        return 0;
+    }
+    ext2_inode_lookup(inode, &my_inode, false);
+    printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size));
+    load(s);
+    printf("loaded %s...\r\n");
+    result = fletcher16(0x100000, nm_uint32(my_inode.i_size));
+    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", 0x10000, nm_uint32(my_inode.i_size), result);
+    return 0;
 
 }
