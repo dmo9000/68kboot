@@ -1,4 +1,4 @@
-#include "kernel.h"
+//#include "kernel.h"
 #include "types.h"
 #include "elf.h"
 #include "gdt.h"
