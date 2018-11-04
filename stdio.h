@@ -23,11 +23,16 @@ typedef struct _iobuf FILE;
 
 
 
+int fileno(FILE *f);
 int printf(const char *format, ...);
 int puts(const char *s);
 int getchar(void);
 int putchar(int c);
 int snprintf(char *str, size_t size, const char *format, ...);
 void perror(const char *s);
+FILE *fopen(const char *pathname, const char *mode);
+size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+int fclose(FILE *stream);
+
 
 #define SEEK_SET	0

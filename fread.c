@@ -28,8 +28,6 @@
 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
     ssize_t ritems = 0;
-    int i = 0;
-    size_t bytes = 0;
     int rd = 0;
     char *myptr = (char*) ptr;
     char *eofptr = NULL;

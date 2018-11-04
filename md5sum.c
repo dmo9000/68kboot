@@ -157,10 +157,9 @@ void decode(uint*, byte*, uint);
 MD5state* md5(byte*, uint, byte*, MD5state*);
 void sum(FILE*, char*);
 
-void
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-    int c;
+    int c = 0;
     FILE *fd;
 //    printf("argc = %d\r\n", argc);
 
@@ -430,7 +429,7 @@ init64(void)
 }
 
 int
-dec64(uchar *out, char *in, int n)
+dec64(uchar *out, unsigned char *in, int n)
 {
     ulong b24;
     uchar *start = out;

@@ -118,3 +118,5 @@ typedef struct {
     Elf32_Word	sh_addralign;
     Elf32_Word	sh_entsize;
 } Elf32_Shdr;
+
+int elf_load_binary(int elf_fd);

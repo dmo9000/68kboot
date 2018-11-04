@@ -12,7 +12,7 @@ void init_heap()
 {
 //    printf("init_heap()\r\n");
     //puts("\r\n");
-    heap_ptr = &_end;
+    heap_ptr = (unsigned char *) &_end;
     heap_next = heap_ptr;
 
 }
@@ -36,11 +36,11 @@ void *sbrk(intptr_t increment)
     //printf("*> sbrk(0x%08lx)\r\n", increment);
     heap_return = heap_next;
 
-    if (heap_return + (uint32_t) increment >= 0x1000000) {
+    if (heap_return + (uint32_t) increment >= (void *) 0x1000000) {
         return (void *) -1;
     }
 
-    if (heap_return >= 0x1000000) {
+    if (heap_return >= (void *) 0x1000000) {
         /* out of memory */
         //printf("sbrk(): out of memory\r\n");
         //assert(NULL);

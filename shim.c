@@ -32,6 +32,8 @@ int load(char *s);
 int run(char *s);
 int run_f16(char *s);
 int run_f16f(char *s);
+int search_path(char *s);
+int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
 
 const jmpTable jmptbl[] = {
@@ -603,7 +605,7 @@ int exec_run(char *pname, char *s)
     int i = 0;
     int argc = 0;
     int al = 0;
-    int argcount = 0;
+    //int argcount = 0;
     char *ap = NULL;
     char *args[MAX_ARGS];
     int c = 0;
@@ -686,8 +688,8 @@ int run_f16(char *s)
     }
     len = parseFactor();
     p = (char *) addr;
-    result = fletcher16(p, len);
-    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", addr, len, result);
+    result = fletcher16((unsigned char *) p, len);
+    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", addr, len, result);
     return 0;
 }
 
@@ -710,9 +712,8 @@ int run_f16f(char *s)
     ext2_inode_lookup(inode, &my_inode, false);
     printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size));
     load(s);
-    printf("loaded %s...\r\n");
-    result = fletcher16(0x100000, nm_uint32(my_inode.i_size));
-    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%lx]\r\n", 0x10000, nm_uint32(my_inode.i_size), result);
+    result = fletcher16((unsigned char *) 0x100000, nm_uint32(my_inode.i_size));
+    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", (uint32_t) 0x10000, nm_uint32(my_inode.i_size), result);
     return 0;
 
 }

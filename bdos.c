@@ -5,6 +5,7 @@
 #include "fcntl.h"
 #include "unistd.h"
 #include "errno.h"
+#include "string.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -12,7 +13,7 @@ extern int main(int argc, char *argv[]);
 int bdos_init()
 {
     //printf("bdos_init()\r\n");
-    memset(0x0400, 0, 256);
+    memset((void *) 0x0400, 0, 256);
     bdvt.magic = 0xF0E0F0E0;
     bdvt.ver_maj = VERSION_MAJOR;
     bdvt.ver_min = VERSION_MINOR;

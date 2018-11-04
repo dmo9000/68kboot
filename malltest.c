@@ -13,10 +13,10 @@ extern _bdos_vtable *btvt;
 int main(int argc, char *argv[])
 {
 
-    char buffer[4096];
-    int fd = 0;
+    //char buffer[4096];
+    //int fd = 0;
     int i = 0;
-    int rd = 0;
+    //int rd = 0;
     unsigned char *somemem = NULL;
     uint32_t mallsize = 1;
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         somemem = malloc(mallsize);
     }
 
-    printf("Largest successfull malloc(%u)\r\n", mallsize >> 1);
+    printf("Largest successfull malloc = %lu\r\n", mallsize >> 1);
     puts("\r\n");
     exit(0);
 

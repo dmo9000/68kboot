@@ -27,9 +27,9 @@
 
 FILE *fopen(const char *path, const char *mode)
 {
-    static struct stat statbuf;
+    //static struct stat statbuf;
     int fd = -1;
-    int fh = -1;
+    //int fh = -1;
     int oflags = 0;
     FILE *myfhptr = NULL;
     ssize_t initial_size = 0;
@@ -67,7 +67,8 @@ FILE *fopen(const char *path, const char *mode)
     myfhptr->_eof = false;
     myfhptr->_limit = initial_size;
     memset(myfhptr->_flags, 0, 4);
-    strncpy(myfhptr->_flags, (const char *) *mode, 3);
+    //strncpy(myfhptr->_flags, (const char *) *mode, 3);
+    strncpy(myfhptr->_flags,  (const char *) mode, 3);
     return (FILE*) myfhptr;
 
 }

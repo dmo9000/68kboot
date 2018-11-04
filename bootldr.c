@@ -3,6 +3,7 @@
 #include "types.h"
 #include "assert.h"
 #include "string.h"
+#include "disk.h"
 
 /* 32K = 256 sectors */
 
@@ -29,6 +30,6 @@ int main(int argc, char *argv[])
     }
     putchar('\r');
     putchar('\n');
-    run_vector = 0x0500;
+    run_vector = (int (*)(int,  char **)) 0x0500;
     run_vector(0, NULL);
 }

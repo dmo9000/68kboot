@@ -1,5 +1,5 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
-CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
+CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
 
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o 
@@ -17,22 +17,22 @@ shim:	$(BDOS_OBJS) $(MADLIBC_OBJS) shim.o fletcher16.o elf.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(MADLIBC_OBJS) $(BDOS_OBJS) shim.o fletcher16.o elf.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec shim shim.srec
-	ls -l shim
-	size -A -d shim
+	#ls -l shim
+	#size -A -d shim
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary shim shim.out
 
 bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o disk.o assert.o 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) bootldr.o disk.o assert.o exit.o \
     /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
-	ls -l bootldr 
-	size -A -d bootldr
+	#ls -l bootldr 
+	#size -A -d bootldr
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary bootldr bootldr.out
 
 bootldr.img: bootldr
-	dd if=/dev/zero of=bootldr.img bs=128 count=256
-	dd conv=notrunc if=bootldr.out of=bootldr.img
-	dd if=shim.out of=bootldr.img bs=128 seek=256 oflag=append conv=notrunc
+	@@dd if=/dev/zero of=bootldr.img bs=128 count=256
+	@@dd conv=notrunc if=bootldr.out of=bootldr.img
+	@@dd if=shim.out of=bootldr.img bs=128 seek=256 oflag=append conv=notrunc
 	ls -l *.out
 
 malltest:	$(MADLIBC_OBJS) crt0.o malltest.o assert.o exit.o sbrk.o malloc.o perror.o 
@@ -40,8 +40,8 @@ malltest:	$(MADLIBC_OBJS) crt0.o malltest.o assert.o exit.o sbrk.o malloc.o perr
 		assert.o exit.o sbrk.o malloc.o perror.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec malltest malltest.srec
-	ls -l malltest
-	size -A -d malltest
+	#ls -l malltest
+	#size -A -d malltest
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary malltest malltest.out
 
 md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl_uspace.o fopen.o fread.o fclose.o ustdio.o perror.o
@@ -49,8 +49,8 @@ md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl
 		assert.o exit.o sbrk.o malloc.o fcntl_uspace.o fopen.o fread.o fclose.o	ustdio.o perror.o \
 		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec md5sum md5sum.srec
-	ls -l md5sum
-	size -A -d md5sum
+	#ls -l md5sum
+	#size -A -d md5sum
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy --redefine-sym entry=_start -O binary md5sum md5sum.out
 
 
@@ -86,30 +86,30 @@ testfile.txt:
     done
 
 1mb.bin:
-	dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null 
+	@dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null 
 
 8mb: testfile.txt 1mb.bin
-	dd if=/dev/zero of=8mb.img count=65536 bs=128
-	mke2fs ./8mb.img
-	sudo mount 8mb.img mnt
-	sudo chown -R dan:dan mnt
-	printf "Hello world 1\r\n" > hello1.txt 2>&1
-	printf "Hello world 2\r\n" > hello2.txt 2>&1
-	cp hello1.txt mnt/hello1.txt
-	cp hello2.txt mnt/hello2.txt
-	dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	mkdir -p mnt/foo/bar/baz
-	dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	cp 1mb.bin mnt/
-	cp texttest.txt mnt/
-	cp malltest.out mnt/malltest.out
-	cp md5sum.out mnt/md5sum.out
-	cp md5sum mnt/md5sum
-	cp linux/md5sum.linux mnt/md5sum.linux
-	cp malltest mnt/malltest	
-	cp testfile.txt mnt/	
-	ls --inode -ln mnt
-	sync
-	sudo umount mnt
+	@dd if=/dev/zero of=8mb.img count=65536 bs=128
+	@mke2fs ./8mb.img
+	@sudo mount 8mb.img mnt
+	@sudo chown -R dan:dan mnt
+	@printf "Hello world 1\r\n" > hello1.txt 2>&1
+	@printf "Hello world 2\r\n" > hello2.txt 2>&1
+	@cp hello1.txt mnt/hello1.txt
+	@cp hello2.txt mnt/hello2.txt
+	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@mkdir -p mnt/foo/bar/baz
+	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
+	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
+	@cp 1mb.bin mnt/
+	@cp texttest.txt mnt/
+	@cp malltest.out mnt/malltest.out
+	@cp md5sum.out mnt/md5sum.out
+	@cp md5sum mnt/md5sum
+	@cp linux/md5sum.linux mnt/md5sum.linux
+	@cp malltest mnt/malltest	
+	@cp testfile.txt mnt/	
+	@ls --inode -ln mnt
+	@sync
+	@sudo umount mnt

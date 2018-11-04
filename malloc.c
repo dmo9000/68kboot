@@ -32,7 +32,7 @@ void *malloc(size_t size)
         return (void*)(header + 1);
     }
     total_size = sizeof(struct header_t) + size;
-    block = sbrk(total_size);
+    block = sbrk((void*) total_size);
     if (block == (void*) -1) {
 //		pthread_mutex_unlock(&global_malloc_lock);
         return NULL;
@@ -74,7 +74,7 @@ void free(void *block)
                 tmp = tmp->next;
             }
         }
-        sbrk(0 - sizeof(struct header_t) - header->size);
+        sbrk((void *) 0 - sizeof(struct header_t) - header->size);
 //		pthread_mutex_unlock(&global_malloc_lock);
         return;
     }

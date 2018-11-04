@@ -4,6 +4,8 @@
 #include "string.h"
 #include "fcntl.h"
 #include "assert.h"
+#include "byteorder.h"
+#include "unistd.h"
 
 //#define DEBUG_ELF
 
@@ -12,9 +14,9 @@ int loadelf(char *s)
 //    printf("loadelf(%s)\r\n");
     int elf_ok = 0;
     assert(s);
-    char buffer[4096];
-    int rd = 0;
-    int i = 0;
+    //char buffer[4096];
+    //int rd = 0;
+    //int i = 0;
     int elf_fd = 0;
     elf_fd = open(s, O_RDONLY);
 
@@ -35,7 +37,6 @@ int elf_load_binary(int elf_fd)
     char section_string_table[2048];
     Elf32_Ehdr *Header = NULL;
     Elf32_Shdr *SectionHeader = NULL;
-    Elf32_Shdr **SectionHeaders;
 
     unsigned long offset = 0;
     unsigned long entsize = 0;
@@ -44,10 +45,7 @@ int elf_load_binary(int elf_fd)
     char flags[5];
     int fo = 0;
     int   sh_offset = 0;
-    char *sh_strtab = NULL;
-    char *sh_string  = NULL;
     unsigned char *base = NULL;
-    unsigned int pid = 0;
     int (*start)();
     unsigned char *addr = NULL;
     int rd = 0;
@@ -64,7 +62,7 @@ int elf_load_binary(int elf_fd)
     printf("[elf.c(elf_fd=%d): read %d bytes]\r\n", elf_fd, rd);
 #endif
 
-    addr = &buffer;
+    addr = (unsigned char *) &buffer;
     base = addr;
 
 #ifdef DEBUG_ELF
@@ -139,7 +137,7 @@ int elf_load_binary(int elf_fd)
     printf("e_entry     = 0x%x\r\n", Header->e_entry);
 #endif
 
-    start = Header->e_entry;
+    start = (int (*)()) Header->e_entry;
     offset = Header->e_shoff;
 
     num_entries = Header->e_shnum;
@@ -173,7 +171,7 @@ int elf_load_binary(int elf_fd)
 
     rd = read(elf_fd, &buffer, Header->e_shnum*Header->e_shentsize);
 
-    SectionHeader = &buffer;
+    SectionHeader = (Elf32_Shdr *) &buffer;
     SectionHeader += e_shstrndx;
 
 #ifdef DEBUG_ELF
@@ -193,7 +191,7 @@ int elf_load_binary(int elf_fd)
 //		ptr_dump(&section_string_table);
 //		assert(NULL);
 
-    SectionHeader = &buffer;
+    SectionHeader = (Elf32_Shdr *) &buffer;
 
 #ifdef DEBUG_ELF
     printf("[ID] %17s %13s   ADDRESS  OFFSET SIZE ESZ F     L  I  A\r\n",
@@ -232,11 +230,11 @@ int elf_load_binary(int elf_fd)
 //				lseek(elf_fd, sh_offset + SectionHeader->sh_name, SEEK_SET);
 //				read(elf_fd, &sh_strname,
 
-        section_name = &section_string_table;
+        section_name = (char *) &section_string_table;
         section_name += SectionHeader->sh_name;
 
 
-        if (SectionHeader->sh_type == SHT_PROGBITS || SectionHeader->sh_type == SHT_NOBITS && SectionHeader->sh_addr) {
+        if ((SectionHeader->sh_type == SHT_PROGBITS || SectionHeader->sh_type == SHT_NOBITS) && SectionHeader->sh_addr) {
 #ifdef DEBUG_ELF
             printf("[%2u] 0x%08lx %17s sh_type=%14s sh_addr=%13u sh_offset=%6x sh_size=%6u sh_entsize=%u flags=%4s %4x %4x %4x\r\n",
                    i,
