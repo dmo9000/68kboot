@@ -1,11 +1,11 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
-CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections 
+CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections
 
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
-			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o 
+			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o
 
-BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o 
- 
+BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o
+
 
 all: bootldr shim malltest md5sum bootldr.img 8mb
 
@@ -13,19 +13,19 @@ all: bootldr shim malltest md5sum bootldr.img 8mb
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-shim:	$(BDOS_OBJS) $(MADLIBC_OBJS) shim.o fletcher16.o elf.o 
+shim:	$(BDOS_OBJS) $(MADLIBC_OBJS) shim.o fletcher16.o elf.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(MADLIBC_OBJS) $(BDOS_OBJS) shim.o fletcher16.o elf.o \
-		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec shim shim.srec
 	#ls -l shim
 	#size -A -d shim
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary shim shim.out
 
-bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o disk.o assert.o 
+bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o disk.o assert.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) bootldr.o disk.o assert.o exit.o \
-    /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+    /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
-	#ls -l bootldr 
+	#ls -l bootldr
 	#size -A -d bootldr
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary bootldr bootldr.out
 
@@ -35,10 +35,10 @@ bootldr.img: bootldr
 	@@dd if=shim.out of=bootldr.img bs=128 seek=256 oflag=append conv=notrunc
 	ls -l *.out
 
-malltest:	$(MADLIBC_OBJS) crt0.o malltest.o assert.o exit.o sbrk.o malloc.o perror.o 
+malltest:	$(MADLIBC_OBJS) crt0.o malltest.o assert.o exit.o sbrk.o malloc.o perror.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o malltest --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) malltest.o 	\
 		assert.o exit.o sbrk.o malloc.o perror.o \
-		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec malltest malltest.srec
 	#ls -l malltest
 	#size -A -d malltest
@@ -47,7 +47,7 @@ malltest:	$(MADLIBC_OBJS) crt0.o malltest.o assert.o exit.o sbrk.o malloc.o perr
 md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl_uspace.o fopen.o fread.o fclose.o ustdio.o perror.o
 	/usr/local/gcc-68k/bin/m68k-elf-ld -T uspace.lds -o md5sum --gc-sections --defsym=_start=_start -Ttext=0x100100 -e _start  crt0.o $(MADLIBC_OBJS) md5sum.o    \
 		assert.o exit.o sbrk.o malloc.o fcntl_uspace.o fopen.o fread.o fclose.o	ustdio.o perror.o \
-		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a 
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec md5sum md5sum.srec
 	#ls -l md5sum
 	#size -A -d md5sum
@@ -86,7 +86,7 @@ testfile.txt:
     done
 
 1mb.bin:
-	@dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null 
+	@dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null
 
 8mb: testfile.txt 1mb.bin
 	@dd if=/dev/zero of=8mb.img count=65536 bs=128

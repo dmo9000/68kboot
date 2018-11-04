@@ -2,7 +2,7 @@
 #ifndef __LINUX__
 #include "types.h"
 #include "fletcher16.h"
-#else 
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>

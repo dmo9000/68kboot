@@ -14,7 +14,7 @@
    These definitions work for machines where an SF value is
    returned in the same register as an int.  */
 
-#ifndef SFVALUE  
+#ifndef SFVALUE
 #define SFVALUE int
 #endif
 
