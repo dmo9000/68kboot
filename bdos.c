@@ -1,7 +1,10 @@
+#define __BDOS__
+
 #include "stdio.h"
 #include "bdos.h"
 #include "fcntl.h"
 #include "unistd.h"
+#include "errno.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -21,4 +24,11 @@ int bdos_init()
     //printf("main = 0x%lx\r\n", main);
     //puts("\r\n");
     return 1;
+}
+
+int set_errno(int d)
+{
+    errno = d;
+    bdvt.errno = d;
+    return bdvt.errno;
 }

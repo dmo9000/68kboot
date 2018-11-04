@@ -1,9 +1,10 @@
+#define __BDOS__
 
 #include "stdio.h"
 #include "string.h"
 #include "errno.h"
 
-//int errno;
+int errno;
 
 void perror(const char *s)
 {

@@ -1,3 +1,5 @@
+#define __BDOS__
+
 #include "stdio.h"
 #include "string.h"
 #include "fcntl.h"
@@ -52,18 +54,21 @@ int fcntl_open_inode(uint32_t inode, int flags)
     new_fd = fcntl_find_free_fd();
 
     if (new_fd == -1) {
-        errno = EMFILE;
+        set_errno(EMFILE);
         return -1;
     }
 
     assert(ext2_inode_lookup(inode, &file_descriptor[new_fd].fd_inode, false));
-    /*
-    if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= (EXT2_NDIR_BLOCKS * ext2_rootfs.block_size))) {
-        // quick check for now - we can only handle files with direct blocks, anything else is too large
-        errno = EFBIG;
+
+    /* FIXME: we should come up some compile time defines for DIRECT, INDIRECT, INDIRECT2, INDIRECT3 etc */
+
+    if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= ((EXT2_NDIR_BLOCKS * ext2_rootfs.block_size) + (EXT2_IND_BLOCKS* ext2_rootfs.block_size)))) {
+        // quick check for now - we can only handle files with direct and indirect blocks, anything else is too large
+        // printf("FILE TOO BIG!\r\n");
+        set_errno(EFBIG);
+        // printf("returning errno = %d\r\n", errno);
         return -1;
     }
-    */
 
     file_descriptor[new_fd].state = FD_STATE_OPEN;
     file_descriptor[new_fd].inode = inode;
@@ -81,12 +86,12 @@ int fcntl_close(int fildes)
 
     //printf("fcntl_close(%d)\r\n", fildes);
     if (fildes < 0 || fildes >= MAX_FDS) {
-        errno = EBADF;
+        set_errno(EBADF);
         return -1;
     }
 
     if (file_descriptor[fildes].state != FD_STATE_OPEN) {
-        errno = EBADF;
+        set_errno(EBADF);
         return -1;
     }
 
@@ -94,7 +99,7 @@ int fcntl_close(int fildes)
     file_descriptor[fildes].inode = 0;
     file_descriptor[fildes].offset = 0;
     memset(&file_descriptor[fildes].fd_inode, 0, sizeof(ext2_inode));
-    errno = 0;
+    set_errno(0);
     return 0;
 
 }

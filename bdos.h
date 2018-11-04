@@ -9,6 +9,7 @@ typedef struct _bdos_vtable {
     uint8_t ver_maj;
     uint8_t ver_min;
     uint8_t ver_rev;
+    int errno;
     int (*_open)(const char *pathname, int flags);
     off_t (*_lseek)(int fd, off_t offset, int whence);
     ssize_t (*_read)(int fd, void *buf, size_t count);

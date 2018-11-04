@@ -12,6 +12,8 @@
 #include "disk.h"
 #include "fletcher16.h"
 
+int errno;
+
 void do_exit(int d);
 
 extern ext2_fs ext2_rootfs;
@@ -30,6 +32,7 @@ int load(char *s);
 int run(char *s);
 int run_f16(char *s);
 int run_f16f(char *s);
+extern int loadelf(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -44,6 +47,7 @@ const jmpTable jmptbl[] = {
     {run, "run"},
     {run_f16, "f16"},
     {run_f16f, "f16f"},
+    {loadelf, "loadelf"},
     {0x0, ""}
 };
 
@@ -221,6 +225,7 @@ mathRegister
 parseFactor ()
 {
 
+    int elf_ok = 0;
     // printf("parseFactor(%s)\r\n", x);
     mathRegister sum1 = 0;
     //char *ptr = NULL;
@@ -272,9 +277,19 @@ parseFactor ()
         /* finally, search the root directory for the command */
 
         if (search_path(parseString)) {
-            //printf("found executable=[%s], args=[%s]\r\n", parseString, x);
-            load(parseString);
-            return run(x);
+            // printf("found executable=[%s], args=[%s]\r\n", parseString, x);
+
+            elf_ok = loadelf(parseString);
+            if (! elf_ok) {
+                //printf("%s: not an ELF executable\r\n", parseString);
+                //printf("[ CAUTION: loading binary program '%s' in legacy mode ]\r\n", parseString);
+                //puts("\r\n");
+                //load(parseString);
+                printf("%s: cannot exec binary file\r\n", parseString);
+                return 0;
+            } else {
+                return run(x);
+            }
         }
 
 
@@ -381,7 +396,13 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
 
 
     while (remaining > 0) {
-        assert(remaining > current_offset);
+        if (remaining <= current_offset) {
+            /* not sure why this was important before */
+            //printf("remaining(%u) <= current_offset(%u)\r\n", remaining, current_offset);
+            //assert(remaining > current_offset);
+        }
+
+        // assert(remaining > current_offset);
         assert(current_offset <= SECTOR_SIZE);
         bytes_available = SECTOR_SIZE - current_offset;
         if (bytes_available > remaining) {
@@ -572,6 +593,13 @@ bool iswhitespace(char c)
 int run(char *s)
 {
 
+    //printf("run(->%s, %s)\r\n", parseString, s);
+    return exec_run(parseString, s);
+}
+
+int exec_run(char *pname, char *s)
+{
+
     int i = 0;
     int argc = 0;
     int al = 0;
@@ -584,6 +612,9 @@ int run(char *s)
     for (i = 0; i < MAX_ARGS; i++) {
         args[i] = NULL;
     }
+
+    args[0] =  ( pname ? pname : "unknown" );
+    argc++;
 
     ap = s;
     al = 0;

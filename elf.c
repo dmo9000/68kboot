@@ -1,43 +1,42 @@
-//#include "kernel.h"
+#include "stdio.h"
 #include "types.h"
 #include "elf.h"
-#include "gdt.h"
-#include "machdep.h"
-#include "lock.h"
-#include "proc.h"
-#include "kinfo.h"
-#define MAX_TASKS SYSTEM_PROCESS_MAX
+#include "string.h"
+#include "fcntl.h"
+#include "assert.h"
 
-#define NULL	0
 //#define DEBUG_ELF
 
-extern byte *gdt;
-unsigned long _tss_sel;
-extern volatile struct proc *curproc;
-extern struct i386tss *dummytss;
-extern _kernel_info k_info;
-
-
-
-int elf_check_magic(unsigned long addr, unsigned long length)
+int loadelf(char *s)
 {
-    /* FIXME: move header checks from elf_load_binary to here */
-    printf("elf_check_magic(0x%x, 0x%x)\n", addr, length);
-    return (1);
+//    printf("loadelf(%s)\r\n");
+    int elf_ok = 0;
+    assert(s);
+    char buffer[4096];
+    int rd = 0;
+    int i = 0;
+    int elf_fd = 0;
+    elf_fd = open(s, O_RDONLY);
+
+    if (elf_fd == -1) {
+        perror("open");
+        return 0;
+    }
+
+    elf_ok = elf_load_binary(elf_fd);
+    close(elf_fd);
+    return elf_ok;
 }
 
-int elf_load_exec(struct proc *p, unsigned char *addr, byte *dummy)
-{
-//		printf("elf_load_exec(%u, %u)\n", p, addr);
-    elf_load_binary(addr, dummy);
-    return 0;
-}
-
-int elf_load_binary(unsigned char *addr, byte *dummy)
+int elf_load_binary(int elf_fd)
 {
 
+    char buffer[4096];
+    char section_string_table[2048];
     Elf32_Ehdr *Header = NULL;
-    Elf32_Shdr SecHeader;
+    Elf32_Shdr *SectionHeader = NULL;
+    Elf32_Shdr **SectionHeaders;
+
     unsigned long offset = 0;
     unsigned long entsize = 0;
     int i = 0;
@@ -47,132 +46,238 @@ int elf_load_binary(unsigned char *addr, byte *dummy)
     int   sh_offset = 0;
     char *sh_strtab = NULL;
     char *sh_string  = NULL;
-    unsigned char *base = addr;
+    unsigned char *base = NULL;
     unsigned int pid = 0;
     int (*start)();
+    unsigned char *addr = NULL;
+    int rd = 0;
+    int num_entries = 0;
+    uint32_t e_shstrndx = 0;
+    char *section_name = NULL;
+    char *load_ptr = NULL;
 
-//	printf("elf_load_binary(0x%x)\n", addr);
+    /* FIXME: we should seek to the start of the fd here */
+
+    memset(&buffer, 0, 4096);
+    rd = read(elf_fd, &buffer, 4096);
+#ifdef DEBUG_ELF
+    printf("[elf.c(elf_fd=%d): read %d bytes]\r\n", elf_fd, rd);
+#endif
+
+    addr = &buffer;
+    base = addr;
+
+#ifdef DEBUG_ELF
+    printf("elf_load_binary(0x%x)\r\n", addr);
+#endif
 
     Header = (Elf32_Ehdr*) addr;
 
     if ((addr[0] == 0x7f) && (addr[1] == 'E') &&
             (addr[2] == 'L') && (addr[3] == 'F')) {
-        printf("ELF executable found at 0x%x\n", addr);
+        //printf("ELF executable found at 0x%lx\r\n", addr);
     } else {
-        printf("ELF executable _NOT_ found at 0x%x\n", addr);
-        return (-1);
+        //printf("ELF executable _NOT_ found at 0x%lx\r\n", addr);
+        return (0);
     }
 
 
     if (Header->e_ident[EI_CLASS] != ELFCLASS32) {
-        printf("Can't exec ELF class %u\n",
+        printf("Can't exec ELF class %u\r\n",
                Header->e_ident[EI_CLASS]);
-        return(-1);
+        return(0);
     }
 
-    if (Header->e_ident[EI_DATA] != ELFDATA2LSB) {
-        printf("Can't exec ELF byte order %u\n",
-               Header->e_ident[EI_DATA]);
-        return(-1);
+    /* need to be able to support this byte order */
+
+    switch(Header->e_ident[EI_DATA]) {
+    case ELFDATA2LSB:
+        if (is_big_endian()) {
+            printf("elf.c: wrong byte order (LSB)\r\n");
+            return 0;
+        }
+        break;
+    case ELFDATA2MSB:
+        if (! is_big_endian()) {
+            printf("elf.c: wrong byte order (MSB)\r\n");
+            return 0;
+        }
+        break;
+    default:
+        printf("elf.c: unsupported elf->e_ident value (%u)\r\n", Header->e_ident[EI_DATA]);
+        return 0;
     }
+
+    assert(Header->e_ident[EI_DATA] != ELFDATANONE);
+
+    /* see elf.h for bytes order selection */
 
     if (Header->e_ident[EI_VERSION] != EV_CURRENT) {
-        printf("Can't exec ELF byte order %u\n",
+        printf("Can't exec ELF version %u\r\n",
                Header->e_ident[EI_VERSION]);
-        return -1;
+        return 0 ;
     }
 
-    if (Header->e_machine != EM_386) {
-        printf("Invalid ELF architecture (%u)\n",
+    /* see elf.h for architecture selection */
+
+    if (Header->e_machine != EM_68K) {
+        printf("Invalid ELF architecture (%u)\r\n",
                Header->e_machine);
-        return -1;
+        return 0;
     }
 
-    if (Header->e_flags != 0) {
-        printf("Invalid (e_flags set for arch EM_386)\n");
-        return -1;
-    }
-
+    /* account for byte order */
 
 #ifdef DEBUG_ELF
-    printf("ELF section header table @ 0x%x:\n", Header->e_shoff);
-    printf("e_shoff     = 0x%x\n", Header->e_shoff);
-    printf("e_shnum     = 0x%x\n", Header->e_shnum);
-    printf("e_shentsize = 0x%x\n", Header->e_shentsize);
-    printf("e_shstrndx  = 0x%x\n", Header->e_shstrndx);
-    printf("e_entry     = 0x%x\n", Header->e_entry);
-#endif /* DEBUG_ELF */
+    printf("ELF Flags: %u\r\n", nm_uint32(Header->e_flags));
+
+    printf("ELF section header table @ 0x%x:\r\n", Header->e_shoff);
+    printf("e_shoff     = 0x%x (%u)\r\n", Header->e_shoff, Header->e_shoff);
+    printf("e_shnum     = 0x%x\r\n", Header->e_shnum);
+    printf("e_shentsize = 0x%x\r\n", Header->e_shentsize);
+    printf("e_shstrndx  = 0x%x (%u)\r\n", Header->e_shstrndx, Header->e_shstrndx);
+    printf("e_entry     = 0x%x\r\n", Header->e_entry);
+#endif
 
     start = Header->e_entry;
-
     offset = Header->e_shoff;
 
+    num_entries = Header->e_shnum;
     /* focus the section header table */
 
     entsize = Header->e_shentsize;
-    kmemcpy(&SecHeader, addr+offset + (Header->e_shstrndx*entsize),
-            entsize);
+//    memcpy(&SecHeader, addr+offset + (Header->e_shstrndx*entsize),
+//           entsize);
 
     /* store offset to section header string table */
 
-    sh_offset = SecHeader.sh_offset;
-    addr+=offset;
+//    sh_offset = SecHeader.sh_offset;
+//    addr+=offset;
 
-    for (i = 0; i < Header->e_shnum; i++) {
-        kmemcpy(&SecHeader, addr, entsize);
-        kmemset(&flags, 0, 5);
-        kmemset(&flags, 32,  4);
-        kmemset(&sh_strname, 32, 17);
+    assert ((Header->e_shnum*Header->e_shentsize) < 4096);
+
+#ifdef DEBUG_ELF
+    printf("[ reading %u bytes of section header table from 0x%lx ]\r\n",
+           (Header->e_shnum*Header->e_shentsize),
+           Header->e_shoff);
+#endif
+    if (lseek(elf_fd, Header->e_shoff, SEEK_SET) == -1) {
+        perror("lseek");
+        return 0;
+    }
+
+    sh_offset = Header->e_shoff;
+    e_shstrndx = Header->e_shstrndx;
+
+    /* file descriptor should be pointed at the section header table by now */
+
+    rd = read(elf_fd, &buffer, Header->e_shnum*Header->e_shentsize);
+
+    SectionHeader = &buffer;
+    SectionHeader += e_shstrndx;
+
+#ifdef DEBUG_ELF
+    printf("(section name string table is section %u, offset = 0x%lx, size = 0x%lx)\r\n", e_shstrndx, SectionHeader->sh_offset,
+           SectionHeader->sh_size);
+#endif
+
+    if (lseek(elf_fd, SectionHeader->sh_offset, SEEK_SET) == -1) {
+        perror("lseek");
+        return 0;
+    }
+
+    assert(SectionHeader->sh_size < 4096);
+    memset(&section_string_table, 0, 256);
+
+    rd = read(elf_fd, &section_string_table, SectionHeader->sh_size);
+//		ptr_dump(&section_string_table);
+//		assert(NULL);
+
+    SectionHeader = &buffer;
+
+#ifdef DEBUG_ELF
+    printf("[ID] %17s %13s   ADDRESS  OFFSET SIZE ESZ F     L  I  A\r\n",
+           "SECTION_NAME", "SECTION_TYPE");
+    puts("\r\n");
+#endif
+
+    for (i = 0; i < num_entries; i++) {
+        memset(&flags, 0, 5);
+        memset(&flags, '.',  4);
+        memset(&sh_strname, 32, 17);
 
         fo = 0;
 
-        if (SecHeader.sh_flags & SHF_WRITE) {
+
+        if (SectionHeader->sh_flags & SHF_WRITE) {
             flags[fo] = 'W';
             fo++;
         }
-        if (SecHeader.sh_flags & SHF_ALLOC) {
+        if (SectionHeader->sh_flags & SHF_ALLOC) {
             flags[fo] = 'A';
             fo++;
         }
-        if (SecHeader.sh_flags & SHF_EXECINSTR) {
+        if (SectionHeader->sh_flags & SHF_EXECINSTR) {
             flags[fo] = 'X';
             fo++;
         }
-        if (SecHeader.sh_flags & SHF_MASKPROC) {
+        if (SectionHeader->sh_flags & SHF_MASKPROC) {
             flags[fo] = 'M';
             fo++;
         }
 
-        sh_string = base + sh_offset + SecHeader.sh_name;
-        kmemcpy(&sh_strname, sh_string, strlen(sh_string));
-#ifdef DEBUG_ELF
-        printf("  [%2u] %17s %14s %08x %06x %06x %02x %2s %2u %2x %2x\n",
-               i,
-               sh_strname,
-               sh_types[SecHeader.sh_type],
-               SecHeader.sh_addr,
-               SecHeader.sh_offset,
-               SecHeader.sh_size,
-               SecHeader.sh_entsize,
-               flags,
-               SecHeader.sh_link,
-               SecHeader.sh_info,
-               SecHeader.sh_addralign);
-#endif /* DEBUG_ELF */
-        /* cheap and nasty setup for calling program from
-           kernel. with paging and multitasking enabled, we
-           wouldn't do this */
+        //sh_string = base + sh_offset + SecHeader.sh_name;
+        //memcpy(&sh_strname, sh_string, strlen(sh_string));
 
-        if (SecHeader.sh_addr > 0 && SecHeader.sh_size > 0) {
-            if (kmemcpy(SecHeader.sh_addr, base+SecHeader.sh_offset,
-                        SecHeader.sh_size) == NULL) {
-                printf("kmemcpy() failed in ELF setup\n");
-                return -1;
+//				lseek(elf_fd, sh_offset + SectionHeader->sh_name, SEEK_SET);
+//				read(elf_fd, &sh_strname,
+
+        section_name = &section_string_table;
+        section_name += SectionHeader->sh_name;
+
+
+        if (SectionHeader->sh_type == SHT_PROGBITS || SectionHeader->sh_type == SHT_NOBITS && SectionHeader->sh_addr) {
+#ifdef DEBUG_ELF
+            printf("[%2u] 0x%08lx %17s sh_type=%14s sh_addr=%13u sh_offset=%6x sh_size=%6u sh_entsize=%u flags=%4s %4x %4x %4x\r\n",
+                   i,
+                   SectionHeader->sh_name,
+                   //"sh_strname",
+                   section_name,
+                   //&section_string_table + SectionHeader->sh_name,
+                   sh_types[SectionHeader->sh_type],
+                   SectionHeader->sh_addr,
+                   SectionHeader->sh_offset,
+                   SectionHeader->sh_size,
+                   SectionHeader->sh_entsize,
+                   flags,
+                   SectionHeader->sh_link,
+                   SectionHeader->sh_info,
+                   SectionHeader->sh_addralign);
+#endif
+            if (SectionHeader->sh_addr && SectionHeader->sh_type == SHT_PROGBITS) {
+//                printf("Writing SHT_PROGBITS...\r\n");
+                load_ptr = (char *) SectionHeader->sh_addr;
+                lseek(elf_fd, SectionHeader->sh_offset, SEEK_SET);
+                //printf("? = read(%d, 0x%lx, %u)\r\n", elf_fd, load_ptr, SectionHeader->sh_size);
+                rd = read(elf_fd, load_ptr, SectionHeader->sh_size);
+                //printf("  + %d = read(%d, 0x%lx, %u)\r\n", rd, elf_fd, load_ptr, SectionHeader->sh_size);
+                assert(rd == SectionHeader->sh_size);
             }
+
+
+            if (SectionHeader->sh_addr && SectionHeader->sh_type == SHT_NOBITS) {
+//                printf("Writing SHT_NOBITS...\r\n");
+                load_ptr = (char *) SectionHeader->sh_addr;
+                memset(load_ptr, 0, SectionHeader->sh_size);
+            }
+
         }
-        addr += entsize;
+
+
+        SectionHeader += 1;
     }
 
-
+    //printf("[ELF LOADER RETURNING 1]\r\n");
+    //puts("\r\n");
     return(1);
 }

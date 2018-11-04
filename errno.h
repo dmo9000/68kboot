@@ -17,4 +17,13 @@
 #define EWOULDBLOCK EAGAIN
 #define ENOTSUPP    EOPNOTSUPP
 
+#ifdef __BDOS__
 extern int errno;
+//#define set_errno(n)	errno = #n;
+#else
+int _bdos_geterrno();
+#define errno _bdos_geterrno()
+#define set_errno(n) _bdos_seterrno()
+#endif
+
+

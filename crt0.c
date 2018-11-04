@@ -8,6 +8,7 @@ extern void *_end;
 
 //#define DEBUG
 
+extern int errno;
 extern int main(int argc, char *argv[]);
 
 _bdos_vtable *btvt = NULL;
@@ -33,7 +34,19 @@ int _start(int argc, char *argv[])
     }
 
     init_heap();
-
     return main(argc, argv);
 
+}
+
+int _bdos_geterrno()
+{
+//    errno = btvt->errno;
+    return btvt->errno;
+}
+
+int _bdos_seterrno(int e)
+{
+    btvt->errno = e;
+//    errno = e;
+    return btvt->errno;
 }

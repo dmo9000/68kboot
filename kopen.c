@@ -1,3 +1,5 @@
+#define __BDOS__
+
 #include "stdio.h"
 #include "fcntl.h"
 #include "string.h"
@@ -19,24 +21,25 @@ int open(const char *pathname, int flags)
         /* file not found */
         if (!errno) {
             /* catch all, if errno not already set */
-            errno = ENOENT;
+            set_errno(ENOENT);
         }
         return -1;
     }
 
     if (isdirectory(file_inode)) {
-        errno = EISDIR;
+        set_errno(EISDIR);
         return -1;
     }
 
     new_fd= fcntl_open_inode(file_inode, flags);
     if (new_fd == -1) {
+        //printf("funky! new_fd = %d, errno = %d\r\n", new_fd, errno);
         return -1;
     }
     //printf("fd = %d\r\n", new_fd);
 
 
-    errno = 0;
+    set_errno(0);
     return new_fd;
 
 }

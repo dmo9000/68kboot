@@ -29,3 +29,5 @@ int getchar(void);
 int putchar(int c);
 int snprintf(char *str, size_t size, const char *format, ...);
 void perror(const char *s);
+
+#define SEEK_SET	0

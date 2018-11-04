@@ -1,0 +1,19 @@
+[dan@fc27 68kboot]$ linux/fletcher16 md5sum.out
+argv[0] = 'linux/fletcher16'
+argv[1] = 'md5sum.out'
+size = 23244
+fletcher16 result = 0x1d49
+
+shim> f16f md5sum.out
+md5sum.out->i_size = 23244
+loaded md5sum.out...
+[f16:addr = 0x10000, len = 0x5acc, result = 0x1d49]
+
+shim> load md5sum.out
+shim> f16 1048576 23244
+[f16:addr = 0x100000, len = 0x5acc, result = 0x1d49]
+
+shim> loadelf md5sum
+shim> f16 1048576 23244
+[f16:addr = 0x100000, len = 0x5acc, result = 0x1d49]
+

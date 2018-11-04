@@ -54,38 +54,20 @@ FILE *fopen(const char *path, const char *mode)
     if (strncmp(mode, "w+", 2) == 0) {
         oflags = O_RDWR | O_TRUNC;
     }
-    errno = 0;
     fd = open(path, oflags);
-//    printf("fopen(), fd = %d\r\n", fd);
-
     if (fd < 0) {
-        /* pass through errno */
         return NULL;
     }
-    errno = 0;
+    set_errno(0);
     /* get free filehandle */
-    /*
-    fh = _find_free_filehandle();
-    if (fh == -1) {
-        close(fd);
-        errno = ENFILE;
-        return NULL;
-    }
-    */
     myfhptr = malloc(sizeof(FILE));
-    errno = 0;
+    set_errno(0);
 
     myfhptr->_file = fd;
     myfhptr->_eof = false;
     myfhptr->_limit = initial_size;
     memset(myfhptr->_flags, 0, 4);
     strncpy(myfhptr->_flags, (const char *) *mode, 3);
-    //  filehandles[fh]._file = fd;
-    //  filehandles[fh]._eof = false;
-    // filehandles[fh]._limit = initial_size;
-//   memset(&filehandles[fh]._flags, 0, 4);
-//    strncpy((const char *) &filehandles[fh]._flags, (const char *) mode, 3);
-//    myfhptr = &filehandles[fh];
     return (FILE*) myfhptr;
 
 }

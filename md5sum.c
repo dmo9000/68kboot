@@ -204,7 +204,9 @@ main(int argc, char **argv)
             if(fd==NULL) {
                 /* TODO: fprintf() not supported */
                 //fprintf(stderr, "md5sum: can't open %s\n", argv[c]);
+                perror("fopen");
                 printf("md5sum: can't open %s\r\n", argv[c]);
+
                 return 1;
                 //continue;
             }

@@ -1,4 +1,4 @@
-
+#define __BDOS__
 
 #include "string.h"
 #include "stdio.h"
@@ -449,7 +449,7 @@ uint32_t ext2_path_to_inode(char *path)
     // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
 
     if (!ext2_rootfs.active ) {
-        errno = EIO;
+        set_errno(EIO);
         return 0;
     }
 
@@ -487,7 +487,7 @@ uint32_t ext2_path_to_inode(char *path)
         //      printf("inode %lu: it's a directory!\r\n", current_inode);
         lookup_inode = ext2_get_inode_from_dirent(current_inode, (char *) &path_element);
         if (!lookup_inode) {
-            errno = ENOENT;
+            set_errno(ENOENT);
             //    printf("%s: not found\r\n", path_element);
 
             return 0;

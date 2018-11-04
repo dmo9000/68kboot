@@ -27,7 +27,7 @@ int fclose(FILE *stream)
 {
 
     if (! stream || stream->_file == -1) {
-        errno = EBADF;
+        set_errno(EBADF);
         return -1;
     }
 
@@ -35,7 +35,7 @@ int fclose(FILE *stream)
 
     close(stream->_file);
     stream->_file = -1;
-    errno = 0;
+    set_errno(0);
     free(stream);
     return 0;
 }

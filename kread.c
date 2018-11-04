@@ -1,3 +1,5 @@
+#define __BDOS__
+
 #include "stdio.h"
 #include "stddef.h"
 #include "string.h"
@@ -38,7 +40,7 @@ ssize_t read(int fd, void *buf, size_t count)
         printf("read() - offset %lu is out of range\r\n", descriptor->offset);
         // EOF - return 0 */
         //return 0;
-        errno = EIO;
+        set_errno(EIO);
         return -1;
     }
 
@@ -87,6 +89,6 @@ ssize_t read(int fd, void *buf, size_t count)
         //printf("++ read %lu bytes, total_available=%lu, read_remaining=%lu, still_available=%lu\r\n", bytes_available_in_this_block, total_available, remaining, still_available);
     }
 
-    errno = 0;
+    set_errno(0);
     return total_bytes_read;
 }
