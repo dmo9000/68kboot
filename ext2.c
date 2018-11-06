@@ -99,7 +99,7 @@ found_rootfs:
     ext2_rootfs.device = &devices[i];
     ext2_rootfs.device_number = i;
 
-    printf("EXT2: found root ext2fs v%lu.%u (%s) (state %s) device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
+    printf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n  device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
            nm_uint32(ext2_rootfs.blck.s_rev_level),
            nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
            (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
@@ -107,7 +107,7 @@ found_rootfs:
            ext2_rootfs.device->maj, ext2_rootfs.device->min,
            ext2_rootfs.device->name,
            offset, offset);
-    printf ("EXT2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, first_inode=%lu, inode_size=%u\r\n",
+    printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
             nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
             nm_uint32(ext2_rootfs.blck.s_inodes_count),
             nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
@@ -124,7 +124,7 @@ found_rootfs:
                                     nm_uint32(ext2_rootfs.blocks_per_group));
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
-    printf("EXT2: blocks per group=%u, inodes per group=%u, block groups=%u\r\n",
+    printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\r\n",
            ext2_rootfs.blocks_per_group,
            ext2_rootfs.inodes_per_group,
            ext2_rootfs.block_groups
