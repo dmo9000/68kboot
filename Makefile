@@ -110,6 +110,7 @@ testfile.txt:
 	@cp linux/md5sum.linux mnt/md5sum.linux
 	@cp malltest mnt/malltest	
 	@cp testfile.txt mnt/	
+	@cp files/*.ans mnt/
 	@ls --inode -ln mnt
 	@sync
 	@sudo umount mnt
