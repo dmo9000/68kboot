@@ -114,7 +114,7 @@ int main()
 		printf("\r\n");
 
     while (1) {
-        printf("shim> ");
+        printf("%c[37m""shim> ", 27);
         memset(&command, 0, 2048);
         c = getchar();
         while (c != '\r') {
