@@ -256,6 +256,12 @@ int ext2_list_directory(uint32_t directory_inode)
                (perms[0] == 'd' ? '/' : '\0'));
         */
 
+				/* FIXME: ANSI codes in an ext2 drivers, lol */
+
+				if (perms[0] == 'd') {
+						printf("%c[34m", 27);
+				} 
+
         printf("%10ld %s %5u %5u %8lu %s%c\r\n",
                nm_uint32(current_entry.inode),
                perms,
@@ -264,6 +270,7 @@ int ext2_list_directory(uint32_t directory_inode)
                fnbuf,
                (perms[0] == 'd' ? '/' : '\0'));
 
+				printf("%c[37m", 27);
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
             /* looks like we have reached the end of the directory */
