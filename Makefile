@@ -58,6 +58,7 @@ clean:
 	rm -f shim *.out *.srec *.o bootldr shim malltest md5sum *.img hello?.txt
 
 install:
+	chmod 644 *.out
 	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
 	cp 8mb.img ~/git-local/68kp/8mb.img
 	ls -l *.out
@@ -104,6 +105,7 @@ testfile.txt:
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@cp 1mb.bin mnt/
 	@cp texttest.txt mnt/
+	@chmod 644 *.out
 	@cp malltest.out mnt/malltest.out
 	@cp md5sum.out mnt/md5sum.out
 	@cp md5sum mnt/md5sum

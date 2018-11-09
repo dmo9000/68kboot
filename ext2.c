@@ -258,10 +258,6 @@ int ext2_list_directory(uint32_t directory_inode)
 
 				/* FIXME: ANSI codes in an ext2 drivers, lol */
 
-				if (perms[0] == 'd') {
-						printf("%c[34m", 27);
-				} 
-
         printf("%10ld %s %5u %5u %8lu %s%c\r\n",
                nm_uint32(current_entry.inode),
                perms,
