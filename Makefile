@@ -7,7 +7,7 @@ MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o
 
 
-all: bootldr shim malltest md5sum bootldr.img 8mb
+all: testfile.txt bootldr shim malltest md5sum bootldr.img 8mb
 
 
 %.o: %.c
@@ -57,6 +57,10 @@ md5sum:    $(MADLIBC_OBJS) crt0.o md5sum.o assert.o exit.o sbrk.o malloc.o fcntl
 clean:
 	rm -f shim *.out *.srec *.o bootldr shim malltest md5sum *.img hello?.txt
 
+veryclean: clean
+	rm -f testfile.txt
+	
+
 install:
 	chmod 644 *.out
 	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
@@ -76,13 +80,13 @@ install:
 			else			\
 				echo "shim.out:    size is okay (<= 64K)" ;				\
 			fi )
-	
+	md5sum testfile.txt	
 
 testfile.txt:
 	cp /dev/null testfile.txt
-	for FN1 in `seq 0 255` ; do \
-    for FN2 in `seq 1 512`; do  \
-      printf "%02x" $${FN1} >> testfile.txt ; \
+	for FN1 in `seq 0 524` ; do \
+    for FN2 in `seq 1 256`; do  \
+      printf "%04x" $${FN1} >> testfile.txt ; \
       done  \
     done
 
@@ -104,6 +108,8 @@ testfile.txt:
 	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
 	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
 	@cp 1mb.bin mnt/
+	@md5sum mnt/1mb.bin
+	#@linux/md5sum.linux mnt/1mb.bin
 	@cp texttest.txt mnt/
 	@chmod 644 *.out
 	@cp malltest.out mnt/malltest.out

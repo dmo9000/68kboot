@@ -256,7 +256,7 @@ int ext2_list_directory(uint32_t directory_inode)
                (perms[0] == 'd' ? '/' : '\0'));
         */
 
-				/* FIXME: ANSI codes in an ext2 drivers, lol */
+        /* FIXME: ANSI codes in an ext2 drivers, lol */
 
         printf("%10ld %s %5u %5u %8lu %s%c\r\n",
                nm_uint32(current_entry.inode),
@@ -266,7 +266,7 @@ int ext2_list_directory(uint32_t directory_inode)
                fnbuf,
                (perms[0] == 'd' ? '/' : '\0'));
 
-				printf("%c[37m", 27);
+        printf("%c[37m", 27);
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
             /* looks like we have reached the end of the directory */
@@ -549,8 +549,12 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
 {
 
     unsigned char indirect_cache[1024];
+    unsigned char double_indirect_cache[1024];
     uint32_t *icp = NULL;
+    uint32_t *dcp = NULL;
+
     if (file_block_id >=0 && file_block_id < EXT2_NDIR_BLOCKS) {
+        /* DIRECT BLOCK */
         //printf("-- inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
         return nm_uint32(e2i->i_block[file_block_id]);
     }
@@ -564,16 +568,42 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
                     nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]) * ext2_rootfs.block_size);
         */
 
-    devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]) * ext2_rootfs.block_size);
-    devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &indirect_cache, ext2_rootfs.block_size);
-    icp = (uint32_t *) &indirect_cache;
-    //printf("icp[1] = 0x%08lx\r\n", icp);
-    icp+= file_block_id - EXT2_NDIR_BLOCKS;
-    //printf("icp[2] = 0x%08lx\r\n", icp);
-    //printf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp));
-    //ptr_dump(&indirect_cache);
-    return nm_uint32(*icp);
+    if (file_block_id >= (EXT2_NDIR_BLOCKS + (ext2_rootfs.block_size / sizeof(uint32_t)))) {
+        uint32_t block_deref = 0;
+        uint32_t block_page =  0;
+        uint32_t block_page_index = 0;
 
+        block_deref = file_block_id - (EXT2_IND_BLOCKS + EXT2_NDIR_BLOCKS);
+        block_page = block_deref / (ext2_rootfs.block_size / sizeof(uint32_t));
+        block_page_index = block_deref % (ext2_rootfs.block_size / sizeof(uint32_t));
+        //printf("+ double indirect block, block_id=%lu(0x%08lx) -> %u (%u, %u)\r\n", file_block_id, file_block_id, block_deref, block_page, block_page_index);
+        devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32(e2i->i_block[EXT2_DIND_BLOCK]) * ext2_rootfs.block_size);
+        devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &double_indirect_cache, ext2_rootfs.block_size);
+        dcp = (uint32_t *) &double_indirect_cache;
+        //ptr_dump(&double_indirect_cache);
+        dcp += block_page;
+        //printf("dcp = %08lx\r\n", nm_uint32(*dcp));
+        /* we have deferenced the double indirect block here, and block_page_index should be an offset into the next page we fetch, which is indirect */
+        devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32((*dcp)) * ext2_rootfs.block_size);
+        devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &indirect_cache, ext2_rootfs.block_size);
+        //ptr_dump(&indirect_cache);
+        /* dereference the indirect block */
+        icp = (uint32_t *) &indirect_cache;
+        icp += block_page_index;
+        //printf("icp = %08lx\r\n", nm_uint32(*icp));
+        return nm_uint32(*icp);
+        //assert(NULL);
+    } else {
+        devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32(e2i->i_block[EXT2_IND_BLOCK]) * ext2_rootfs.block_size);
+        devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &indirect_cache, ext2_rootfs.block_size);
+        icp = (uint32_t *) &indirect_cache;
+        //printf("icp[1] = 0x%08lx\r\n", icp);
+        icp+= file_block_id - EXT2_NDIR_BLOCKS;
+        //printf("icp[2] = 0x%08lx\r\n", icp);
+        //printf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp));
+        //ptr_dump(&indirect_cache);
+        return nm_uint32(*icp);
+    }
 
     /* TODO: double indirect blocks */
     /* TODO: triple indirect blocks */

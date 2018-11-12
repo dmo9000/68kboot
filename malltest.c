@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     //int fd = 0;
     int i = 0;
     //int rd = 0;
+		int z = 0;
     unsigned char *somemem = NULL;
     uint32_t mallsize = 1;
 		uint32_t videoram = 0x2000000;
@@ -43,9 +44,11 @@ int main(int argc, char *argv[])
 
 		printf("Writing to 0x%lx ... \r\n", videoram); 
 		while(p - videoram < 0xB4000) {
-				p[0] = random() % 0xFF;
-				p[1] = random() % 0xFF;
-				p[2] = random() % 0xFF;
+				z++;
+				p[0] = 0;
+				p[1] = 255;
+				p[2] = 0;
+
 				p+=3;
 				}	
 

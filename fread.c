@@ -37,7 +37,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
         return -1;
     }
 
-    printf("fread(0x%08lx, stream->_file = %d)\r\n", stream, fileno(stream));
+//    printf("fread(0x%08lx, stream->_file = %d)\r\n", stream, fileno(stream));
 
     assert(fileno(stream));
 
