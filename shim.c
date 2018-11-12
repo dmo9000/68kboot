@@ -555,7 +555,8 @@ int load(char *s)
 
     int rd = 0;
     int load_fd = 0;
-    void *memptr = (void *) 0x100000;
+    //void *memptr = (void *) 0x100000;
+    void *memptr = (void *) 0x2000000;
 
     load_fd = open(s, O_RDONLY);
 

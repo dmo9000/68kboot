@@ -43,7 +43,7 @@ int dump(char *payload)
             ptr++;
         }
         ptr -= 16;
-        printf(" %c ", DFS);
+        printf("%c", DFS);
 
         for (i = 0 ; i < 16; i++) {
             ptr = (unsigned char *) addr + i;
