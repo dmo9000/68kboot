@@ -119,7 +119,7 @@ testfile.txt:
 	@cp malltest mnt/malltest	
 	@cp testfile.txt mnt/	
 	@cp files/*.ans mnt/
-	@cp files/frogprince.raw mnt/
+	@cp files/frogprince.data mnt/
 	@ls --inode -ln mnt
 	@sync
 	@sudo umount mnt
