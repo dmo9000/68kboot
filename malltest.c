@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
     //int rd = 0;
     unsigned char *somemem = NULL;
     uint32_t mallsize = 1;
+		uint32_t videoram = 0x2000000;
+		uint32_t vram_size = 737280;
+		unsigned char *p = (unsigned char *) videoram;
 
     printf("received %d arguments\r\n", argc);
     for (i = 0; i < argc; i++) {
@@ -37,6 +40,15 @@ int main(int argc, char *argv[])
 
     printf("Largest successfull malloc = %lu\r\n", mallsize >> 1);
     puts("\r\n");
+
+		printf("Writing to 0x%lx ... \r\n", videoram); 
+		while(p - videoram < 0xB4000) {
+				p[0] = 0xFF;
+				p[1] = 0x00;
+				p[2] = 0x00;
+				p+=3;
+				}	
+
     exit(0);
 
 }
