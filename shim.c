@@ -111,6 +111,8 @@ int main()
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
     select_disk("4");
 
+		//cat("/banner.ans");
+
 		printf("\r\n");
 
     while (1) {

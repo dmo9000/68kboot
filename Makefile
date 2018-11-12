@@ -91,7 +91,7 @@ testfile.txt:
     done
 
 1mb.bin:
-	@dd if=/dev/urandom of=1mb.bin bs=1024 count=1024 1>/dev/null
+	@dd if=/dev/urandom of=1mb.bin bs=1024 count=2048 1>/dev/null
 
 8mb: testfile.txt 1mb.bin
 	@dd if=/dev/zero of=8mb.img count=65536 bs=128
