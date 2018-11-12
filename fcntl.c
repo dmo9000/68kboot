@@ -62,7 +62,9 @@ int fcntl_open_inode(uint32_t inode, int flags)
 
     /* FIXME: we should come up some compile time defines for DIRECT, INDIRECT, INDIRECT2, INDIRECT3 etc */
 
-    if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= ((EXT2_NDIR_BLOCKS * ext2_rootfs.block_size) + (EXT2_IND_BLOCKS* ext2_rootfs.block_size)))) {
+    if (!(nm_uint32(file_descriptor[new_fd].fd_inode.i_size) <= ((EXT2_NDIR_BLOCKS * ext2_rootfs.block_size) + (EXT2_IND_BLOCKS* ext2_rootfs.block_size)   
+				+ (EXT2_IND_BLOCKS * ext2_rootfs.block_size * EXT2_IND_BLOCKS)
+				))) {
         // quick check for now - we can only handle files with direct and indirect blocks, anything else is too large
         // printf("FILE TOO BIG!\r\n");
         set_errno(EFBIG);

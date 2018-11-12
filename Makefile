@@ -2,7 +2,7 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections
 
 MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
-			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o
+			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o random.o
 
 BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o
 

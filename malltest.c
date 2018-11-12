@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
 
 		printf("Writing to 0x%lx ... \r\n", videoram); 
 		while(p - videoram < 0xB4000) {
-				p[0] = 0xFF;
-				p[1] = 0x00;
-				p[2] = 0x00;
+				p[0] = random() % 0xFF;
+				p[1] = random() % 0xFF;
+				p[2] = random() % 0xFF;
 				p+=3;
 				}	
 
