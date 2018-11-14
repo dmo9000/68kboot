@@ -94,15 +94,6 @@ void _ASSERT(char *error, char *file, int line)
     exit(1);
 }
 
-/*
-void do_exit(int d)
-{
-    unsigned int * p = (unsigned int *)((char *)CPM_EXIT);
-    p[0] = d;
-    while (1) { }
-}
-*/
-
 int main()
 {
     int length = 0;
@@ -110,7 +101,9 @@ int main()
     unsigned char c = 0;
     static char command[2048];
 
+
     bdos_init();
+
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
     select_disk("4");
 
