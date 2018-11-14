@@ -7,8 +7,7 @@ MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
 BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o
 
 
-all: testfile.txt bootldr shim malltest md5sum bootldr.img 8mb
-
+all: bootldr shim bootldr.img 
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
