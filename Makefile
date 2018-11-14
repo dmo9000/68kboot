@@ -1,8 +1,8 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -Os -ffunction-sections -fdata-sections
 
-MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
-			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o random.o
+#MADLIBC_OBJS=printf.o memset.o itoa.o strtoul.o memcpy.o strncmp.o dump.o \
+#			modules.o strerror.o puts.o putchar.o getchar.o strcmp.o strncpy.o memchr.o random.o
 
 BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o
 
@@ -12,17 +12,21 @@ all: bootldr shim bootldr.img
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-shim:	$(BDOS_OBJS) $(MADLIBC_OBJS) shim.o fletcher16.o elf.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(MADLIBC_OBJS) $(BDOS_OBJS) shim.o fletcher16.o elf.o \
-		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
+#shim:	$(BDOS_OBJS) $(MADLIBC_OBJS) shim.o fletcher16.o elf.o
+shim:	$(BDOS_OBJS) shim.o fletcher16.o elf.o
+
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(BDOS_OBJS) shim.o fletcher16.o elf.o \
+		/usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec shim shim.srec
 	#ls -l shim
 	#size -A -d shim
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary shim shim.out
 
-bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o disk.o assert.o
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 $(MADLIBC_OBJS) bootldr.o disk.o assert.o exit.o \
-    /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
+#bootldr: $(BDOS_OBJS) $(MADLIBC_OBJS) bootldr.o disk.o assert.o
+bootldr: $(BDOS_OBJS) bootldr.o disk.o assert.o
+
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 bootldr.o disk.o assert.o exit.o \
+    /usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
 	#ls -l bootldr
 	#size -A -d bootldr
@@ -63,7 +67,6 @@ veryclean: clean
 install:
 	chmod 644 *.out
 	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
-	cp 8mb.img ~/git-local/68kp/8mb.img
 	ls -l *.out
 	@( SIZE_BOOT=`stat -c %s bootldr.out` ;	\
 	if [ $${SIZE_BOOT} -gt 32768 ]; then	\
@@ -79,46 +82,4 @@ install:
 			else			\
 				echo "shim.out:    size is okay (<= 64K)" ;				\
 			fi )
-	md5sum testfile.txt	
 
-testfile.txt:
-	cp /dev/null testfile.txt
-	for FN1 in `seq 0 524` ; do \
-    for FN2 in `seq 1 256`; do  \
-      printf "%04x" $${FN1} >> testfile.txt ; \
-      done  \
-    done
-
-1mb.bin:
-	@dd if=/dev/urandom of=1mb.bin bs=1024 count=2048 1>/dev/null
-
-8mb: testfile.txt 1mb.bin
-	@dd if=/dev/zero of=8mb.img count=65536 bs=128
-	@mke2fs ./8mb.img
-	@sudo mount 8mb.img mnt
-	@sudo chown -R dan:dan mnt
-	@printf "Hello world 1\r\n" > hello1.txt 2>&1
-	@printf "Hello world 2\r\n" > hello2.txt 2>&1
-	@cp hello1.txt mnt/hello1.txt
-	@cp hello2.txt mnt/hello2.txt
-	@dd if=/dev/urandom of=mnt/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	@dd if=/dev/urandom of=mnt/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	@mkdir -p mnt/foo/bar/baz
-	@dd if=/dev/urandom of=mnt/foo/12blocks.bin bs=1024 count=12 1>/dev/null 2>&1
-	@dd if=/dev/urandom of=mnt/foo/13blocks.bin bs=1024 count=13 1>/dev/null 2>&1
-	@cp 1mb.bin mnt/
-	@md5sum mnt/1mb.bin
-	#@linux/md5sum.linux mnt/1mb.bin
-	@cp texttest.txt mnt/
-	@chmod 644 *.out
-	@cp malltest.out mnt/malltest.out
-	@cp md5sum.out mnt/md5sum.out
-	@cp md5sum mnt/md5sum
-	@cp linux/md5sum.linux mnt/md5sum.linux
-	@cp malltest mnt/malltest	
-	@cp testfile.txt mnt/	
-	@cp files/*.ans mnt/
-	@cp files/frogprince.data mnt/
-	@ls --inode -ln mnt
-	@sync
-	@sudo umount mnt
