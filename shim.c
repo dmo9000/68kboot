@@ -32,6 +32,7 @@ int load(char *s);
 int run(char *s);
 int run_f16(char *s);
 int run_f16f(char *s);
+int quit(char *s);
 int search_path(char *s);
 int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
@@ -50,6 +51,8 @@ const jmpTable jmptbl[] = {
     {run_f16, "f16"},
     {run_f16f, "f16f"},
     {loadelf, "loadelf"},
+		{quit, "quit"}, 
+		{quit, "exit"}, 
     {0x0, ""}
 };
 
@@ -128,7 +131,8 @@ int main()
         puts("\r\n");
         if (length == 0) {
             //return 0;
-            exit(1);
+           // exit(1);
+					goto read_prompt;
         }
 
         x = (char *) &command;
@@ -139,6 +143,8 @@ int main()
         }
         errorFlag = false;
         length = 0;
+read_prompt:
+		;
     }
 
     puts("\r\n");
@@ -720,5 +726,11 @@ int run_f16f(char *s)
     result = fletcher16((unsigned char *) 0x100000, nm_uint32(my_inode.i_size));
     printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", (uint32_t) 0x10000, nm_uint32(my_inode.i_size), result);
     return 0;
+
+}
+
+int quit(char *s) 
+{
+	exit(0);
 
 }
