@@ -1,8 +1,8 @@
 #include "stdio.h"
-#include "unistd.h"
-#include "types.h"
+#include <unistd.h>
+#include <sys/types.h>
 #include "assert.h"
-#include "string.h"
+#include <string.h>
 #include "disk.h"
 
 /* 32K = 256 sectors */

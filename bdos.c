@@ -3,9 +3,9 @@
 #include "stdio.h"
 #include "bdos.h"
 #include "fcntl.h"
-#include "unistd.h"
+#include <unistd.h>
 #include "errno.h"
-#include "string.h"
+#include <string.h>
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -21,6 +21,12 @@ int bdos_init()
     bdvt._open = open;
     bdvt._read = read;
     bdvt._close = close;
+    bdos_version(NULL);
+    return 1;
+}
+
+int bdos_version(char *s)
+{
     printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
     //printf("main = 0x%lx\r\n", main);
     //puts("\r\n");

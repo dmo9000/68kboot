@@ -1,6 +1,6 @@
 
 #ifndef __LINUX__
-#include "types.h"
+#include <sys/types.h>
 #include "fletcher16.h"
 #else
 #include <stdio.h>

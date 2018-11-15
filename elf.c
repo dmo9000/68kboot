@@ -1,11 +1,11 @@
 #include "stdio.h"
-#include "types.h"
+#include <sys/types.h>
 #include "elf.h"
-#include "string.h"
+#include <string.h>
 #include "fcntl.h"
 #include "assert.h"
 #include "byteorder.h"
-#include "unistd.h"
+#include <unistd.h>
 
 //#define DEBUG_ELF
 

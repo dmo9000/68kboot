@@ -1,7 +1,7 @@
 #ifndef __EXT2_H__
 #define __EXT2_H__
 
-#include "types.h"
+#include <sys/types.h>
 #include "stdbool.h"
 #include "devices.h"
 

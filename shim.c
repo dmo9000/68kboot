@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
-#include "string.h"
-#include "unistd.h"
+#include <string.h>
+#include <unistd.h>
 #include "fcntl.h"
 #include "modules.h"
 #include "dump.h"
@@ -36,6 +36,7 @@ int quit(char *s);
 int search_path(char *s);
 int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
+extern int bdos_version(char *s);
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
@@ -51,8 +52,9 @@ const jmpTable jmptbl[] = {
     {run_f16, "f16"},
     {run_f16f, "f16f"},
     {loadelf, "loadelf"},
-		{quit, "quit"}, 
-		{quit, "exit"}, 
+    {quit, "quit"},
+    {quit, "exit"},
+    {bdos_version, "version"},
     {0x0, ""}
 };
 
@@ -107,9 +109,9 @@ int main()
     dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
     select_disk("4");
 
-		//cat("/banner.ans");
+    //cat("/banner.ans");
 
-		printf("\r\n");
+    printf("\r\n");
 
     while (1) {
         printf("%c[37m""shim> ", 27);
@@ -124,8 +126,8 @@ int main()
         puts("\r\n");
         if (length == 0) {
             //return 0;
-           // exit(1);
-					goto read_prompt;
+            // exit(1);
+            goto read_prompt;
         }
 
         x = (char *) &command;
@@ -137,7 +139,7 @@ int main()
         errorFlag = false;
         length = 0;
 read_prompt:
-		;
+        ;
     }
 
     puts("\r\n");
@@ -722,8 +724,8 @@ int run_f16f(char *s)
 
 }
 
-int quit(char *s) 
+int quit(char *s)
 {
-	exit(0);
+    exit(0);
 
 }

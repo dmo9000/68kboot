@@ -1,5 +1,5 @@
 #include "stdlib.h"
-#include "string.h"
+#include <string.h>
 #include "stdio.h"
 typedef unsigned int uint;
 typedef unsigned char byte;

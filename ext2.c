@@ -1,10 +1,10 @@
 #define __BDOS__
 
-#include "string.h"
+#include <string.h>
 #include "stdio.h"
 #include "stdbool.h"
 #include "kernel.h"
-#include "types.h"
+#include <sys/types.h>
 #include "devices.h"
 #include "ext2.h"
 #include "assert.h"

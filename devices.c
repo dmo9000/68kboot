@@ -1,7 +1,7 @@
 #include "stdio.h"
-#include "string.h"
+#include <string.h>
 #include "devices.h"
-#include "types.h"
+#include <sys/types.h>
 
 _device devices[MAX_DEVICES];
 int device_free = 0;

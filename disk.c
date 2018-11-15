@@ -1,4 +1,4 @@
-#include "types.h"
+#include <sys/types.h>
 #include "disk.h"
 
 #define DISK_BASE       0xff0000L

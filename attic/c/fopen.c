@@ -1,11 +1,11 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "stdbool.h"
-#include "types.h"
+#include <sys/types.h>
 #include "stddef.h"
-#include "unistd.h"
+#include <unistd.h>
 #include "fcntl.h"
-#include "string.h"
+#include <string.h>
 #include "errno.h"
 #include "stat.h"
 #include "fcntl_private.h"
