@@ -449,7 +449,7 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
-    // printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
+    //printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
 
     if (!ext2_rootfs.active ) {
         set_errno(EIO);
