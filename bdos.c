@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "errno.h"
 #include <string.h>
+#include "kstat.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -21,6 +22,7 @@ int bdos_init()
     bdvt._open = open;
     bdvt._read = read;
     bdvt._close = close;
+    bdvt._stat = kstat;
     bdos_version(NULL);
     return 1;
 }
