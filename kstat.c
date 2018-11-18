@@ -23,6 +23,7 @@ int kstat(const char *restrict path, struct stat *restrict buf)
 	buf->st_uid = nm_uint16(my_inode.i_uid);
 	buf->st_gid = nm_uint16(my_inode.i_gid);
 	buf->st_size = nm_uint32(my_inode.i_size);
+	buf->st_mtime = nm_uint32(my_inode.i_mtime);
+	buf->st_atime = nm_uint32(my_inode.i_atime);
 	return 0;
-
 }
