@@ -66,6 +66,7 @@ veryclean: clean
 	
 
 install:
+	sudo cp bdos.h /usr/local/madlibc/include/
 	chmod 644 *.out
 	cp bootldr.img ~/git-local/68kp/diskc.cpm.fs
 	ls -l *.out

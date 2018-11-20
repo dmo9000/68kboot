@@ -18,6 +18,7 @@ int disk_set_drive(int disk)
     uint32_t * p = (uint32_t *)((char *)DISK_SET_DRIVE);
     p[0] = disk;
     return 0;
+
 }
 
 int disk_set_dma(uint32_t addr)

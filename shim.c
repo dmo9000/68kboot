@@ -84,8 +84,8 @@ int puts(const char *s);
 typedef unsigned long size_t;
 size_t strlen(const char *t);
 
-int cpmsim_seek(struct _device *, uint32_t);
-int cpmsim_read(struct _device *d, unsigned char *buf, unsigned long size);
+//int cpmsim_seek(struct _device *, uint32_t);
+//int cpmsim_read(struct _device *d, unsigned char *buf, unsigned long size);
 
 ext2_inode my_inode;
 
@@ -98,20 +98,35 @@ void _ASSERT(char *error, char *file, int line)
 
 int main()
 {
+		asm("movel #1048572,(%sp)");
+    bdos_init();
+		supermain();
+}
+
+int supermain()
+{
     int length = 0;
     int result = 0;
     unsigned char c = 0;
     static char command[2048];
 
+	// WORKS
+//		asm("movem.l #14398,-(%sp)");
+	// DOESN'T WORK
+//		asm("movem.l #1048572,-(%sp)");
 
-    bdos_init();
+//		asm("movel #1048572,(%sp)");
 
-    dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
-    select_disk("4");
+		//asm("movem.l $000ffffc,-(%sp)");
+
+    //bdos_init();
+
+//	    dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
+// 	   select_disk("4");
 
     //cat("/banner.ans");
 
-    printf("\r\n");
+    //printf("\r\n");
 
     while (1) {
         printf("%c[37m""shim> ", 27);
@@ -183,6 +198,7 @@ int select_disk(char *s)
         return 0;
     }
     disk_set_drive(disk_number);
+		bdos_set_drive(disk_number);
     //disk_set_dma(0x8000);
     /* should be e2fs superblock @ byte 0x400 (1024) */
     //disk_read_sector(8);
