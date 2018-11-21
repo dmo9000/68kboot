@@ -26,14 +26,14 @@ int open(const char *pathname, int flags)
         return -1;
     }
 
-		/* directories are files ! */
+    /* directories are files ! */
 
-		/*
+    /*
     if (isdirectory(file_inode)) {
-        set_errno(EISDIR);
-        return -1;
+    set_errno(EISDIR);
+    return -1;
     }
-		*/
+    */
 
     new_fd= fcntl_open_inode(file_inode, flags);
     if (new_fd == -1) {

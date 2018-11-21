@@ -300,19 +300,19 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
     }
     assert(ext2_rootfs.active);
 
-		if (!inode_lookup) {
-			/* if we are asked to lookup inode 0, it is invalid */
-			return 0;
-			}
+    if (!inode_lookup) {
+        /* if we are asked to lookup inode 0, it is invalid */
+        return 0;
+    }
 
     /* see https://wiki.osdev.org/Ext2#Inode_Type_and_Permissions */
     inode_block_group = (inode_lookup - 1) / ext2_rootfs.inodes_per_group;
 //    printf("block group for inode %u is %u\r\n", inode_lookup, inode_block_group);
     /* must be group zero for now - deal with multiple block groups later */
-		if (inode_block_group) {
-				printf("inode_block_group = %u, inode_lookup = %lu\r\n", inode_block_group, inode_lookup);
-				while(1) { } 
-				}
+    if (inode_block_group) {
+        printf("inode_block_group = %u, inode_lookup = %lu\r\n", inode_block_group, inode_lookup);
+        while(1) { }
+    }
 
     assert(!inode_block_group);
     inode_index = (inode_lookup - 1) % ext2_rootfs.inodes_per_group;
@@ -458,7 +458,7 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
-		uint32_t il = 0;
+    uint32_t il = 0;
     //printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
 
     if (!ext2_rootfs.active ) {
@@ -493,7 +493,7 @@ uint32_t ext2_path_to_inode(char *path)
         return 0;
     }
 
-		il = ext2_inode_lookup(current_inode, &recurse_inode, false);
+    il = ext2_inode_lookup(current_inode, &recurse_inode, false);
 //		printf("(il = %lu)\r\n", il);
 
 //    assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
