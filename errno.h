@@ -19,7 +19,6 @@
 
 #ifdef __BDOS__
 extern int errno;
-//#define set_errno(n)	errno = #n;
 int set_errno(int e);
 #else
 int _bdos_geterrno();

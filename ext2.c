@@ -299,12 +299,21 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
         return 0;
     }
     assert(ext2_rootfs.active);
-    /* we are going to lookup inode 12 - this is our canary "hello world" file */
+
+		if (!inode_lookup) {
+			/* if we are asked to lookup inode 0, it is invalid */
+			return 0;
+			}
 
     /* see https://wiki.osdev.org/Ext2#Inode_Type_and_Permissions */
     inode_block_group = (inode_lookup - 1) / ext2_rootfs.inodes_per_group;
 //    printf("block group for inode %u is %u\r\n", inode_lookup, inode_block_group);
     /* must be group zero for now - deal with multiple block groups later */
+		if (inode_block_group) {
+				printf("inode_block_group = %u, inode_lookup = %lu\r\n", inode_block_group, inode_lookup);
+				while(1) { } 
+				}
+
     assert(!inode_block_group);
     inode_index = (inode_lookup - 1) % ext2_rootfs.inodes_per_group;
 //    printf("inode_index = %u\r\n", inode_index);
@@ -449,6 +458,7 @@ uint32_t ext2_path_to_inode(char *path)
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
+		uint32_t il = 0;
     //printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
 
     if (!ext2_rootfs.active ) {
@@ -483,7 +493,13 @@ uint32_t ext2_path_to_inode(char *path)
         return 0;
     }
 
-    assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
+		il = ext2_inode_lookup(current_inode, &recurse_inode, false);
+//		printf("(il = %lu)\r\n", il);
+
+//    assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
+//		assert(il);
+
+
     switch ((nm_uint16(recurse_inode.i_mode) & 0xE000)) {
     case 0x4000:
         /* directory - open and search it for name */

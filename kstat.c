@@ -1,7 +1,18 @@
-#include <string.h>
-#include <assert.h>
+#define __BDOS__
+
+//#include <string.h>
+//#include <assert.h>
 #include <sys/stat.h>
-#include "ext2.h"
+//#include "errno.h"
+//#include "ext2.h"
+//#include "fcntl.h"
+//#include <string.h>
+//#include "assert.h"
+#include "fcntl.h"
+#include <string.h>
+#include "assert.h"
+#include "errno.h"
+
 
 int kstat(const char *restrict path, struct stat *restrict buf)
 {
@@ -10,7 +21,10 @@ int kstat(const char *restrict path, struct stat *restrict buf)
 	//printf("kstat(%s, 0x%lx)\r\n", path, buf);
 	directory_inode = ext2_path_to_inode(path);
 	//printf("inode = %lu\r\n", directory_inode);
-	assert(ext2_inode_lookup(directory_inode, &my_inode, false));
+	if (!ext2_inode_lookup(directory_inode, &my_inode, false)) {
+				set_errno(ENOENT);
+				return -1;
+				}
 	//printf("sizeof struct stat = %u\r\n", sizeof(struct stat));
 	//printf("mode = %u\r\n", nm_uint16(my_inode.i_mode));
 	//printf("uid = %u\r\n", nm_uint16(my_inode.i_uid));
