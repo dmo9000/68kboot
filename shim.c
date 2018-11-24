@@ -465,7 +465,7 @@ int cd(char *s)
 
     assert(ext2_rootfs.active);
     assert(ext2_rootfs.cwd_inode);
-    target_inode = ext2_path_to_inode(s);
+    target_inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
     //printf("cd: target inode = %u\r\n", target_inode);
 
     if (!target_inode) {
@@ -652,7 +652,7 @@ int exec_run(char *pname, char *s)
 int search_path(char *s)
 {
 
-    if (ext2_path_to_inode(s)) {
+    if (ext2_path_to_inode(s, ext2_rootfs.cwd_inode)) {
         return 1;
     }
 
@@ -686,7 +686,7 @@ int run_f16f(char *s)
     uint32_t inode = 0;
     uint16_t result = 0;
 
-    inode = ext2_path_to_inode(s);
+    inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
     if (!inode) {
         printf("f16f: %s not found\r\n", s);
         return 0;

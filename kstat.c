@@ -10,16 +10,18 @@
 //#include "assert.h"
 #include "fcntl.h"
 #include <string.h>
+#include <ext2.h>
 #include "assert.h"
 #include "errno.h"
 
+extern ext2_fs ext2_rootfs;
 
 int kstat(const char *restrict path, struct stat *restrict buf)
 {
     ext2_inode my_inode;
     uint32_t directory_inode = 0;
     //printf("kstat(%s, 0x%lx)\r\n", path, buf);
-    directory_inode = ext2_path_to_inode(path);
+    directory_inode = ext2_path_to_inode(path, ext2_rootfs.cwd_inode);
     //printf("inode = %lu\r\n", directory_inode);
     if (!ext2_inode_lookup(directory_inode, &my_inode, false)) {
         set_errno(ENOENT);

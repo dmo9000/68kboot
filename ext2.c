@@ -449,17 +449,20 @@ bool isdirectory(uint32_t inode)
 
 #define MAX_PATH_ELEMENT_LEN    256
 
-uint32_t ext2_path_to_inode(char *path)
+uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
 {
     unsigned char path_element[MAX_PATH_ELEMENT_LEN];
     uint16_t path_element_len = 0;
-    uint32_t current_inode = ext2_rootfs.cwd_inode;
+ //   uint32_t current_inode = ext2_rootfs.cwd_inode;
+		//static uint32_t traverse_inode = 0;
     uint32_t lookup_inode = 0;
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
     uint32_t il = 0;
-    //printf("ext2_path_to_inode(%s, '%c')\r\n", path, p[0]);
+    //printf("ext2_path_to_inode(%s, '%c', %u)\r\n", path, p[0], traverse_inode);
+
+//		traverse_inode = ext2_rootfs.cwd_inode;
 
     if (!ext2_rootfs.active ) {
         set_errno(EIO);
@@ -471,10 +474,10 @@ uint32_t ext2_path_to_inode(char *path)
         /* if leading slash specified, path is absolute, so switch to EXT2_ROOT_INODE before descending */
         //printf("[root pivot]\r\n");
         //puts("\r\n");
-        current_inode = EXT2_ROOT_INODE;
+        traverse_inode = EXT2_ROOT_INODE;
         if (strlen(p) == 1) {
             /* just looking for root inode thanks */
-            return current_inode;
+            return traverse_inode;
         }
         p++;
     }
@@ -489,11 +492,11 @@ uint32_t ext2_path_to_inode(char *path)
     }
 //   puts("]\r\n");
 
-    if (current_inode == 0) {
+    if (traverse_inode == 0) {
         return 0;
     }
 
-    il = ext2_inode_lookup(current_inode, &recurse_inode, false);
+    il = ext2_inode_lookup(traverse_inode, &recurse_inode, false);
 //		printf("(il = %lu)\r\n", il);
 
 //    assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
@@ -504,7 +507,7 @@ uint32_t ext2_path_to_inode(char *path)
     case 0x4000:
         /* directory - open and search it for name */
         //      printf("inode %lu: it's a directory!\r\n", current_inode);
-        lookup_inode = ext2_get_inode_from_dirent(current_inode, (char *) &path_element);
+        lookup_inode = ext2_get_inode_from_dirent(traverse_inode, (char *) &path_element);
         if (!lookup_inode) {
             set_errno(ENOENT);
             //    printf("%s: not found\r\n", path_element);
@@ -522,8 +525,9 @@ uint32_t ext2_path_to_inode(char *path)
                 //            printf("we need to go deeper!\r\n");
                 //assert(NULL);
                 p++;
-                ext2_rootfs.cwd_inode = lookup_inode;
-                return ext2_path_to_inode(p);
+                //ext2_rootfs.cwd_inode = lookup_inode;
+								traverse_inode = lookup_inode;
+                return ext2_path_to_inode(p, traverse_inode);
             }
             /* else, it's a directory, and the one we want too */
             return lookup_inode;
@@ -551,7 +555,7 @@ uint32_t ext2_path_to_inode(char *path)
         break;
     default:
         /* it's something else! */
-        printf("inode %lu: it has mode 0x%04x\n", current_inode, (nm_uint16(recurse_inode.i_mode) & 0xE000));
+        printf("inode %lu: it has mode 0x%04x\n", traverse_inode, (nm_uint16(recurse_inode.i_mode) & 0xE000));
         assert(NULL);
         break;
     }

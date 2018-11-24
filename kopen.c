@@ -5,6 +5,9 @@
 #include <string.h>
 #include "assert.h"
 #include "errno.h"
+#include "ext2.h"
+
+extern ext2_fs ext2_rootfs;
 
 
 int kopen(const char *pathname, int flags)
@@ -14,7 +17,7 @@ int kopen(const char *pathname, int flags)
     //printf("open(%s, %u)\r\n", pathname, flags);
     assert(flags == O_RDONLY);
 
-    file_inode = ext2_path_to_inode((char *) pathname);
+    file_inode = ext2_path_to_inode((char *) pathname, ext2_rootfs.cwd_inode);
     //printf("file_inode = %lu\r\n", file_inode);
 
     if (file_inode == 0) {
