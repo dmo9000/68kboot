@@ -7,6 +7,10 @@
 #include "errno.h"
 #include <string.h>
 #include "kstat.h"
+#include "kopen.h"
+#include "kread.h"
+#include "kclose.h"
+#include "klseek.h"
 #include "shim.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
@@ -22,10 +26,11 @@ int bdos_init()
         bdvt.ver_maj = VERSION_MAJOR;
         bdvt.ver_min = VERSION_MINOR;
         bdvt.ver_rev = VERSION_REVISION;
-        bdvt._open = open;
-        bdvt._read = read;
-        bdvt._close = close;
+        bdvt._open = kopen;
+        bdvt._read = kread;
+        bdvt._close = kclose;
         bdvt._stat = kstat;
+        bdvt._lseek = klseek;
         bdos_version(NULL);
         initialized = true;
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);

@@ -7,7 +7,7 @@
 #include "errno.h"
 
 
-int open(const char *pathname, int flags)
+int kopen(const char *pathname, int flags)
 {
     uint32_t file_inode = 0;
     int new_fd = 0;

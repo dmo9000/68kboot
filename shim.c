@@ -497,7 +497,7 @@ int cat(char *s)
     int rd = 0;
     int i = 0;
     int cat_fd = 0;
-    cat_fd = open(s, O_RDONLY);
+    cat_fd = kopen(s, O_RDONLY);
 
     if (cat_fd == -1) {
         perror("open");
@@ -505,7 +505,7 @@ int cat(char *s)
     }
 
     memset(&buffer, 0, 4096);
-    rd = read(cat_fd, &buffer, 4096);
+    rd = kread(cat_fd, &buffer, 4096);
 
     while (rd != 0) {
         if (rd == -1) {
@@ -519,11 +519,11 @@ int cat(char *s)
             }
         }
         memset(&buffer, 0, 4096);
-        rd = read(cat_fd, &buffer, 4096);
+        rd = kread(cat_fd, &buffer, 4096);
     }
     //printf("*rd = %d\r\n", rd);
 
-    if (close(cat_fd) == -1) {
+    if (kclose(cat_fd) == -1) {
         perror("close");
         return 0;
     };
@@ -540,14 +540,14 @@ int load(char *s)
     //void *memptr = (void *) 0x100000;
     void *memptr = (void *) 0x2000000;
 
-    load_fd = open(s, O_RDONLY);
+    load_fd = kopen(s, O_RDONLY);
 
     if (load_fd == -1) {
         perror("open");
         return 0;
     }
 
-    rd = read(load_fd, memptr, 4096);
+    rd = kread(load_fd, memptr, 4096);
 
     while (rd != 0) {
         if (rd == -1) {
@@ -559,11 +559,11 @@ int load(char *s)
             //       puts("\r\n");
             memptr +=rd;
         }
-        rd = read(load_fd, memptr, 4096);
+        rd = kread(load_fd, memptr, 4096);
     }
 
-    if (close(load_fd) == -1) {
-        perror("close");
+    if (kclose(load_fd) == -1) {
+        perror("kclose");
         return 0;
     };
 

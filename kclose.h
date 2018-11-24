@@ -1,0 +1,2 @@
+int kclose(int fildes);
+

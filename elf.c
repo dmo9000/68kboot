@@ -18,7 +18,7 @@ int loadelf(char *s)
     //int rd = 0;
     //int i = 0;
     int elf_fd = 0;
-    elf_fd = open(s, O_RDONLY);
+    elf_fd = kopen(s, O_RDONLY);
 
     if (elf_fd == -1) {
         perror("open");
@@ -26,7 +26,7 @@ int loadelf(char *s)
     }
 
     elf_ok = elf_load_binary(elf_fd);
-    close(elf_fd);
+    kclose(elf_fd);
     return elf_ok;
 }
 
@@ -57,7 +57,7 @@ int elf_load_binary(int elf_fd)
     /* FIXME: we should seek to the start of the fd here */
 
     memset(&buffer, 0, 4096);
-    rd = read(elf_fd, &buffer, 4096);
+    rd = kread(elf_fd, &buffer, 4096);
 #ifdef DEBUG_ELF
     printf("[elf.c(elf_fd=%d): read %d bytes]\r\n", elf_fd, rd);
 #endif
@@ -159,8 +159,8 @@ int elf_load_binary(int elf_fd)
            (Header->e_shnum*Header->e_shentsize),
            Header->e_shoff);
 #endif
-    if (lseek(elf_fd, Header->e_shoff, SEEK_SET) == -1) {
-        perror("lseek");
+    if (klseek(elf_fd, Header->e_shoff, SEEK_SET) == -1) {
+        perror("klseek");
         return 0;
     }
 
@@ -169,7 +169,7 @@ int elf_load_binary(int elf_fd)
 
     /* file descriptor should be pointed at the section header table by now */
 
-    rd = read(elf_fd, &buffer, Header->e_shnum*Header->e_shentsize);
+    rd = kread(elf_fd, &buffer, Header->e_shnum*Header->e_shentsize);
 
     SectionHeader = (Elf32_Shdr *) &buffer;
     SectionHeader += e_shstrndx;
@@ -179,15 +179,15 @@ int elf_load_binary(int elf_fd)
            SectionHeader->sh_size);
 #endif
 
-    if (lseek(elf_fd, SectionHeader->sh_offset, SEEK_SET) == -1) {
-        perror("lseek");
+    if (klseek(elf_fd, SectionHeader->sh_offset, SEEK_SET) == -1) {
+        perror("klseek");
         return 0;
     }
 
     assert(SectionHeader->sh_size < 4096);
     memset(&section_string_table, 0, 256);
 
-    rd = read(elf_fd, &section_string_table, SectionHeader->sh_size);
+    rd = kread(elf_fd, &section_string_table, SectionHeader->sh_size);
 //		ptr_dump(&section_string_table);
 //		assert(NULL);
 
@@ -255,9 +255,9 @@ int elf_load_binary(int elf_fd)
             if (SectionHeader->sh_addr && SectionHeader->sh_type == SHT_PROGBITS) {
 //                printf("Writing SHT_PROGBITS...\r\n");
                 load_ptr = (char *) SectionHeader->sh_addr;
-                lseek(elf_fd, SectionHeader->sh_offset, SEEK_SET);
+                klseek(elf_fd, SectionHeader->sh_offset, SEEK_SET);
                 //printf("? = read(%d, 0x%lx, %u)\r\n", elf_fd, load_ptr, SectionHeader->sh_size);
-                rd = read(elf_fd, load_ptr, SectionHeader->sh_size);
+                rd = kread(elf_fd, load_ptr, SectionHeader->sh_size);
                 //printf("  + %d = read(%d, 0x%lx, %u)\r\n", rd, elf_fd, load_ptr, SectionHeader->sh_size);
                 assert(rd == SectionHeader->sh_size);
             }

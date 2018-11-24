@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "fcntl.h"
 
-int close(int fildes)
+int kclose(int fildes)
 {
 
     return fcntl_close(fildes);

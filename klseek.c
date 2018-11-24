@@ -3,13 +3,13 @@
 #include "stdio.h"
 #include "errno.h"
 
-off_t lseek(int fd, off_t offset, int whence)
+off_t klseek(int fd, off_t offset, int whence)
 {
 
     _fd *descriptor;
     /* here we just verify offsets and tweak the pointer around. the real magic happens in read/write */
 
-    //printf("\n+lseek(%d, %u, %d)\r\n", fd, offset, whence);
+//    printf("\n+lseek(%d, %u, %d)\r\n", fd, offset, whence);
 
     descriptor = fcntl_get_descriptor(fd);
 
