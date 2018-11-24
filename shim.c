@@ -87,6 +87,7 @@ size_t strlen(const char *t);
 
 #define ETX		0x03			/* end of text */
 #define EOT		0x04			/* end of transmission */
+#define BS		0x08			/* backspace */
 
 ext2_inode my_inode;
 
@@ -118,6 +119,14 @@ int supermain()
         while (c != '\r') {
 
             switch (c) {
+						case BS:
+								if (length) {
+									/* move cursor back, erase, move cursor back */
+									printf("\b\ \b");
+									command[length-1] = '\0';
+									length -= 1;
+									}
+								break;
             case ETX:
                 printf("^C\r\n");
                 puts("\r\n");
