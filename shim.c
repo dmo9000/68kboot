@@ -685,7 +685,7 @@ char *search_path(char *s)
         p2= (char *) p1;
         memset(&pathbuf, 0, MAX_PATH);
         while (pg < pl) {
-            while ((p2[0] != ':'  && p2[0] != '\0') && p < pl) {
+            while (p2[0] != ':'  && p < pl) {
                 pathbuf[p] = p2[0];
                 p2++;
                 p++;
