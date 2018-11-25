@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "fcntl.h"
 #include "modules.h"
 #include "dump.h"
@@ -9,6 +10,7 @@
 #include "assert.h"
 #include "byteorder.h"
 #include "bdos.h"
+#include "environ.h"
 #include "disk.h"
 #include "fletcher16.h"
 
@@ -33,7 +35,7 @@ int run(char *s);
 int run_f16(char *s);
 int run_f16f(char *s);
 int quit(char *s);
-int search_path(char *s);
+char *search_path(char *s);
 int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
 extern int bdos_version(char *s);
@@ -72,8 +74,8 @@ mathRegister parseFactor ();
 bool isTerminator (char c);
 bool isWhitespace (char c);
 
-#define MAX_ARGS    16
-#define MAX_STRING  80
+#define MAX_ARGS    	16
+#define MAX_STRING  	80
 
 char parseString[MAX_STRING];
 
@@ -90,6 +92,8 @@ size_t strlen(const char *t);
 #define BS		0x08			/* backspace */
 
 ext2_inode my_inode;
+
+char environment[MAX_ENVIRON];
 
 void _ASSERT(char *error, char *file, int line)
 {
@@ -119,14 +123,14 @@ int supermain()
         while (c != '\r') {
 
             switch (c) {
-						case BS:
-								if (length) {
-									/* move cursor back, erase, move cursor back */
-									printf("\b\ \b");
-									command[length-1] = '\0';
-									length -= 1;
-									}
-								break;
+            case BS:
+                if (length) {
+                    /* move cursor back, erase, move cursor back */
+                    printf("\b\ \b");
+                    command[length-1] = '\0';
+                    length -= 1;
+                }
+                break;
             case ETX:
                 printf("^C\r\n");
                 puts("\r\n");
@@ -254,7 +258,7 @@ parseProduct ()
 mathRegister
 parseFactor ()
 {
-
+    char *search_cmd = NULL;
     int elf_ok = 0;
     // printf("parseFactor(%s)\r\n", x);
     mathRegister sum1 = 0;
@@ -306,10 +310,15 @@ parseFactor ()
 
         /* finally, search the root directory for the command */
 
-        if (search_path(parseString)) {
-            // printf("found executable=[%s], args=[%s]\r\n", parseString, x);
-
-            elf_ok = loadelf(parseString);
+        if (parseString[0] != 0x2F) {
+            search_cmd = search_path(parseString);
+        } else {
+            search_cmd = parseString;
+        }
+//       printf("search_cmd=[%s]\r\n", search_cmd);
+        if (search_cmd) {
+//            printf("found executable=[%s], args=[%s]\r\n", search_cmd, x);
+            elf_ok = loadelf(search_cmd);
             if (! elf_ok) {
                 //printf("%s: not an ELF executable\r\n", parseString);
                 //printf("[ CAUTION: loading binary program '%s' in legacy mode ]\r\n", parseString);
@@ -658,14 +667,78 @@ int exec_run(char *pname, char *s)
 
 }
 
-int search_path(char *s)
+char *search_path(char *s)
 {
+    static char pathbuf[MAX_PATH];
+    struct stat statbuf;
+    char *p1 = NULL, *p2 = NULL, *p3 = NULL, *p4 = NULL;
+    uint16_t p = 0;
+    uint16_t pl = 0;
+    uint16_t pg = 0;
+    int sb = 0;
+    char *path = kgetenv("PATH");
 
-    if (ext2_path_to_inode(s, ext2_rootfs.cwd_inode)) {
-        return 1;
+    if (path) {
+        pl = strlen(path);
+        //printf("Searching PATH (length=%u): %s\r\n", pl, path);
+        p1 = (char *) path;
+        p2= (char *) p1;
+        memset(&pathbuf, 0, MAX_PATH);
+        while (pg < pl) {
+            while ((p2[0] != ':'  && p2[0] != '\0') && p < pl) {
+                pathbuf[p] = p2[0];
+                p2++;
+                p++;
+                pg++;
+            }
+            //printf("Got path segment: %s\r\n", pathbuf);
+            p2++;
+            p = 0;
+
+            if ((strlen(s) + strlen(pathbuf) + 1) < MAX_PATH) {
+                sb = kstat(&pathbuf, &statbuf);
+
+                if (sb == 0 && S_ISDIR(statbuf.st_mode)) {
+//										printf(" ++ [%s] is a directory\r\n", pathbuf);
+                    strncat(&pathbuf, "/", 1);
+                    strncat(&pathbuf, s, strlen(s));
+                    p4 = &pathbuf;
+
+                    if (strlen(p4) > 1) {
+                        while (p4[0] == 0x2F && p4[1] == 0x2F && strlen(p4) >= 2) {
+                            p4++;
+                        }
+                    }
+
+//                    printf(" >> searching [%s]\r\n", p4);
+                    if (ext2_path_to_inode((char *) p4, ext2_rootfs.cwd_inode)) {
+//                        printf("  >> found [%s]\r\n", p4);
+                        p3 = (char *) p4;
+                        return (char *) p3;
+                    } else {
+//											printf("  >> not found [%s]\r\n", p4);
+                    }
+                } else {
+//                    printf(" >> ignoring [%s], not found or not a directory\r\n", pathbuf);
+                }
+
+            } else {
+                printf("(concatenated path would overflow)\r\n");
+                return(NULL);
+            }
+            p = 0;
+            memset(&pathbuf, 0, MAX_PATH);
+        }
+
     }
 
-    return 0;
+    /*
+    if (ext2_path_to_inode(s, ext2_rootfs.cwd_inode)) {
+    return 1;
+    }
+    */
+
+    return NULL;
 }
 
 

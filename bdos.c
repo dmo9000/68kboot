@@ -12,14 +12,18 @@
 #include "kclose.h"
 #include "klseek.h"
 #include "shim.h"
+#include "environ.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
+
+extern char environment[MAX_ENVIRON];
 
 static bool initialized = false;
 
 int bdos_init()
 {
+    char *path = NULL;
     if (!initialized) {
         memset((void *) 0x0400, 0, 256);
         bdvt.magic = 0xF0E0F0E0;
@@ -31,10 +35,16 @@ int bdos_init()
         bdvt._close = kclose;
         bdvt._stat = kstat;
         bdvt._lseek = klseek;
+        memset(&environment, 0, MAX_ENVIRON);
+        snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/");
         bdos_version(NULL);
         initialized = true;
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
         select_disk("4");
+        path = kgetenv("PATH");
+        if (path) {
+            printf("PATH=%s\r\n", path);
+        }
         puts("\r\n");
     }
     return 1;

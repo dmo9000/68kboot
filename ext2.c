@@ -12,9 +12,6 @@
 #include "errno.h"
 #include "dump.h"
 
-/* https://stackoverflow.com/questions/12768371/why-is-root-directory-always-stored-in-inode-two */
-
-
 unsigned long ext2_base = 0;
 extern _device devices[MAX_DEVICES];
 extern int device_free;
@@ -22,6 +19,8 @@ ext2_fs ext2_rootfs;
 bool ext2_backwards = false;
 
 char dir_entry_type[] = {'?', '-', 'd'};
+
+
 
 #define panic() assert(!("PANIC"));
 uint32_t EXT2_BLOCK_SIZE(ext2_super_block *s)
@@ -63,12 +62,6 @@ int ext2_probe()
                 for (j = 0x0; j < 4096; j++) {
                     blck = (ext2_super_block *) p;
 
-                    /* see byte swap algorithms from here:
-
-                       https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
-
-                    */
-
                     if (blck->s_magic == EXT2_SUPER_MAGIC || (is_big_endian() && swap_uint16(blck->s_magic) == EXT2_SUPER_MAGIC)) {
                         //printf("EXT2: found superblock magic == 0x%04X\r\n", swap_uint16(blck->s_magic));
                         goto found_rootfs;
@@ -107,15 +100,17 @@ found_rootfs:
            ext2_rootfs.device->maj, ext2_rootfs.device->min,
            ext2_rootfs.device->name,
            offset, offset);
+    /*
     printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
-            nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
-            nm_uint32(ext2_rootfs.blck.s_inodes_count),
-            nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
-            nm_uint32(ext2_rootfs.blck.s_blocks_count),
-            EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
-            nm_uint32(ext2_rootfs.blck.s_first_ino),
-            nm_uint16(ext2_rootfs.blck.s_inode_size)
-           );
+        nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
+        nm_uint32(ext2_rootfs.blck.s_inodes_count),
+        nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
+        nm_uint32(ext2_rootfs.blck.s_blocks_count),
+        EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
+        nm_uint32(ext2_rootfs.blck.s_first_ino),
+        nm_uint16(ext2_rootfs.blck.s_inode_size)
+       );
+    */
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
     ext2_rootfs.blocks_per_group = nm_uint32(ext2_rootfs.blck.s_blocks_per_group);
@@ -124,11 +119,13 @@ found_rootfs:
                                     nm_uint32(ext2_rootfs.blocks_per_group));
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
+    /*
     printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\r\n",
-           ext2_rootfs.blocks_per_group,
-           ext2_rootfs.inodes_per_group,
-           ext2_rootfs.block_groups
-          );
+       ext2_rootfs.blocks_per_group,
+       ext2_rootfs.inodes_per_group,
+       ext2_rootfs.block_groups
+      );
+    */
 
 
     assert(nm_uint16(ext2_rootfs.blck.s_inode_size) == 128);
@@ -453,14 +450,34 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
 {
     unsigned char path_element[MAX_PATH_ELEMENT_LEN];
     uint16_t path_element_len = 0;
- //   uint32_t current_inode = ext2_rootfs.cwd_inode;
-		//static uint32_t traverse_inode = 0;
+//   uint32_t current_inode = ext2_rootfs.cwd_inode;
+    //static uint32_t traverse_inode = 0;
     uint32_t lookup_inode = 0;
     struct ext2_inode recurse_inode;
     struct ext2_inode target_inode;
     char *p = path;
     uint32_t il = 0;
-    //printf("ext2_path_to_inode(%s, '%c', %u)\r\n", path, p[0], traverse_inode);
+
+    if (strlen(path) == 1 && path[0] == '/') {
+        return EXT2_ROOT_INODE;
+    }
+
+    if (strlen(path) > 1) {
+        while (path[strlen(path) - 1] == 0x2F) {
+            /* chomp trailing backslashes */
+            path[strlen(path) - 1] = '\0';
+        }
+
+        /* collapse leading slashes */
+    }
+
+    if (strlen(path) > 1) {
+        while (path[0] == 0x2F && path[1] == 0x2F && strlen(path) >= 2) {
+            path++;
+        }
+    }
+
+//    printf("ext2_path_to_inode(%s, '%c', %u)\r\n", path, p[0], traverse_inode);
 
 //		traverse_inode = ext2_rootfs.cwd_inode;
 
@@ -526,7 +543,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
                 //assert(NULL);
                 p++;
                 //ext2_rootfs.cwd_inode = lookup_inode;
-								traverse_inode = lookup_inode;
+                traverse_inode = lookup_inode;
                 return ext2_path_to_inode(p, traverse_inode);
             }
             /* else, it's a directory, and the one we want too */
