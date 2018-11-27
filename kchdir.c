@@ -21,7 +21,7 @@ int kchdir(char *s)
 //        printf("error: no active filesystem\r\n");
 //        puts("\r\n");
 				set_errno(EFAULT);
-        return 0;
+        return -1;
     }
 
     assert(ext2_rootfs.active);
@@ -31,23 +31,26 @@ int kchdir(char *s)
     if (!target_inode) {
 //        printf("%s: directory does not exist\r\n", s);
 				set_errno(ENOENT);
-        return 0;
+        return -1; 
     }
     switch(isdirectory(target_inode)) {
     case true:
 //        printf("[kchdir changed directory to %s]\r\n", s);
         ext2_rootfs.cwd_inode = target_inode;
 				set_errno(0);
+				return 0;
         break;
     case false:
 				set_errno(ENOTDIR);
 //        printf("%s: not a directory\r\n", s);
-        return 0;
+        return -1;
         break;
     default:
         printf("huh?\r\n");
         break;
     }
-    return 0;
+
+		set_errno(EIO);
+    return -1;
 }
 
