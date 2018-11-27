@@ -40,20 +40,24 @@ int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
 extern int bdos_version(char *s);
 
+#define BDOS_DEBUG_CMDS
+
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
     {dev_list, "devices"},
     {dump, "dump"},
     {modules, "?"},
+#ifdef BDOS_DEBUG_CMDS
     {get_inode, "inode"},
-//    {ls, "bls"},
+    {ls, "bls"},
     {cd, "bcd"},
-//    {cat, "bcat"},
-    {load, "load"},
+    {cat, "bcat"},
     {run, "run"},
     {run_f16, "f16"},
     {run_f16f, "f16f"},
     {loadelf, "loadelf"},
+#endif /* BDOS_DEBUG_CMDS */
+    {load, "load"},
     {quit, "quit"},
     {quit, "exit"},
     {bdos_version, "version"},
