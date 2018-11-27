@@ -124,7 +124,6 @@ int supermain()
         memset(&command, 0, 2048);
         c = getchar();
         while (c != '\r') {
-
             switch (c) {
             case BS:
                 if (length) {
@@ -152,11 +151,13 @@ int supermain()
             }
             c = getchar();
         }
-        puts("\r\n");
         if (length == 0) {
             //return 0;
             // exit(1);
+            puts("\r\n");
             goto read_prompt;
+        } else {
+            puts("\r\n");
         }
 
         x = (char *) &command;
@@ -171,7 +172,7 @@ read_prompt:
         ;
     }
 
-    puts("\r\n");
+    puts("[\r\n]");
     return 0;
 }
 
