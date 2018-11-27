@@ -46,9 +46,9 @@ const jmpTable jmptbl[] = {
     {dump, "dump"},
     {modules, "?"},
     {get_inode, "inode"},
-    {ls, "bls"},
-    {cd, "cd"},
-    {cat, "bcat"},
+//    {ls, "bls"},
+    {cd, "bcd"},
+//    {cat, "bcat"},
     {load, "load"},
     {run, "run"},
     {run_f16, "f16"},
@@ -480,17 +480,14 @@ int cd(char *s)
         puts("\r\n");
         return 0;
     }
-
     assert(ext2_rootfs.active);
     assert(ext2_rootfs.cwd_inode);
     target_inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
     //printf("cd: target inode = %u\r\n", target_inode);
-
     if (!target_inode) {
         printf("%s: directory does not exist\r\n", s);
         return 0;
     }
-
     switch(isdirectory(target_inode)) {
     case true:
         printf("[changed directory to %s]\r\n", s);
@@ -504,7 +501,6 @@ int cd(char *s)
         printf("huh?\r\n");
         break;
     }
-
     return 0;
 }
 

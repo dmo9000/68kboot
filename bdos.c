@@ -11,6 +11,7 @@
 #include "kread.h"
 #include "kclose.h"
 #include "klseek.h"
+#include "kchdir.h"
 #include "shim.h"
 #include "environ.h"
 
@@ -35,6 +36,8 @@ int bdos_init()
         bdvt._close = kclose;
         bdvt._stat = kstat;
         bdvt._lseek = klseek;
+        bdvt._chdir = kchdir;
+
         memset(&environment, 0, MAX_ENVIRON);
         snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/");
         bdos_version(NULL);

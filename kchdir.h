@@ -1,0 +1,2 @@
+int kchdir(char *s);
+
