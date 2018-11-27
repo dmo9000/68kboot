@@ -21,7 +21,6 @@ void do_exit(int d);
 extern ext2_fs ext2_rootfs;
 extern _bdos_vtable bdvt;
 
-//#define CPM_EXIT        (0xff7ffc)
 #define SECTOR_SIZE    128
 #define exit(expr)  do_exit(expr)
 
@@ -40,7 +39,7 @@ int exec_run(char *pname, char *s);
 extern int loadelf(char *s);
 extern int bdos_version(char *s);
 
-#define BDOS_DEBUG_CMDS
+//#define BDOS_DEBUG_CMDS
 
 const jmpTable jmptbl[] = {
     {select_disk, "disk"},
