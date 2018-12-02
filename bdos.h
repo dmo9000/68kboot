@@ -1,9 +1,10 @@
 #include <stddef.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       0
-#define VERSION_REVISION   	22
+#define VERSION_REVISION   	24
 
 typedef struct _bdos_vtable {
     uint32_t magic;
@@ -20,7 +21,7 @@ typedef struct _bdos_vtable {
     int (*_close)(int fildes);
     int (*_stat)(const char *restrict path, struct stat *restrict buf);
 	  int (*_chdir)(const char *path);
-
+		time_t (*_time)(time_t *tloc);
 } _bdos_vtable;
 
 int bdos_init();
