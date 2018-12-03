@@ -6,6 +6,10 @@
 #include "assert.h"
 #include "byteorder.h"
 #include <unistd.h>
+#include "klseek.h"
+#include "kread.h"
+#include "kclose.h"
+#include "kopen.h"
 
 //#define DEBUG_ELF
 

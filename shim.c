@@ -700,7 +700,11 @@ char *search_path(char *s)
 
                 if (sb == 0 && S_ISDIR(statbuf.st_mode)) {
 //										printf(" ++ [%s] is a directory\r\n", pathbuf);
-                    strncat(&pathbuf, "/", 1);
+                    assert(strlen(pathbuf) < MAX_PATH);
+//										if (strlen(pathbuf) < MAX_PATH) {
+//		                    strcat(&pathbuf, "/");
+                    //											}
+                    strncat(&pathbuf, "/", strlen("/"));
                     strncat(&pathbuf, s, strlen(s));
                     p4 = &pathbuf;
 
@@ -790,5 +794,6 @@ int run_f16f(char *s)
 int quit(char *s)
 {
     exit(0);
-
+    /* never reached - here to satisfy compiler */
+    return(0);
 }

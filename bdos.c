@@ -13,6 +13,7 @@
 #include "klseek.h"
 #include "kchdir.h"
 #include "ktime.h"
+#include "kgetenv.h"
 #include "shim.h"
 #include "environ.h"
 
@@ -26,6 +27,7 @@ static bool initialized = false;
 int bdos_init()
 {
     char *path = NULL;
+    char *term = NULL;
     if (!initialized) {
         memset((void *) 0x0400, 0, 256);
         bdvt.magic = 0xF0E0F0E0;
@@ -39,16 +41,25 @@ int bdos_init()
         bdvt._lseek = klseek;
         bdvt._chdir = kchdir;
         bdvt._time = ktime;
+        bdvt._getenv = kgetenv;
         memset(&environment, 0, MAX_ENVIRON);
-        snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/");
+        //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
+				kputenv("PATH=/usr/bin/:/bin");
+				kputenv("TERM=ansi");
         bdos_version(NULL);
         initialized = true;
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
         select_disk("4");
         path = kgetenv("PATH");
+        puts("\r\n");
         if (path) {
             printf("PATH=%s\r\n", path);
         }
+        term = kgetenv("TERM");
+        if (term) {
+            printf("TERM=%s\r\n", term);
+        }
+
         puts("\r\n");
     }
     return 1;
