@@ -176,14 +176,6 @@ read_prompt:
     return 0;
 }
 
-/*
-int getchar()
-{
-    char *  p = (char *) 0xff1002;
-    return p[0];
-}
-*/
-
 size_t strlen(const char *t)
 {
     size_t ct = 0;
@@ -331,6 +323,7 @@ parseFactor ()
                 printf("%s: cannot exec binary file\r\n", parseString);
                 return 0;
             } else {
+								//printf("[STARTING ELF PROGRAM]\r\n");
                 return run(x);
             }
         }

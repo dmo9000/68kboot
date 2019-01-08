@@ -28,13 +28,28 @@ ssize_t kread(int fd, void *buf, size_t count)
     uint32_t still_available = 0;
     uint32_t total_bytes_read = 0;
     void *ptr = NULL;
+		char *kbdata = NULL;
     // uint32_t bytes_read = 0;
     _fd *descriptor = fcntl_get_descriptor(fd);
 
     assert(descriptor);
 
     //printf("read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
-//    printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
+    //printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
+
+		if (descriptor->state == FD_STATE_STDIN && fd == 0) {
+    			//printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
+					//printf("keyboard_read(%d/%d)\r\n", total_bytes_read, count);
+					kbdata=(char *) buf;
+					/* reading from stdin */
+					while (total_bytes_read < count) {
+						kbdata[total_bytes_read] = getchar();
+						//printf("byte -> %c\r\n", kbdata[total_bytes_read]);
+						total_bytes_read++;
+						}
+					return total_bytes_read;
+					}
+
 
     if (descriptor->offset >= ((EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size) +
                                ((256*256) * (descriptor->fs->block_size)))

@@ -279,7 +279,9 @@ int elf_load_binary(int elf_fd)
         SectionHeader += 1;
     }
 
-    //printf("[ELF LOADER RETURNING 1]\r\n");
-    //puts("\r\n");
+#ifdef DEBUG_ELF
+    printf("[ELF LOADER RETURNING 1]\r\n");
+   	puts("\r\n");
+#endif
     return(1);
 }
