@@ -42,14 +42,47 @@ ssize_t kread(int fd, void *buf, size_t count)
 					//printf("keyboard_read(%d/%d)\r\n", total_bytes_read, count);
 					kbdata=(char *) buf;
 					/* reading from stdin */
+
+					if ((descriptor->tflags & O_NONBLOCK)) {
+
+							  char *  p = (char *) 0xff1000;
+								/* non-blocking IO on stdin */
+					    	if (p[0] > 0) {
+									 /* byte waiting */
+							  	 //char * r= (char *) 0xff1002;
+									// kbdata[0] = r[0];
+										kbdata[0] = getchar();
+										//printf("\t\t\t\t\tkbdata[0] = 0x%02x ['%c']\n", 
+										//		kbdata[0],
+									//			kbdata[0]);
+									 kbdata[1] = '\0';
+									 total_bytes_read = 1;
+									 //printf("returning %d\n", total_bytes_read);
+									 return total_bytes_read;
+									 } else {
+									/* no data waiting */
+										return -1;
+								}
+						}
+					/* "cooked" mode */
+
+					printf("/* cooked */\n");
+
 					while (total_bytes_read < count) {
 						kbdata[total_bytes_read] = getchar();
 						//printf("byte -> %c\r\n", kbdata[total_bytes_read]);
+						/* exit early on RETURN, regardless of how much is read */
+						if (kbdata[total_bytes_read] == '\r') {
+							total_bytes_read++;
+							return total_bytes_read;
+							}	
 						total_bytes_read++;
 						}
 					return total_bytes_read;
 					}
 
+
+		/* filesystem */
 
     if (descriptor->offset >= ((EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size) +
                                ((256*256) * (descriptor->fs->block_size)))

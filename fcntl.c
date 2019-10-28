@@ -114,3 +114,24 @@ _fd *fcntl_get_descriptor(int fd)
     return (_fd *) &file_descriptor[fd];
 }
 
+
+int kfcntl(int fd, int cmd, int tf)
+{
+
+  assert(!(fd < 0 || fd >= MAX_FDS));
+	switch(cmd) {
+			case F_GETFL:
+				//printf("kfcntl(%d, F_GETFL, %d)\n", fd, tf);
+    		return file_descriptor[fd].tflags;
+				break;
+			case F_SETFL:
+				//printf("kfcntl(%d, F_SETFL, %d)\n", fd, tf);
+				file_descriptor[fd].tflags = tf; 
+				return 0;
+				break;
+			default:
+				printf("kfcntl(%d, <UNHANDLED>, %d)\n", fd, tf);
+				break;
+				}
+	return 0;
+}

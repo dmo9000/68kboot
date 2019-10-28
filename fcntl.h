@@ -23,8 +23,6 @@ typedef struct {
     int fd;
 } _cfd;
 
-
-
 typedef struct _fd {
     char state;
     int flags;
@@ -33,6 +31,7 @@ typedef struct _fd {
     uint32_t limit;
     ext2_inode fd_inode;
     ext2_fs *fs;
+		int tflags;
 } _fd;
 
 int open(const char *pathname, int flags);

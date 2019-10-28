@@ -14,6 +14,7 @@
 #include "kchdir.h"
 #include "ktime.h"
 #include "kgetenv.h"
+#include "kfcntl.h"
 #include "shim.h"
 #include "environ.h"
 
@@ -42,6 +43,8 @@ int bdos_init()
         bdvt._chdir = kchdir;
         bdvt._time = ktime;
         bdvt._getenv = kgetenv;
+        bdvt._fcntl = kfcntl;
+
         memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
 				kputenv("PATH=/usr/bin/:/bin");
