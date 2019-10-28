@@ -52,7 +52,7 @@ int bdos_init()
         bdos_version(NULL);
         initialized = true;
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
-        select_disk("4");
+        select_disk("0");
         path = kgetenv("PATH");
         puts("\r\n");
         if (path) {
@@ -70,7 +70,7 @@ int bdos_init()
 
 int bdos_version(char *s)
 {
-    printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
+    printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018,2019 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
     //printf("main = 0x%lx\r\n", main);
     //puts("\r\n");
     return 1;

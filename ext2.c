@@ -76,7 +76,7 @@ int ext2_probe()
         }
     }
 
-    printf("EXT2: no filesystem found\r\n");
+    //printf("EXT2: no filesystem found\r\n");
     ext2_rootfs.active = 0;
     printf("\r\n");
     puts("\r\n");

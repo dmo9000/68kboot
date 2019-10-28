@@ -197,21 +197,26 @@ int get_inode(char *s)
 
 int select_disk(char *s)
 {
+    int probe = 0;
     int disk_number = 0;
-    //printf("selecting disk: %s\r\n", s);
+    int device_number = 0;
     disk_number = strtoul(s, NULL, 10);
     if (!(disk_number >=0 && disk_number <= 0x0F)) {
         printf("invalid disk number %u\r\n", disk_number);
         return 0;
     }
-    disk_set_drive(disk_number);
-    bdos_set_drive(disk_number);
+
+    device_number = dev_getdisknumber(disk_number);
+    disk_set_drive(device_number);
+    bdos_set_drive(device_number);
     //disk_set_dma(0x8000);
     /* should be e2fs superblock @ byte 0x400 (1024) */
     //disk_read_sector(8);
     //dump("0x08000");
-    ext2_probe();
-    //puts("\r\n");
+    probe = ext2_probe();
+    if (probe == -1) {
+        printf("No filesystem found on disk #%02u\n", disk_number);
+    }
     return 0;
 }
 
