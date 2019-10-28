@@ -41,7 +41,7 @@ int dev_list()
 
     for (i = 0; i< device_free; i++)
     {
-        printf("%02u\t%-4s\t%04u\t%03u:%03u\t0x%08lx\t0x%08lx\t0x%08lx\t0x%08lx\r\n",
+        printf("%02u\t%-4s\t%04u\t%03u:%03u\t%08lx\t%08lx\t%08lx\t%08lx\r\n",
                i, devices[i].name, devices[i].type,
                devices[i].maj, devices[i].min, (uint32_t) devices[i].seek,
                (uint32_t) devices[i].read, (uint32_t) devices[i].write, devices[i].offset);
