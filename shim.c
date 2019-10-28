@@ -125,6 +125,8 @@ int supermain()
         c = getchar();
         while (c != '\r') {
             switch (c) {
+						case 27:
+								break;
             case BS:
                 if (length) {
                     /* move cursor back, erase, move cursor back */
@@ -193,7 +195,6 @@ int get_inode(char *s)
     assert(ext2_inode_lookup(inode_number, &my_inode, true));
     return 1;
 }
-
 
 int select_disk(char *s)
 {

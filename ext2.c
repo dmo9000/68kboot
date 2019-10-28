@@ -291,8 +291,8 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
     }
 
     if (!ext2_rootfs.active) {
-        printf("error: no active filesystem\r\n");
-        puts("\r\n");
+        //printf("error: no active filesystem\r\n");
+        //puts("\r\n");
         return 0;
     }
     assert(ext2_rootfs.active);
