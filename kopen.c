@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "errno.h"
 #include "ext2.h"
+#include "stat.h"
 
 extern ext2_fs ext2_rootfs;
 
@@ -29,6 +30,7 @@ int kopen(const char *pathname, int flags)
         return -1;
     }
 
+
     /* directories are files ! */
 
     /*
@@ -44,7 +46,6 @@ int kopen(const char *pathname, int flags)
         return -1;
     }
     //printf("fd = %d\r\n", new_fd);
-
 
     set_errno(0);
     return new_fd;

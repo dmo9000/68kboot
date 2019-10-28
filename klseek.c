@@ -13,6 +13,25 @@ off_t klseek(int fd, off_t offset, int whence)
 
     descriptor = fcntl_get_descriptor(fd);
 
+		if (whence == SEEK_END) {
+				printf("SEEK_END!!\r\n");
+				printf("descriptor->inode =%u\n", descriptor->inode);
+				descriptor->limit = ext2_inode_size(descriptor->inode);
+				printf("descriptor->limit =%u\n", descriptor->limit);
+				descriptor->offset = descriptor->limit + offset;
+				return (descriptor->offset);
+				}
+
+		if (whence == SEEK_CUR) {
+				if (offset == 0) {
+						return descriptor->offset;
+						} else {
+						descriptor->offset += offset;
+						return descriptor->offset;
+						}
+				/* not reached */
+				}
+
     if (whence == SEEK_SET) {
         descriptor->offset = offset;
         set_errno(0);

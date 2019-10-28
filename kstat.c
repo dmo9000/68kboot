@@ -16,6 +16,21 @@
 
 extern ext2_fs ext2_rootfs;
 
+uint32_t ext2_inode_size(uint32_t inode_lookup)
+{
+    static ext2_inode my_inode;
+
+		memset(&my_inode, 0, sizeof(ext2_inode));
+		if (!ext2_inode_lookup(inode_lookup, &my_inode, false)) {
+			printf("ext2_inode_size() failed\r\n");
+			set_errno(ENOENT);
+			return 0;
+			}
+//		printf("my_inode.i_size = %u\r\n", nm_uint32(my_inode.i_size)); 
+		return nm_uint32(my_inode.i_size);
+}
+
+
 int kstat(const char *restrict path, struct stat *restrict buf)
 {
     ext2_inode my_inode;
