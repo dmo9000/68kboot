@@ -47,8 +47,8 @@ int bdos_init()
 
         memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
-				kputenv("PATH=/usr/bin/:/bin");
-				kputenv("TERM=ansi");
+        kputenv("PATH=/usr/bin/:/bin");
+        kputenv("TERM=ansi");
         bdos_version(NULL);
         initialized = true;
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);

@@ -31,7 +31,7 @@ typedef struct _fd {
     uint32_t limit;
     ext2_inode fd_inode;
     ext2_fs *fs;
-		int tflags;
+    int tflags;
 } _fd;
 
 int open(const char *pathname, int flags);

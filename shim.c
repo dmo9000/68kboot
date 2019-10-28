@@ -323,7 +323,7 @@ parseFactor ()
                 printf("%s: cannot exec binary file\r\n", parseString);
                 return 0;
             } else {
-								//printf("[STARTING ELF PROGRAM]\r\n");
+                //printf("[STARTING ELF PROGRAM]\r\n");
                 return run(x);
             }
         }

@@ -281,7 +281,7 @@ int elf_load_binary(int elf_fd)
 
 #ifdef DEBUG_ELF
     printf("[ELF LOADER RETURNING 1]\r\n");
-   	puts("\r\n");
+    puts("\r\n");
 #endif
     return(1);
 }
