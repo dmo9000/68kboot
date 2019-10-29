@@ -14,11 +14,12 @@ off_t klseek(int fd, off_t offset, int whence)
     descriptor = fcntl_get_descriptor(fd);
 
 		if (whence == SEEK_END) {
-				printf("SEEK_END!!\r\n");
-				printf("descriptor->inode =%u\n", descriptor->inode);
+				//printf("SEEK_END!!\r\n");
+				//printf("descriptor->inode =%u\n", descriptor->inode);
 				descriptor->limit = ext2_inode_size(descriptor->inode);
-				printf("descriptor->limit =%u\n", descriptor->limit);
+				//printf("descriptor->limit =%u\n", descriptor->limit);
 				descriptor->offset = descriptor->limit + offset;
+				//printf("descriptor->offset = %u\n", descriptor->offset);
 				return (descriptor->offset);
 				}
 
