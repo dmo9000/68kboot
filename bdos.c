@@ -9,6 +9,7 @@
 #include "kstat.h"
 #include "kopen.h"
 #include "kread.h"
+#include "kwrite.h"
 #include "kclose.h"
 #include "klseek.h"
 #include "kchdir.h"
@@ -37,6 +38,7 @@ int bdos_init()
         bdvt.ver_rev = VERSION_REVISION;
         bdvt._open = kopen;
         bdvt._read = kread;
+        bdvt._write = kwrite;
         bdvt._close = kclose;
         bdvt._stat = kstat;
         bdvt._lseek = klseek;
