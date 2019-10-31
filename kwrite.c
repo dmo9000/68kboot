@@ -19,7 +19,7 @@ ssize_t kwrite(int fd, void *buf, size_t count)
 		if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
 			if (count && buf) {
 				for (i = 0; i < count; i++) {
-						kputchar((char) p[i]);
+						kernel_putchar((char) p[i]);
 						}
 				}
 		return count;
