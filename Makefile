@@ -1,7 +1,7 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -nostdinc -Os -ffunction-sections -fdata-sections -I/usr/local/madlibc/include
 
-BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kclose.o kstat.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o kgetenv.o kchdir.o ktime.o kputenv.o
+BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kwrite.o kclose.o kstat.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o kgetenv.o kchdir.o ktime.o kputenv.o
 
 
 all: bootldr shim bootldr.img 
@@ -16,6 +16,9 @@ shim:	$(BDOS_OBJS) shim.o fletcher16.o elf.o
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec shim shim.srec
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary shim shim.out
 
+#		/usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
+
+
 bootldr: $(BDOS_OBJS) bootldr.o disk.o assert.o
 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 bootldr.o disk.o assert.o exit.o \
@@ -24,6 +27,8 @@ bootldr: $(BDOS_OBJS) bootldr.o disk.o assert.o
 	#ls -l bootldr
 	#size -A -d bootldr
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary bootldr bootldr.out
+
+    #/usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 
 bootldr.img: bootldr
 	@@dd if=/dev/zero of=bootldr.img bs=128 count=256

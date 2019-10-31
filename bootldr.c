@@ -25,11 +25,11 @@ int main(int argc, char *argv[])
         dma_addr += 0x80;
         sector_count ++;
         if (!(sector_count % 8)) {
-            putchar('.');
+            kputchar('.');
         }
     }
-    putchar('\r');
-    putchar('\n');
+    kputchar('\r');
+    kputchar('\n');
     run_vector = (int (*)(int,  char **)) 0x0500;
     run_vector(0, NULL);
 }
