@@ -16,10 +16,10 @@ extern ext2_fs ext2_rootfs;
 int kchdir(char *s)
 {
     uint32_t target_inode = 0;
-//    printf("kchdir(%s)\r\n", s);
+//    kernel_printf("kchdir(%s)\r\n", s);
     if (!ext2_rootfs.active) {
-//        printf("error: no active filesystem\r\n");
-//        puts("\r\n");
+//        kernel_printf("error: no active filesystem\r\n");
+//        kernel_puts("\r\n");
         set_errno(EFAULT);
         return -1;
     }
@@ -29,24 +29,24 @@ int kchdir(char *s)
     target_inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
     //printf("cd: target inode = %u\r\n", target_inode);
     if (!target_inode) {
-//        printf("%s: directory does not exist\r\n", s);
+//        kernel_printf("%s: directory does not exist\r\n", s);
         set_errno(ENOENT);
         return -1;
     }
     switch(isdirectory(target_inode)) {
     case true:
-//        printf("[kchdir changed directory to %s]\r\n", s);
+//        kernel_printf("[kchdir changed directory to %s]\r\n", s);
         ext2_rootfs.cwd_inode = target_inode;
         set_errno(0);
         return 0;
         break;
     case false:
         set_errno(ENOTDIR);
-//        printf("%s: not a directory\r\n", s);
+//        kernel_printf("%s: not a directory\r\n", s);
         return -1;
         break;
     default:
-        printf("huh?\r\n");
+        kernel_printf("huh?\r\n");
         break;
     }
 

@@ -14,7 +14,7 @@ int boot_putchar(int c)
     return 0;
 }
 
-int puts(const char *s)
+int kernel_puts(const char *s)
 {
     while (s[0] != '\0') {
         boot_putchar(s[0]);

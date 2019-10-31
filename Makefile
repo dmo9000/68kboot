@@ -1,7 +1,8 @@
 CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -nostdinc -Os -ffunction-sections -fdata-sections -I/usr/local/madlibc/include
 
-BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kwrite.o kclose.o kstat.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o kgetenv.o kchdir.o ktime.o kputenv.o
+BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kwrite.o kclose.o kstat.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o kgetenv.o kchdir.o ktime.o kputenv.o kprintf.o kmemset.o	\
+					endian.o kmemcpy.o kstrncmp.o kgetchar.o kstrtoul.o kstrncat.o kstrerror.o kstrchr.o modules.o dump.o
 
 
 all: bootldr shim bootldr.img 
@@ -11,8 +12,8 @@ all: bootldr shim bootldr.img
 
 shim:	$(BDOS_OBJS) shim.o fletcher16.o elf.o
 
-	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(BDOS_OBJS) shim.o fletcher16.o elf.o \
-		/usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
+	/usr/local/gcc-68k/bin/m68k-elf-ld -o shim -T kspace.lds --gc-sections --defsym=_start=main -Ttext=0x500 $(BDOS_OBJS) shim.o fletcher16.o elf.o	\
+		/usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec shim shim.srec
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O binary shim shim.out
 

@@ -51,7 +51,7 @@ ssize_t kread(int fd, void *buf, size_t count)
                 /* byte waiting */
                 //char * r= (char *) 0xff1002;
                 // kbdata[0] = r[0];
-                kbdata[0] = getchar();
+                kbdata[0] =kernel_getchar();
                 //printf("\t\t\t\t\tkbdata[0] = 0x%02x ['%c']\n",
                 //		kbdata[0],
                 //			kbdata[0]);
@@ -69,7 +69,7 @@ ssize_t kread(int fd, void *buf, size_t count)
         //printf("/* cooked */\n");
 
         while (total_bytes_read < count) {
-            kbdata[total_bytes_read] = getchar();
+            kbdata[total_bytes_read] =kernel_getchar();
             /* ECHO IN COOKED MODE */
             kernel_putchar(kbdata[total_bytes_read]);
             //printf("byte -> %c\r\n", kbdata[total_bytes_read]);
@@ -89,7 +89,7 @@ ssize_t kread(int fd, void *buf, size_t count)
     if (descriptor->offset >= ((EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size) +
                                ((256*256) * (descriptor->fs->block_size)))
        ) {
-        printf("read() - offset %lu is out of range\r\n", descriptor->offset);
+        kernel_printf("read() - offset %lu is out of range\r\n", descriptor->offset);
         // EOF - return 0 */
         //return 0;
         set_errno(EIO);

@@ -13,7 +13,7 @@ int dev_register(char *name, int type, int maj, int min, unsigned long addr, uns
 {
     //printf("dev_register(%s, %u, %u, %u)\n", name, type, maj, min);
 
-    memcpy(&devices[device_free].name, name, strlen(name));
+    kernel_memcpy(&devices[device_free].name, name, strlen(name));
     devices[device_free].type = type;
     devices[device_free].min = min;
     devices[device_free].maj = maj;
@@ -36,16 +36,16 @@ int dev_getdisknumber(int id)
 int dev_list()
 {
     int i = 0;
-    printf("id\tname\ttype\tmaj:min\tseek    \tread    \twrite    \toffset\r\n");
-    puts("\r\n");
+    kernel_printf("id\tname\ttype\tmaj:min\tseek    \tread    \twrite    \toffset\r\n");
+    kernel_puts("\r\n");
 
     for (i = 0; i< device_free; i++)
     {
-        printf("%02u\t%-4s\t%04u\t%03u:%03u\t%08lx\t%08lx\t%08lx\t%08lx\r\n",
+        kernel_printf("%02u\t%-4s\t%04u\t%03u:%03u\t%08lx\t%08lx\t%08lx\t%08lx\r\n",
                i, devices[i].name, devices[i].type,
                devices[i].maj, devices[i].min, (uint32_t) devices[i].seek,
                (uint32_t) devices[i].read, (uint32_t) devices[i].write, devices[i].offset);
-        puts("\r\n");
+        kernel_puts("\r\n");
     }
 
     return 0;

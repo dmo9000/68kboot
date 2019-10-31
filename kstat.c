@@ -20,9 +20,9 @@ uint32_t ext2_inode_size(uint32_t inode_lookup)
 {
     static ext2_inode my_inode;
 
-		memset(&my_inode, 0, sizeof(ext2_inode));
+		kernel_memset(&my_inode, 0, sizeof(ext2_inode));
 		if (!ext2_inode_lookup(inode_lookup, &my_inode, false)) {
-			printf("ext2_inode_size() failed\r\n");
+			kernel_printf("ext2_inode_size() failed\r\n");
 			set_errno(ENOENT);
 			return 0;
 			}
@@ -48,7 +48,7 @@ int kstat(const char *restrict path, struct stat *restrict buf)
     //printf("gid = %u\r\n", nm_uint16(my_inode.i_gid));
 
 
-    memset(buf, 0, sizeof(struct stat));
+    kernel_memset(buf, 0, sizeof(struct stat));
     buf->st_ino = directory_inode;
     buf->st_mode = nm_uint16(my_inode.i_mode);
     buf->st_uid = nm_uint16(my_inode.i_uid);

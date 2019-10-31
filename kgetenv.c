@@ -15,7 +15,7 @@ char *matchenv(char *e, char *v)
     if (strlen(e) < strlen(v)+1) {
         return NULL;
     }
-    if (strncmp(e, v, strlen(v)) ==0 && e[strlen(v)] == '=') {
+    if (kernel_strncmp(e, v, strlen(v)) ==0 && e[strlen(v)] == '=') {
         return e+strlen(v)+1;
     }
     return NULL;

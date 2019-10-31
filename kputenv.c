@@ -18,7 +18,7 @@ int kputenv(char *string)
 //	printf("kputenv(%s)\r\n", string);
 
     /* must contain an equals sign */
-    assert(strchr(string, '='));
+    assert(kernel_strchr(string, '='));
 
     env_req = strlen(string);
 
@@ -30,7 +30,7 @@ int kputenv(char *string)
 
     /* TODO: check that it doesn't already exist in environment */
 
-    memcpy(p + off_ins, string, strlen(string));
+    kernel_memcpy(p + off_ins, string, strlen(string));
     off_ins += strlen(string) + 1;
 
     return 0;

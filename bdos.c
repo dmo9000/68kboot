@@ -31,7 +31,7 @@ int bdos_init()
     char *path = NULL;
     char *term = NULL;
     if (!initialized) {
-        memset((void *) 0x0400, 0, 256);
+        kernel_memset((void *) 0x0400, 0, 256);
         bdvt.magic = 0xF0E0F0E0;
         bdvt.ver_maj = VERSION_MAJOR;
         bdvt.ver_min = VERSION_MINOR;
@@ -47,7 +47,7 @@ int bdos_init()
         bdvt._getenv = kgetenv;
         bdvt._fcntl = kfcntl;
 
-        memset(&environment, 0, MAX_ENVIRON);
+        kernel_memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
         kputenv("PATH=/usr/bin/:/bin");
         kputenv("TERM=ansi");
@@ -56,23 +56,23 @@ int bdos_init()
         dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
         select_disk("0");
         path = kgetenv("PATH");
-        puts("\r\n");
+        kernel_puts("\r\n");
         if (path) {
-            printf("PATH=%s\r\n", path);
+            kernel_printf("PATH=%s\r\n", path);
         }
         term = kgetenv("TERM");
         if (term) {
-            printf("TERM=%s\r\n", term);
+            kernel_printf("TERM=%s\r\n", term);
         }
 
-        puts("\r\n");
+        kernel_puts("\r\n");
     }
     return 1;
 }
 
 int bdos_version(char *s)
 {
-    printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018,2019 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
+    kernel_printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018,2019 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
     //printf("main = 0x%lx\r\n", main);
     //puts("\r\n");
     return 1;

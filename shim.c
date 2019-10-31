@@ -117,7 +117,7 @@ int kernel_puts(const char *s)
 void _ASSERT(char *error, char *file, int line)
 {
     kernel_puts("\r\n");
-    printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
+    kernel_printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
     exit(1);
 }
 
@@ -136,9 +136,9 @@ int supermain()
     static char command[2048];
 
     while (1) {
-        printf("%c[37m""shim> ", 27);
-        memset(&command, 0, 2048);
-        c = getchar();
+        kernel_printf("%c[37m""shim> ", 27);
+        kernel_memset(&command, 0, 2048);
+        c =kernel_getchar();
         while (c != '\r') {
             switch (c) {
 						case 27:
@@ -146,28 +146,28 @@ int supermain()
             case BS:
                 if (length) {
                     /* move cursor back, erase, move cursor back */
-                    printf("\b\ \b");
+                    kernel_printf("\b\ \b");
                     command[length-1] = '\0';
                     length -= 1;
                 }
                 break;
             case ETX:
-                printf("^C\r\n");
+                kernel_printf("^C\r\n");
                 kernel_puts("\r\n");
                 length = 0;
                 goto read_prompt;
                 break;
             case EOT:
-                //printf("<EOT>");
-                printf("quit\r\n");
+                //kernel_printf("<EOT>");
+                kernel_printf("quit\r\n");
                 quit(NULL);
                 break;
             default:
-                printf("%c", c);
+                kernel_printf("%c", c);
                 command[length] = c;
                 length++;
             }
-            c = getchar();
+            c =kernel_getchar();
         }
         if (length == 0) {
             //return 0;
@@ -182,7 +182,7 @@ int supermain()
         result = parseSum ();
         if (!errorFlag && !command_was_executed)
         {
-            //printf ("result = %u\r\n", result);
+            //kernel_printf ("result = %u\r\n", result);
         }
         errorFlag = false;
         length = 0;
@@ -206,8 +206,8 @@ int get_inode(char *s)
 {
     //ext2_inode my_inode;
     uint32_t inode_number = 0;
-    inode_number = strtoul(s, NULL, 10);
-//    printf("get_inode(%s)[%lu]\r\n", s, inode_number);
+    inode_number = kernel_strtoul(s, NULL, 10);
+//    kernel_printf("get_inode(%s)[%lu]\r\n", s, inode_number);
     assert(ext2_inode_lookup(inode_number, &my_inode, true));
     return 1;
 }
@@ -217,9 +217,9 @@ int select_disk(char *s)
     int probe = 0;
     int disk_number = 0;
     int device_number = 0;
-    disk_number = strtoul(s, NULL, 10);
+    disk_number = kernel_strtoul(s, NULL, 10);
     if (!(disk_number >=0 && disk_number <= 0x0F)) {
-        printf("invalid disk number %u\r\n", disk_number);
+        kernel_printf("invalid disk number %u\r\n", disk_number);
         return 0;
     }
 
@@ -232,7 +232,7 @@ int select_disk(char *s)
     //dump("0x08000");
     probe = ext2_probe();
     if (probe == -1) {
-        printf("No filesystem found on disk #%02u\n", disk_number);
+        kernel_printf("No filesystem found on disk #%02u\n", disk_number);
     }
     return 0;
 }
@@ -241,7 +241,7 @@ int select_disk(char *s)
 mathRegister
 parseSum ()
 {
-//   printf("parseSum(%s)\r\n", x);
+//   kernel_printf("parseSum(%s)\r\n", x);
     mathRegister pro1 = parseProduct ();
     while (*x == '+')
     {
@@ -250,7 +250,7 @@ parseSum ()
         pro2 = parseProduct ();
         pro1 = pro1 + pro2;
     }
-//    printf("returning = %u\r\n", pro1);
+//    kernel_printf("returning = %u\r\n", pro1);
     return pro1;
 
 }
@@ -259,7 +259,7 @@ mathRegister
 parseProduct ()
 {
 
-//    printf("parseProduct(%s)\r\n", x);
+//    kernel_printf("parseProduct(%s)\r\n", x);
     mathRegister fac1 = parseFactor ();
     while (*x == '*')
     {
@@ -278,7 +278,7 @@ parseFactor ()
 {
     char *search_cmd = NULL;
     int elf_ok = 0;
-    // printf("parseFactor(%s)\r\n", x);
+    // kernel_printf("parseFactor(%s)\r\n", x);
     mathRegister sum1 = 0;
     //char *ptr = NULL;
     int jmpIndex = 0;
@@ -313,8 +313,8 @@ parseFactor ()
 
         while (jumpPtr > 0)
         {
-            //printf("%u: %s ? %s\n", jmpIndex, jmptbl[jmpIndex].command, parseString);
-            if (strncmp
+            //kernel_printf("%u: %s ? %s\n", jmpIndex, jmptbl[jmpIndex].command, parseString);
+            if (kernel_strncmp
                     (jmptbl[jmpIndex].command, parseString,
                      strlen (jmptbl[jmpIndex].command)) == 0 &&
                     strlen (jmptbl[jmpIndex].command) == strlen(parseString))
@@ -333,25 +333,25 @@ parseFactor ()
         } else {
             search_cmd = parseString;
         }
-//       printf("search_cmd=[%s]\r\n", search_cmd);
+//       kernel_printf("search_cmd=[%s]\r\n", search_cmd);
         if (search_cmd) {
-//            printf("found executable=[%s], args=[%s]\r\n", search_cmd, x);
+//            kernel_printf("found executable=[%s], args=[%s]\r\n", search_cmd, x);
             elf_ok = loadelf(search_cmd);
             if (! elf_ok) {
-                //printf("%s: not an ELF executable\r\n", parseString);
-                //printf("[ CAUTION: loading binary program '%s' in legacy mode ]\r\n", parseString);
+                //kernel_printf("%s: not an ELF executable\r\n", parseString);
+                //kernel_printf("[ CAUTION: loading binary program '%s' in legacy mode ]\r\n", parseString);
                 //kernel_puts("\r\n");
                 //load(parseString);
-                printf("%s: cannot exec binary file\r\n", parseString);
+                kernel_printf("%s: cannot exec binary file\r\n", parseString);
                 return 0;
             } else {
-                //printf("[STARTING ELF PROGRAM]\r\n");
+                //kernel_printf("[STARTING ELF PROGRAM]\r\n");
                 return run(x);
             }
         }
 
 
-        printf ("syntax error: %s\r\n", parseString);
+        kernel_printf ("syntax error: %s\r\n", parseString);
         errorFlag = true;
         return 0;
     }
@@ -363,8 +363,8 @@ parseToken ()
 {
     int i = 0;
     //char *p = x;
-    //  printf("parseToken(%s)\r\n", x);
-    memset (&parseString, 0, MAX_STRING);
+    //  kernel_printf("parseToken(%s)\r\n", x);
+    kernel_memset (&parseString, 0, MAX_STRING);
     while (!isWhitespace (x[i]) && !isTerminator (x[i]) && i < MAX_STRING)
     {
         parseString[i] = x[i];
@@ -382,7 +382,7 @@ parseToken ()
 bool
 isTerminator (char c)
 {
-//   printf(" > isTerminator(%c) = %d\r\n", c, c);
+//   kernel_printf(" > isTerminator(%c) = %d\r\n", c, c);
     switch (c)
     {
     case '\0':
@@ -397,7 +397,7 @@ isTerminator (char c)
 bool
 isWhitespace (char c)
 {
-//    printf(" > isWhitespace(%c) = %d\r\n", c, c);
+//    kernel_printf(" > isWhitespace(%c) = %d\r\n", c, c);
     switch (c)
     {
     case ' ':
@@ -415,7 +415,7 @@ isWhitespace (char c)
 
 int cpmsim_seek(struct _device *d, uint32_t address)
 {
-    //printf("cpm_seek(d->%s, 0x%08lx)\r\n", d->name, address);
+    //kernel_printf("cpm_seek(d->%s, 0x%08lx)\r\n", d->name, address);
     /* not aligned to sector boundary */
     //assert(!(address % SECTOR_SIZE));
     d->offset = address;
@@ -436,13 +436,13 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
     uint32_t current_offset = 0;
     uint32_t bytes_available = 0;
     unsigned char *ptr = buf;
-    //printf("cpm_read(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
+    //kernel_printf("cpm_read(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
 
     start_sector = d->offset / SECTOR_SIZE;
     sector_offset = d->offset % SECTOR_SIZE;
     //sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
     //end_sector = start_sector + sector_count;
-    //printf("->(sector=%u:offset=%u:sector_count=%u:end_sector=%u)\r\n", start_sector, sector_offset, sector_count, end_sector);
+    //kernel_printf("->(sector=%u:offset=%u:sector_count=%u:end_sector=%u)\r\n", start_sector, sector_offset, sector_count, end_sector);
     // assert(!(d->offset % SECTOR_SIZE));
     disk_set_dma(0xF000);
     /* can't read partial head block right now */
@@ -456,7 +456,7 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
     while (remaining > 0) {
         if (remaining <= current_offset) {
             /* not sure why this was important before */
-            //printf("remaining(%u) <= current_offset(%u)\r\n", remaining, current_offset);
+            //kernel_printf("remaining(%u) <= current_offset(%u)\r\n", remaining, current_offset);
             //assert(remaining > current_offset);
         }
 
@@ -467,7 +467,7 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
             bytes_available = remaining;
         }
         disk_read_sector(current_sector);
-        memcpy(ptr, (const void *) 0xF000 + current_offset, bytes_available);
+        kernel_memcpy(ptr, (const void *) 0xF000 + current_offset, bytes_available);
         remaining -= bytes_available;
         ptr+= bytes_available;
         current_offset = 0;
@@ -478,9 +478,9 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
 
 int ls(char *s)
 {
-    //printf("ls(%s)\r\n", s);
+    //kernel_printf("ls(%s)\r\n", s);
     if (!ext2_rootfs.active) {
-        printf("error: no active filesystem\r\n");
+        kernel_printf("error: no active filesystem\r\n");
         kernel_puts("\r\n");
         return 0;
     }
@@ -493,31 +493,31 @@ int ls(char *s)
 int cd(char *s)
 {
     uint32_t target_inode = 0;
-    //printf("cd(%s)\r\n", s);
+    //kernel_printf("cd(%s)\r\n", s);
     if (!ext2_rootfs.active) {
-        printf("error: no active filesystem\r\n");
+        kernel_printf("error: no active filesystem\r\n");
         kernel_puts("\r\n");
         return 0;
     }
     assert(ext2_rootfs.active);
     assert(ext2_rootfs.cwd_inode);
     target_inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
-    //printf("cd: target inode = %u\r\n", target_inode);
+    //kernel_printf("cd: target inode = %u\r\n", target_inode);
     if (!target_inode) {
-        printf("%s: directory does not exist\r\n", s);
+        kernel_printf("%s: directory does not exist\r\n", s);
         return 0;
     }
     switch(isdirectory(target_inode)) {
     case true:
-        printf("[changed directory to %s]\r\n", s);
+        kernel_printf("[changed directory to %s]\r\n", s);
         ext2_rootfs.cwd_inode = target_inode;
         break;
     case false:
-        printf("%s: not a directory\r\n", s);
+        kernel_printf("%s: not a directory\r\n", s);
         return 0;
         break;
     default:
-        printf("huh?\r\n");
+        kernel_printf("huh?\r\n");
         break;
     }
     return 0;
@@ -537,7 +537,7 @@ int cat(char *s)
         return 0;
     }
 
-    memset(&buffer, 0, 4096);
+    kernel_memset(&buffer, 0, 4096);
     rd = kread(cat_fd, &buffer, 4096);
 
     while (rd != 0) {
@@ -546,15 +546,15 @@ int cat(char *s)
             kernel_puts("\r\n");
             return 0;
         } else {
-            //printf("rd = %d\r\n", rd);
+            //kernel_printf("rd = %d\r\n", rd);
             for (i = 0; i < rd; i++) {
                 kernel_putchar(buffer[i]);
             }
         }
-        memset(&buffer, 0, 4096);
+        kernel_memset(&buffer, 0, 4096);
         rd = kread(cat_fd, &buffer, 4096);
     }
-    //printf("*rd = %d\r\n", rd);
+    //kernel_printf("*rd = %d\r\n", rd);
 
     if (kclose(cat_fd) == -1) {
         perror("close");
@@ -588,7 +588,7 @@ int load(char *s)
             kernel_puts("\r\n");
             return 0;
         } else {
-            //       printf("rd = %d\r\n", rd);
+            //       kernel_printf("rd = %d\r\n", rd);
             //       kernel_puts("\r\n");
             memptr +=rd;
         }
@@ -615,7 +615,7 @@ bool iswhitespace(char c)
 int run(char *s)
 {
 
-    //printf("run(->%s, %s)\r\n", parseString, s);
+    //kernel_printf("run(->%s, %s)\r\n", parseString, s);
     return exec_run(parseString, s);
 }
 
@@ -629,7 +629,7 @@ int exec_run(char *pname, char *s)
     char *ap = NULL;
     char *args[MAX_ARGS];
     int c = 0;
-    //printf("args = [%s]\r\n", s);
+    //kernel_printf("args = [%s]\r\n", s);
 
     for (i = 0; i < MAX_ARGS; i++) {
         args[i] = NULL;
@@ -646,7 +646,7 @@ int exec_run(char *pname, char *s)
             if (al) {
                 args[argc] = ap;
                 s[i] = '\0';
-                //printf("new_arg[%d:%s]\r\n", argc, args[argc]);
+                //kernel_printf("new_arg[%d:%s]\r\n", argc, args[argc]);
                 argc++;
                 al = 0;
             }
@@ -654,7 +654,7 @@ int exec_run(char *pname, char *s)
             if (!al) {
                 ap = s + i;
             }
-            // printf("%d:%d:%c\r\n", i, al, s[i]);
+            // kernel_printf("%d:%d:%c\r\n", i, al, s[i]);
             al++;
         }
         i++;
@@ -662,13 +662,13 @@ int exec_run(char *pname, char *s)
 
     if (al) {
         args[argc] = ap;
-        //printf("last_arg[%d:%s]\r\n", argc, args[argc]);
+        //kernel_printf("last_arg[%d:%s]\r\n", argc, args[argc]);
         argc++;
     }
 
 
     for (i = 0; i < argc; i++) {
-//        printf("args[%d] = [%s]\r\n", i, args[i]);
+//        kernel_printf("args[%d] = [%s]\r\n", i, args[i]);
     }
 
 
@@ -677,7 +677,7 @@ int exec_run(char *pname, char *s)
     newmain = (void *) 0x100000;
     //c = newmain(&bdvt, 3, args);
     c = newmain(argc, args);
-    //printf("[program returned %d]\r\n", c);
+    //kernel_printf("[program returned %d]\r\n", c);
     return c;
 
 }
@@ -695,10 +695,10 @@ char *search_path(char *s)
 
     if (path) {
         pl = strlen(path);
-        //printf("Searching PATH (length=%u): %s\r\n", pl, path);
+        //kernel_printf("Searching PATH (length=%u): %s\r\n", pl, path);
         p1 = (char *) path;
         p2= (char *) p1;
-        memset(&pathbuf, 0, MAX_PATH);
+        kernel_memset(&pathbuf, 0, MAX_PATH);
         while (pg < pl) {
             while (p2[0] != ':'  && p < pl) {
                 pathbuf[p] = p2[0];
@@ -706,7 +706,7 @@ char *search_path(char *s)
                 p++;
                 pg++;
             }
-            //printf("Got path segment: %s\r\n", pathbuf);
+            //kernel_printf("Got path segment: %s\r\n", pathbuf);
             p2++;
             p = 0;
 
@@ -714,13 +714,13 @@ char *search_path(char *s)
                 sb = kstat(&pathbuf, &statbuf);
 
                 if (sb == 0 && S_ISDIR(statbuf.st_mode)) {
-//										printf(" ++ [%s] is a directory\r\n", pathbuf);
+//										kernel_printf(" ++ [%s] is a directory\r\n", pathbuf);
                     assert(strlen(pathbuf) < MAX_PATH);
 //										if (strlen(pathbuf) < MAX_PATH) {
 //		                    strcat(&pathbuf, "/");
                     //											}
-                    strncat(&pathbuf, "/", strlen("/"));
-                    strncat(&pathbuf, s, strlen(s));
+                   kernel_strncat(&pathbuf, "/", strlen("/"));
+                   kernel_strncat(&pathbuf, s, strlen(s));
                     p4 = &pathbuf;
 
                     if (strlen(p4) > 1) {
@@ -729,24 +729,24 @@ char *search_path(char *s)
                         }
                     }
 
-//                    printf(" >> searching [%s]\r\n", p4);
+//                    kernel_printf(" >> searching [%s]\r\n", p4);
                     if (ext2_path_to_inode((char *) p4, ext2_rootfs.cwd_inode)) {
-//                        printf("  >> found [%s]\r\n", p4);
+//                        kernel_printf("  >> found [%s]\r\n", p4);
                         p3 = (char *) p4;
                         return (char *) p3;
                     } else {
-//											printf("  >> not found [%s]\r\n", p4);
+//											kernel_printf("  >> not found [%s]\r\n", p4);
                     }
                 } else {
-//                    printf(" >> ignoring [%s], not found or not a directory\r\n", pathbuf);
+//                    kernel_printf(" >> ignoring [%s], not found or not a directory\r\n", pathbuf);
                 }
 
             } else {
-                printf("(concatenated path would overflow)\r\n");
+                kernel_printf("(concatenated path would overflow)\r\n");
                 return(NULL);
             }
             p = 0;
-            memset(&pathbuf, 0, MAX_PATH);
+            kernel_memset(&pathbuf, 0, MAX_PATH);
         }
 
     }
@@ -777,7 +777,7 @@ int run_f16(char *s)
     len = parseFactor();
     p = (char *) addr;
     result = fletcher16((unsigned char *) p, len);
-    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", addr, len, result);
+    kernel_printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", addr, len, result);
     return 0;
 }
 
@@ -789,19 +789,19 @@ int run_f16f(char *s)
 
     inode = ext2_path_to_inode(s, ext2_rootfs.cwd_inode);
     if (!inode) {
-        printf("f16f: %s not found\r\n", s);
+        kernel_printf("f16f: %s not found\r\n", s);
         return 0;
     }
 
     if (isdirectory(inode)) {
-        printf("f16: %s is a directory\r\n", s);
+        kernel_printf("f16: %s is a directory\r\n", s);
         return 0;
     }
     ext2_inode_lookup(inode, &my_inode, false);
-    printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size));
+    kernel_printf("%s->i_size = %lu\r\n", s, nm_uint32(my_inode.i_size));
     load(s);
     result = fletcher16((unsigned char *) 0x100000, nm_uint32(my_inode.i_size));
-    printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", (uint32_t) 0x10000, nm_uint32(my_inode.i_size), result);
+    kernel_printf("[f16:addr = 0x%lx, len = 0x%lx, result = 0x%x]\r\n", (uint32_t) 0x10000, nm_uint32(my_inode.i_size), result);
     return 0;
 
 }

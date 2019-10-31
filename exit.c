@@ -14,8 +14,8 @@ void do_exit(int d)
 void exit(int d)
 {
     //printf("--> exit(%d)\r\n", d);
-    puts("\r\n");
-    puts("\r\n");
+    kernel_puts("\r\n");
+    kernel_puts("\r\n");
     do_exit(d);
     while (1) { }
 }
