@@ -83,8 +83,8 @@ bool isWhitespace (char c);
 char parseString[MAX_STRING];
 
 
-int putchar(int c);
-int puts(const char *s);
+//int putchar(int c);
+//int kernel_puts(const char *s);
 
 typedef unsigned long size_t;
 size_t strlen(const char *t);
@@ -98,9 +98,27 @@ ext2_inode my_inode;
 
 char environment[MAX_ENVIRON];
 
+int kernel_putchar(int c)
+{
+    char * p = (char *)0xff1002;
+    p[0] = c;
+    return 0;
+}
+
+int kernel_puts(const char *s)
+{
+    while (s[0] != '\0') {
+        kernel_putchar(s[0]);
+        s++;
+    }
+    return 0;
+}
+
+
+
 void _ASSERT(char *error, char *file, int line)
 {
-    puts("\r\n");
+    kernel_puts("\r\n");
     printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
     exit(1);
 }
@@ -137,7 +155,7 @@ int supermain()
                 break;
             case ETX:
                 printf("^C\r\n");
-                puts("\r\n");
+                kernel_puts("\r\n");
                 length = 0;
                 goto read_prompt;
                 break;
@@ -156,10 +174,10 @@ int supermain()
         if (length == 0) {
             //return 0;
             // exit(1);
-            puts("\r\n");
+            kernel_puts("\r\n");
             goto read_prompt;
         } else {
-            puts("\r\n");
+            kernel_puts("\r\n");
         }
 
         x = (char *) &command;
@@ -174,7 +192,7 @@ read_prompt:
         ;
     }
 
-    puts("[\r\n]");
+    kernel_puts("[\r\n]");
     return 0;
 }
 
@@ -324,7 +342,7 @@ parseFactor ()
             if (! elf_ok) {
                 //printf("%s: not an ELF executable\r\n", parseString);
                 //printf("[ CAUTION: loading binary program '%s' in legacy mode ]\r\n", parseString);
-                //puts("\r\n");
+                //kernel_puts("\r\n");
                 //load(parseString);
                 printf("%s: cannot exec binary file\r\n", parseString);
                 return 0;
@@ -465,7 +483,7 @@ int ls(char *s)
     //printf("ls(%s)\r\n", s);
     if (!ext2_rootfs.active) {
         printf("error: no active filesystem\r\n");
-        puts("\r\n");
+        kernel_puts("\r\n");
         return 0;
     }
     assert(ext2_rootfs.active);
@@ -480,7 +498,7 @@ int cd(char *s)
     //printf("cd(%s)\r\n", s);
     if (!ext2_rootfs.active) {
         printf("error: no active filesystem\r\n");
-        puts("\r\n");
+        kernel_puts("\r\n");
         return 0;
     }
     assert(ext2_rootfs.active);
@@ -527,12 +545,12 @@ int cat(char *s)
     while (rd != 0) {
         if (rd == -1) {
             perror("read");
-            puts("\r\n");
+            kernel_puts("\r\n");
             return 0;
         } else {
             //printf("rd = %d\r\n", rd);
             for (i = 0; i < rd; i++) {
-                putchar(buffer[i]);
+                kernel_putchar(buffer[i]);
             }
         }
         memset(&buffer, 0, 4096);
@@ -545,7 +563,7 @@ int cat(char *s)
         return 0;
     };
 
-    puts("\r\n");
+    kernel_puts("\r\n");
     return 0;
 }
 
@@ -569,11 +587,11 @@ int load(char *s)
     while (rd != 0) {
         if (rd == -1) {
             perror("read");
-            puts("\r\n");
+            kernel_puts("\r\n");
             return 0;
         } else {
             //       printf("rd = %d\r\n", rd);
-            //       puts("\r\n");
+            //       kernel_puts("\r\n");
             memptr +=rd;
         }
         rd = kread(load_fd, memptr, 4096);

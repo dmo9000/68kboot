@@ -7,6 +7,23 @@
 
 /* 32K = 256 sectors */
 
+int boot_putchar(int c)
+{
+    char * p = (char *)0xff1002;
+    p[0] = c;
+    return 0;
+}
+
+int puts(const char *s)
+{
+    while (s[0] != '\0') {
+        boot_putchar(s[0]);
+        s++;
+    }
+    return 0;
+}
+
+
 int main(int argc, char *argv[])
 {
     int start_sector = 258;
@@ -25,11 +42,11 @@ int main(int argc, char *argv[])
         dma_addr += 0x80;
         sector_count ++;
         if (!(sector_count % 8)) {
-            kputchar('.');
+            boot_putchar('.');
         }
     }
-    kputchar('\r');
-    kputchar('\n');
+    boot_putchar('\r');
+    boot_putchar('\n');
     run_vector = (int (*)(int,  char **)) 0x0500;
     run_vector(0, NULL);
 }

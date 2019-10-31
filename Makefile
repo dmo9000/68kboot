@@ -22,7 +22,7 @@ shim:	$(BDOS_OBJS) shim.o fletcher16.o elf.o
 bootldr: $(BDOS_OBJS) bootldr.o disk.o assert.o
 
 	/usr/local/gcc-68k/bin/m68k-elf-ld -o bootldr --gc-sections --defsym=_start=main -Ttext=0x0400 bootldr.o disk.o assert.o exit.o \
-    /usr/local/madlibc/lib/libmadlibc.a /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
+    /usr/local/gcc-68k/lib/gcc/m68k-elf/8.2.0/m68000/libgcc.a
 	/usr/local/gcc-68k/bin/m68k-elf-objcopy -O srec bootldr bootldr.srec
 	#ls -l bootldr
 	#size -A -d bootldr
