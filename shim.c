@@ -83,8 +83,6 @@ bool isWhitespace (char c);
 char parseString[MAX_STRING];
 
 
-//int putchar(int c);
-//int kernel_puts(const char *s);
 
 typedef unsigned long size_t;
 size_t strlen(const char *t);

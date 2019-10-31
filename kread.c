@@ -71,7 +71,7 @@ ssize_t kread(int fd, void *buf, size_t count)
         while (total_bytes_read < count) {
             kbdata[total_bytes_read] = getchar();
             /* ECHO IN COOKED MODE */
-            kputchar(kbdata[total_bytes_read]);
+            kernel_putchar(kbdata[total_bytes_read]);
             //printf("byte -> %c\r\n", kbdata[total_bytes_read]);
             /* exit early on RETURN, regardless of how much is read */
             if (kbdata[total_bytes_read] == '\r') {
