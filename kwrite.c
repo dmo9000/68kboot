@@ -10,6 +10,8 @@
 #include "byteorder.h"
 
 
+int kernel_putchar(int c);
+
 ssize_t kwrite(int fd, void *buf, size_t count)
 {
 		int i = 0;
