@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "byteorder.h"
 #include <unistd.h>
+#include "kernel.h"
 #include "klseek.h"
 #include "kread.h"
 #include "kclose.h"

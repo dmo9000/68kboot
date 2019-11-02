@@ -51,6 +51,13 @@ int fcntl_open_inode(uint32_t inode, int flags)
 {
     int new_fd = -1;
 
+		if (!ext2_inode_lookup(inode, &file_descriptor[new_fd].fd_inode, false)) {
+				/* file does not exist */
+				set_errno(ENOENT);
+				return -1;
+				}
+
+
     new_fd = fcntl_find_free_fd();
 
     if (new_fd == -1) {

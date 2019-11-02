@@ -40,7 +40,7 @@ int bdos_init()
         bdvt._read = kread;
         bdvt._write = kwrite;
         bdvt._close = kclose;
-        bdvt._stat = kstat;
+        bdvt._stat = kernel_stat;
         bdvt._lseek = klseek;
         bdvt._chdir = kchdir;
         bdvt._time = ktime;
@@ -53,7 +53,7 @@ int bdos_init()
         kputenv("TERM=ansi");
         bdos_version(NULL);
         initialized = true;
-        dev_register("E:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
+        dev_register("C:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
         select_disk("0");
         path = kgetenv("PATH");
         kernel_puts("\r\n");

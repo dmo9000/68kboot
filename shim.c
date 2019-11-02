@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "kernel.h"
 #include "fcntl.h"
 #include "modules.h"
 #include "dump.h"
@@ -59,6 +60,7 @@ const jmpTable jmptbl[] = {
     {load, "load"},
     {quit, "quit"},
     {quit, "exit"},
+    {quit, "q"},
     {bdos_version, "version"},
     {0x0, ""}
 };
@@ -711,7 +713,7 @@ char *search_path(char *s)
             p = 0;
 
             if ((strlen(s) + strlen(pathbuf) + 1) < MAX_PATH) {
-                sb = kstat(&pathbuf, &statbuf);
+                sb = kernel_stat(&pathbuf, &statbuf);
 
                 if (sb == 0 && S_ISDIR(statbuf.st_mode)) {
 //										kernel_printf(" ++ [%s] is a directory\r\n", pathbuf);
@@ -719,9 +721,9 @@ char *search_path(char *s)
 //										if (strlen(pathbuf) < MAX_PATH) {
 //		                    strcat(&pathbuf, "/");
                     //											}
-                   kernel_strncat(&pathbuf, "/", strlen("/"));
-                   kernel_strncat(&pathbuf, s, strlen(s));
-                    p4 = &pathbuf;
+                   kernel_strncat((char *) &pathbuf, "/", strlen("/"));
+                   kernel_strncat((char *) &pathbuf, s, strlen(s));
+                    p4 = (char *) &pathbuf;
 
                     if (strlen(p4) > 1) {
                         while (p4[0] == 0x2F && p4[1] == 0x2F && strlen(p4) >= 2) {

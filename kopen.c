@@ -16,13 +16,20 @@ int kopen(const char *pathname, int flags)
     uint32_t file_inode = 0;
     int new_fd = 0;
     //printf("open(%s, %u)\r\n", pathname, flags);
-    assert(flags == O_RDONLY);
+    //assert(flags == O_RDONLY);
 
     file_inode = ext2_path_to_inode((char *) pathname, ext2_rootfs.cwd_inode);
     //printf("file_inode = %lu\r\n", file_inode);
 
     if (file_inode == 0) {
         /* file not found */
+
+				if (kernel_strchr(flags, 'w')) {
+						/* write was requested, should create file - but not supported yet */
+						set_errno(EPERM);
+						return -1;
+						}
+
         if (!errno) {
             /* catch all, if errno not already set */
             set_errno(ENOENT);

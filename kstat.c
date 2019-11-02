@@ -1,16 +1,10 @@
 #define __BDOS__
 
-//#include <string.h>
-//#include <assert.h>
 #include <sys/stat.h>
-//#include "errno.h"
-//#include "ext2.h"
-//#include "fcntl.h"
-//#include <string.h>
-//#include "assert.h"
 #include "fcntl.h"
 #include <string.h>
 #include <ext2.h>
+#include "kernel.h"
 #include "assert.h"
 #include "errno.h"
 
@@ -31,7 +25,7 @@ uint32_t ext2_inode_size(uint32_t inode_lookup)
 }
 
 
-int kstat(const char *restrict path, struct stat *restrict buf)
+int kernel_stat(const char *restrict path, struct stat *restrict buf)
 {
     ext2_inode my_inode;
     uint32_t directory_inode = 0;
