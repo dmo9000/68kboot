@@ -18,6 +18,7 @@
 #include "kfcntl.h"
 #include "shim.h"
 #include "environ.h"
+#include "termios.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -46,6 +47,8 @@ int bdos_init()
         bdvt._time = ktime;
         bdvt._getenv = kgetenv;
         bdvt._fcntl = kfcntl;
+        bdvt._tcgetattr = ktcgetattr;
+        bdvt._tcsetattr = ktcsetattr;
 
         kernel_memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");

@@ -352,8 +352,7 @@ parseFactor ()
             }
         }
 
-
-        kernel_printf ("syntax error: %s\r\n", parseString);
+        kernel_printf ("shim: %s: command not found ...\r\n", parseString);
         errorFlag = true;
         return 0;
     }
