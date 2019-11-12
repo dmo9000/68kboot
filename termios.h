@@ -100,6 +100,7 @@ struct termios
 
 typedef struct termios TTY;
 
+int ktermios_init();
 int ktcgetattr(int fd, struct termios *termios_p);
 int ktcsetattr(int fd, int optional_actions, const struct termios *termios_p);
 

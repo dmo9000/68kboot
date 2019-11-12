@@ -55,29 +55,35 @@ int bdos_init()
         kputenv("PATH=/usr/bin/:/bin");
         kputenv("TERM=ansi");
         bdos_version(NULL);
+
+				ktermios_init();
+
         initialized = true;
+
+
+
         dev_register("C:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
         select_disk("0");
         path = kgetenv("PATH");
-        kernel_puts("\r\n");
+        kernel_puts("\n\r");
         if (path) {
-            kernel_printf("PATH=%s\r\n", path);
+            kernel_printf("PATH=%s\n\r", path);
         }
         term = kgetenv("TERM");
         if (term) {
-            kernel_printf("TERM=%s\r\n", term);
+            kernel_printf("TERM=%s\n\r", term);
         }
 
-        kernel_puts("\r\n");
+        kernel_puts("\n\r");
     }
     return 1;
 }
 
 int bdos_version(char *s)
 {
-    kernel_printf("\r\n68000 BDOS %u.%u.%u\r\n(c) Copyright 2018,2019 - all rights reserved.\r\n\r\n", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
-    //printf("main = 0x%lx\r\n", main);
-    //puts("\r\n");
+    kernel_printf("\n\r68000 BDOS %u.%u.%u\n\r(c) Copyright 2018,2019 - all rights reserved.\n\r\n\r", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
+    //printf("main = 0x%lx\n\r", main);
+    //puts("\n\r");
     return 1;
 }
 
