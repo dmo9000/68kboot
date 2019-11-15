@@ -10,12 +10,12 @@ TTY ktermios;
 
 int ktermios_init()
 {
-	kernel_printf("ktermios_init()\n\r");
 	kernel_memset(&ktermios, 0, sizeof(TTY));	
+	//ktermios.c_iflag = (IXANY) | (ICRNL) | (INLCR);
+	//ktermios.c_iflag = __builtin_bswap32(ktermios.c_iflag);
+	//ktermios.c_iflag = 0x(IXANY);
 	return(0);
 }
-
-
 
 int ktcgetattr(int fd, struct termios *termios_p)
 {
@@ -24,7 +24,9 @@ int ktcgetattr(int fd, struct termios *termios_p)
 				set_errno(ENOTTY);
 				return -1;
 				}
-		return -1;
+		set_errno(0);
+		kernel_memcpy(termios_p, &ktermios, sizeof(TTY));
+		return 0;
 }
 
 int ktcsetattr(int fd, int optional_actions, const struct termios *termios_p)

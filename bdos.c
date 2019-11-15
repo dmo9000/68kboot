@@ -52,7 +52,7 @@ int bdos_init()
 
         kernel_memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
-        kputenv("PATH=/usr/bin/:/bin");
+        kputenv("PATH=/usr/bin:/bin");
         kputenv("TERM=ansi");
         bdos_version(NULL);
 
