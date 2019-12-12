@@ -62,7 +62,7 @@ int bdos_init()
 
 
 
-        dev_register("C:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, 0x0);
+        dev_register("C:", DEVTYPE_BLOCK, DEV_CPMIO, 4, 0x0, 0x0, cpmsim_seek, cpmsim_read, cpmsim_write);
         select_disk("0");
         path = kgetenv("PATH");
         kernel_puts("\n\r");

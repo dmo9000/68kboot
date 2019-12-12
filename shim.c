@@ -120,7 +120,7 @@ void _ASSERT(char *error, char *file, int line)
 {
     kernel_puts("\r\n");
     kernel_printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
-    exit(1);
+		while (1) { } 
 }
 
 int main()
@@ -422,6 +422,57 @@ int cpmsim_seek(struct _device *d, uint32_t address)
     d->offset = address;
     return 0;
 
+}
+
+int cpmsim_write(struct _device *d, unsigned char *buf, uint32_t size)
+{
+    uint32_t start_sector = 0;
+    //uint32_t end_sector = 0;
+    uint32_t current_sector = 0;
+    uint32_t sector_offset = 0;
+    //uint32_t sector_count = 0;
+    uint32_t remaining = size;
+    //uint32_t byte_read_count = 0;
+    uint32_t current_offset = 0;
+    uint32_t bytes_available = 0;
+    unsigned char *ptr = buf;
+    kernel_printf("cpm_write(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
+
+//		while (1) { } 
+    start_sector = d->offset / SECTOR_SIZE;
+    sector_offset = d->offset % SECTOR_SIZE;
+    //sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
+    //end_sector = start_sector + sector_count;
+    //kernel_printf("->(sector=%u:offset=%u:sector_count=%u:end_sector=%u)\r\n", start_sector, sector_offset, sector_count, end_sector);
+    // assert(!(d->offset % SECTOR_SIZE));
+    disk_set_dma(0xF000);
+    /* can't read partial head block right now */
+    //assert(!sector_offset);
+
+    current_sector = start_sector;
+    current_offset = sector_offset;
+
+    while (remaining > 0) {
+        if (remaining <= current_offset) {
+            /* not sure why this was important before */
+            //kernel_printf("remaining(%u) <= current_offset(%u)\r\n", remaining, current_offset);
+            //assert(remaining > current_offset);
+        }
+
+        // assert(remaining > current_offset);
+        assert(current_offset <= SECTOR_SIZE);
+        bytes_available = SECTOR_SIZE - current_offset;
+        if (bytes_available > remaining) {
+            bytes_available = remaining;
+        }
+        disk_write_sector(current_sector);
+        kernel_memcpy((const void *) 0xF000 + current_offset, ptr, bytes_available);
+        remaining -= bytes_available;
+        ptr+= bytes_available;
+        current_offset = 0;
+        current_sector++;
+    }
+    return 0;
 }
 
 

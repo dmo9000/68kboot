@@ -21,7 +21,6 @@ bool ext2_backwards = false;
 char dir_entry_type[] = {'?', '-', 'd'};
 
 
-
 #define panic() assert(!("PANIC"));
 uint32_t EXT2_BLOCK_SIZE(ext2_super_block *s)
 {
@@ -93,24 +92,22 @@ found_rootfs:
     ext2_rootfs.device_number = i;
 
     kernel_printf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n  device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
-           nm_uint32(ext2_rootfs.blck.s_rev_level),
-           nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
-           (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
-           (nm_uint16(ext2_rootfs.blck.s_state)  == 1 ? "EXT2_VALID_FS" : "EXT2_ERROR_FS"),
-           ext2_rootfs.device->maj, ext2_rootfs.device->min,
-           ext2_rootfs.device->name,
-           offset, offset);
-    /*
+                  nm_uint32(ext2_rootfs.blck.s_rev_level),
+                  nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
+                  (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
+                  (nm_uint16(ext2_rootfs.blck.s_state)  == 1 ? "EXT2_VALID_FS" : "EXT2_ERROR_FS"),
+                  ext2_rootfs.device->maj, ext2_rootfs.device->min,
+                  ext2_rootfs.device->name,
+                  offset, offset);
     kernel_printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
-        nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
-        nm_uint32(ext2_rootfs.blck.s_inodes_count),
-        nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
-        nm_uint32(ext2_rootfs.blck.s_blocks_count),
-        EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
-        nm_uint32(ext2_rootfs.blck.s_first_ino),
-        nm_uint16(ext2_rootfs.blck.s_inode_size)
-       );
-    */
+                   nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
+                   nm_uint32(ext2_rootfs.blck.s_inodes_count),
+                   nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
+                   nm_uint32(ext2_rootfs.blck.s_blocks_count),
+                   EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
+                   nm_uint32(ext2_rootfs.blck.s_first_ino),
+                   nm_uint16(ext2_rootfs.blck.s_inode_size)
+                  );
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
     ext2_rootfs.blocks_per_group = nm_uint32(ext2_rootfs.blck.s_blocks_per_group);
@@ -119,14 +116,21 @@ found_rootfs:
                                     nm_uint32(ext2_rootfs.blocks_per_group));
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
-    /*
-    kernel_printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\r\n",
-       ext2_rootfs.blocks_per_group,
-       ext2_rootfs.inodes_per_group,
-       ext2_rootfs.block_groups
-      );
-    */
+    kernel_printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\n\r",
+                  ext2_rootfs.blocks_per_group,
+                  ext2_rootfs.inodes_per_group,
+                  ext2_rootfs.block_groups
+                 );
 
+    if (ext2_rootfs.block_groups != 1) {
+        kernel_printf("FATAL: ext2_rootfs.block_groups != 1\n\r");
+        while (1) { }
+    }
+
+    if (ext2_rootfs.block_size != 1024) {
+        kernel_printf("FATAL: ext2_rootfs.block_size != 1024\n\r");
+        while (1) { }
+    }
 
     assert(nm_uint16(ext2_rootfs.blck.s_inode_size) == 128);
     assert(ext2_rootfs.block_size == 1024);
@@ -256,12 +260,12 @@ int ext2_list_directory(uint32_t directory_inode)
         /* FIXME: ANSI codes in an ext2 drivers, lol */
 
         kernel_printf("%10ld %s %5u %5u %8lu %s%c\r\n",
-               nm_uint32(current_entry.inode),
-               perms,
-               nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
-               nm_uint32(iter_inode.i_size),
-               fnbuf,
-               (perms[0] == 'd' ? '/' : '\0'));
+                      nm_uint32(current_entry.inode),
+                      perms,
+                      nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
+                      nm_uint32(iter_inode.i_size),
+                      fnbuf,
+                      (perms[0] == 'd' ? '/' : '\0'));
 
         kernel_printf("%c[37m", 27);
 
@@ -642,7 +646,6 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
         return nm_uint32(*icp);
     }
 
-    /* TODO: double indirect blocks */
     /* TODO: triple indirect blocks */
 
     assert((file_block_id < (EXT2_NDIR_BLOCKS)));
@@ -657,4 +660,56 @@ uint32_t ext2_block_read(ext2_fs *fs, uint32_t dma_addr, uint32_t block_id)
     devices[fs->device_number].seek(&devices[fs->device_number], block_id * fs->block_size);
     devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) dma_addr, fs->block_size);
     return 1;
+}
+
+uint32_t ext2_next_free_inode(ext2_fs *fs)
+{
+    unsigned char block_bitmap[fs->block_size];
+    uint32_t bitmap_index = 0;
+    uint16_t bitmap_byte = 0;
+    uint8_t byte_offset = 128;
+
+    kernel_printf("ext2_next_free_inode(%s)\n\r", fs->device_number);
+    devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
+    devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
+
+		if (!devices[fs->device_number].write) {
+				kernel_printf("FATAL: device is not writable!\n\r");	
+				set_errno(EROFS);
+				return 0;
+				}
+
+    bitmap_byte = bitmap_index / 8;
+    byte_offset = 128 >> (bitmap_index % 8);
+
+    while (bitmap_index < 2048) {
+        bitmap_byte = bitmap_index / 8;
+        byte_offset = 128 >> (bitmap_index % 8);
+        switch (block_bitmap[bitmap_byte] & byte_offset) {
+        case 0x00:
+            if (bitmap_index < nm_uint32(ext2_rootfs.blck.s_first_ino)) {
+                kernel_printf("inode %04u: [%03u:%03u] RESV\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+                bitmap_index ++;
+
+            } else {
+                kernel_printf("inode %04u: [%03u:%03u] FREE\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+
+								kernel_printf("was: %02x\n", block_bitmap[bitmap_byte]); 
+								block_bitmap[bitmap_byte] |= byte_offset;
+								kernel_printf("now: %02x\n", block_bitmap[bitmap_byte]); 
+
+								/* write the modified bitmap block */
+    						devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
+						    devices[fs->device_number].write(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
+									
+                return bitmap_index+1;
+            }
+            break;
+        case 0x01:
+            kernel_printf("inode %04u: [%03u:%03u] USED\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+            break;
+        }
+    }
+
+    return 0;
 }

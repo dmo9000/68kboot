@@ -31,7 +31,8 @@ typedef struct _device {
     int (*seek)(struct _device *, uint32_t);
 //						int (*read)();
     int (*read)(struct _device *, unsigned char *, long unsigned int);
-    int (*write)();
+//			    int (*write)();
+    int (*write)(struct _device *, unsigned char *, long unsigned int);
     /* super stupid block cache */
     uint32_t cache_index[MAX_CACHE_BLOCKS];
     unsigned char cache_blocks[MAX_CACHE_BLOCKS][128];
@@ -41,7 +42,7 @@ int dev_list();
 int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
                  int (*seek)(struct _device *, uint32_t),
                  int (*read)(struct _device *, unsigned char *, long unsigned int),
-                 int (*write));
+                 int (*write)(struct _device *, unsigned char *, long unsigned int));
 
 
 #endif /* __DEVICES_H__ */

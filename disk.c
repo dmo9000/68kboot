@@ -38,3 +38,12 @@ int disk_read_sector(uint32_t sector)
     p[0] = sector;
     return 0;
 }
+
+int disk_write_sector(uint32_t sector)
+{
+    //  kernel_printf("disk_read_sector([%d] 0x%08x)\r\n", sector, sector);
+    uint32_t *p = (uint32_t *)((char *)DISK_WRITE);
+    p[0] = sector;
+    return 0;
+}
+

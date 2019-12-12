@@ -47,6 +47,14 @@ int fcntl_find_free_fd()
 
 }
 
+int fcntl_new_inode()
+{
+    if (!file_table_initialized) {
+        initialize_file_table();
+    }
+		return (ext2_next_free_inode(&ext2_rootfs));
+}
+
 int fcntl_open_inode(uint32_t inode, int flags)
 {
     int new_fd = -1;

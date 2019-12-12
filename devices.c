@@ -22,10 +22,16 @@ const char *device_type(int type)
 
 }
 
+/*
 int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
                  int (*seek)(struct _device *, uint32_t),
                  int (*read)(struct _device *, unsigned char *, long unsigned int),
-                 int (*write))
+                 int (*write)(struct _device *, unsigned char *, long unsigned int))
+*/
+int dev_register(char *name, int type, int maj, int min, unsigned long addr, unsigned long size,
+                 int (*seek)(struct _device *, uint32_t),
+                 int (*read)(struct _device *, unsigned char *, long unsigned int),
+                 int (*write)(struct _device *, unsigned char *, long unsigned int))
 {
     //printf("dev_register(%s, %u, %u, %u)\n", name, type, maj, min);
 
