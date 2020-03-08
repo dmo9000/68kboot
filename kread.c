@@ -4,13 +4,14 @@
 #include "stddef.h"
 #include <string.h>
 #include <sys/types.h>
+#include <termios.h>
 #include "fcntl.h"
 #include "assert.h"
 #include "errno.h"
 #include "byteorder.h"
 
 extern _device devices[MAX_DEVICES];
-
+extern TTY ktermios;
 
 ssize_t kread(int fd, void *buf, size_t count)
 {
@@ -34,8 +35,8 @@ ssize_t kread(int fd, void *buf, size_t count)
 
     assert(descriptor);
 
-    //printf("read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
-    //printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
+    //kernel_printf("__read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
+    //kernel_printf("_read(%d, 0x%lx, %u)\r\n", fd, buf, count);
 
     if (descriptor->state == FD_STATE_STDIN && fd == 0) {
         //printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
@@ -71,7 +72,13 @@ ssize_t kread(int fd, void *buf, size_t count)
         while (total_bytes_read < count) {
             kbdata[total_bytes_read] =kernel_getchar();
             /* ECHO IN COOKED MODE */
-            kernel_putchar(kbdata[total_bytes_read]);
+
+						if(ktermios.c_lflag & ECHO){
+							if (kbdata[total_bytes_read] != 0x08) {
+		            	kernel_putchar(kbdata[total_bytes_read]);
+									}
+							}
+
             //printf("byte -> %c\r\n", kbdata[total_bytes_read]);
             /* exit early on RETURN, regardless of how much is read */
             if (kbdata[total_bytes_read] == '\r') {

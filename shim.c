@@ -134,13 +134,16 @@ int supermain()
 {
     int length = 0;
     int result = 0;
-    unsigned char c = 0;
+    unsigned char c = 0, n = 0;
     static char command[2048];
+    char buf[2];
 
     while (1) {
         kernel_printf("%c[37m""shim> ", 27);
         kernel_memset(&command, 0, 2048);
-        c =kernel_getchar();
+        //c =kernel_getchar();
+				n = bdvt._read(STDIN_FILENO, &buf, 1); 
+				c = buf[0];
         while (c != '\r') {
             switch (c) {
 						case 27:
@@ -165,11 +168,14 @@ int supermain()
                 quit(NULL);
                 break;
             default:
-                kernel_printf("%c", c);
+               // kernel_printf("%c", c);
                 command[length] = c;
                 length++;
             }
-            c =kernel_getchar();
+            //c =kernel_getchar();
+		        n = bdvt._read(STDIN_FILENO, &buf, 1);
+ 			      c = buf[0];
+
         }
         if (length == 0) {
             //return 0;

@@ -94,7 +94,7 @@ extern bool continue_or_exit ()
 {
 
     char c = 0;
-    kernel_printf("Continue or exit [Y/n]?\n\r");
+    kernel_printf("Zontinue or exit [Y/n]?\n\r");
     kernel_puts("\n\r");
 
     while (1) {

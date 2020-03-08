@@ -81,7 +81,7 @@ int bdos_init()
 
 int bdos_version(char *s)
 {
-    kernel_printf("\n\r68000 BDOS %u.%u.%u\n\r(c) Copyright 2018,2019 - all rights reserved.\n\r\n\r", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
+    kernel_printf("\n\r68000 BDOS %u.%u.%u\n\r(c) Copyright 2018-2020 - all rights reserved.\n\r\n\r", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
     //printf("main = 0x%lx\n\r", main);
     //puts("\n\r");
     return 1;

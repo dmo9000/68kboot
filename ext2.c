@@ -51,6 +51,10 @@ int ext2_probe()
     ext2_super_block *blck = NULL;
     unsigned long offset = 0;
     void *p = &buffer;
+		uint32_t used_inode_count = 0;
+		uint32_t used_block_count = 0;
+		double used_inodes_percent = 0.0;
+		double used_blocks_percent = 0.0;
 
     for (i = 0; i <= device_free ; i++) {
         if (devices[i].type == DEVTYPE_BLOCK) {
@@ -91,7 +95,7 @@ found_rootfs:
     ext2_rootfs.device = &devices[i];
     ext2_rootfs.device_number = i;
 
-    kernel_printf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n  device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
+    kernel_printf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n      device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
                   nm_uint32(ext2_rootfs.blck.s_rev_level),
                   nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
                   (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
@@ -99,6 +103,8 @@ found_rootfs:
                   ext2_rootfs.device->maj, ext2_rootfs.device->min,
                   ext2_rootfs.device->name,
                   offset, offset);
+	
+	/*
     kernel_printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
                    nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
                    nm_uint32(ext2_rootfs.blck.s_inodes_count),
@@ -108,6 +114,17 @@ found_rootfs:
                    nm_uint32(ext2_rootfs.blck.s_first_ino),
                    nm_uint16(ext2_rootfs.blck.s_inode_size)
                   );
+		*/
+
+		used_inode_count = nm_uint32(ext2_rootfs.blck.s_inodes_count) -
+                      nm_uint32(ext2_rootfs.blck.s_free_inodes_count);
+		used_inodes_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_inodes_count)) * used_inode_count;
+		used_block_count = nm_uint32(ext2_rootfs.blck.s_blocks_count) -
+                      nm_uint32(ext2_rootfs.blck.s_free_blocks_count);
+		used_blocks_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_blocks_count)) * used_block_count;
+
+    kernel_printf ("      blocks=%.02f%%, inodes=%.02f%%\r\n", 
+				used_blocks_percent, used_inodes_percent);
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
     ext2_rootfs.blocks_per_group = nm_uint32(ext2_rootfs.blck.s_blocks_per_group);
@@ -116,11 +133,13 @@ found_rootfs:
                                     nm_uint32(ext2_rootfs.blocks_per_group));
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
+		/*
     kernel_printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\n\r",
                   ext2_rootfs.blocks_per_group,
                   ext2_rootfs.inodes_per_group,
                   ext2_rootfs.block_groups
                  );
+		*/
 
     if (ext2_rootfs.block_groups != 1) {
         kernel_printf("FATAL: ext2_rootfs.block_groups != 1\n\r");
