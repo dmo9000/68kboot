@@ -20,7 +20,7 @@ int kputenv(char *string)
     /* must contain an equals sign */
     assert(kernel_strchr(string, '='));
 
-    env_req = strlen(string);
+    env_req = kstrlen(string);
 
     if (env_req > (MAX_ENVIRON - off_ins) -1) {
         /* not enough free space */
@@ -30,8 +30,8 @@ int kputenv(char *string)
 
     /* TODO: check that it doesn't already exist in environment */
 
-    kernel_memcpy(p + off_ins, string, strlen(string));
-    off_ins += strlen(string) + 1;
+    kernel_memcpy(p + off_ins, string, kstrlen(string));
+    off_ins += kstrlen(string) + 1;
 
     return 0;
 

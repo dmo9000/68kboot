@@ -20,7 +20,7 @@ char * kernel_strncat(char *s1, char *s2, int n)
             *--s1 = '\0';
             break;
         }
-			}
+    }
     return(os1);
 
 }

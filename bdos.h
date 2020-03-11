@@ -4,7 +4,7 @@
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       0
-#define VERSION_REVISION   	54
+#define VERSION_REVISION   	57
 
 typedef struct _bdos_vtable {
     uint32_t magic;
@@ -21,11 +21,12 @@ typedef struct _bdos_vtable {
     int (*_close)(int fildes);
     int (*_stat)(const char *restrict path, struct stat *restrict buf);
     int (*_chdir)(const char *path);
+    char * (*_getcwd)();
     time_t (*_time)(time_t *tloc);
     char *(*_getenv)(const char *name);
     int (*_fcntl)(int fd, int c, int tf);
-		int (*_tcgetattr)(int fd, struct termios *termios_p);
-		int (*_tcsetattr)(int fd, int optional_actions, const struct termios *termios_p);
+    int (*_tcgetattr)(int fd, struct termios *termios_p);
+    int (*_tcsetattr)(int fd, int optional_actions, const struct termios *termios_p);
 } _bdos_vtable;
 
 int bdos_init();

@@ -51,10 +51,10 @@ int ext2_probe()
     ext2_super_block *blck = NULL;
     unsigned long offset = 0;
     void *p = &buffer;
-		uint32_t used_inode_count = 0;
-		uint32_t used_block_count = 0;
-		double used_inodes_percent = 0.0;
-		double used_blocks_percent = 0.0;
+    uint32_t used_inode_count = 0;
+    uint32_t used_block_count = 0;
+    double used_inodes_percent = 0.0;
+    double used_blocks_percent = 0.0;
 
     for (i = 0; i <= device_free ; i++) {
         if (devices[i].type == DEVTYPE_BLOCK) {
@@ -103,8 +103,8 @@ found_rootfs:
                   ext2_rootfs.device->maj, ext2_rootfs.device->min,
                   ext2_rootfs.device->name,
                   offset, offset);
-	
-	/*
+
+    /*
     kernel_printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
                    nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
                    nm_uint32(ext2_rootfs.blck.s_inodes_count),
@@ -114,17 +114,17 @@ found_rootfs:
                    nm_uint32(ext2_rootfs.blck.s_first_ino),
                    nm_uint16(ext2_rootfs.blck.s_inode_size)
                   );
-		*/
+    	*/
 
-		used_inode_count = nm_uint32(ext2_rootfs.blck.s_inodes_count) -
-                      nm_uint32(ext2_rootfs.blck.s_free_inodes_count);
-		used_inodes_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_inodes_count)) * used_inode_count;
-		used_block_count = nm_uint32(ext2_rootfs.blck.s_blocks_count) -
-                      nm_uint32(ext2_rootfs.blck.s_free_blocks_count);
-		used_blocks_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_blocks_count)) * used_block_count;
+    used_inode_count = nm_uint32(ext2_rootfs.blck.s_inodes_count) -
+                       nm_uint32(ext2_rootfs.blck.s_free_inodes_count);
+    used_inodes_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_inodes_count)) * used_inode_count;
+    used_block_count = nm_uint32(ext2_rootfs.blck.s_blocks_count) -
+                       nm_uint32(ext2_rootfs.blck.s_free_blocks_count);
+    used_blocks_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_blocks_count)) * used_block_count;
 
-    kernel_printf ("      blocks=%.02f%%, inodes=%.02f%%\r\n", 
-				used_blocks_percent, used_inodes_percent);
+    kernel_printf ("      blocks=%.02f%%, inodes=%.02f%%\r\n",
+                   used_blocks_percent, used_inodes_percent);
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
     ext2_rootfs.blocks_per_group = nm_uint32(ext2_rootfs.blck.s_blocks_per_group);
@@ -133,13 +133,13 @@ found_rootfs:
                                     nm_uint32(ext2_rootfs.blocks_per_group));
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
-		/*
+    /*
     kernel_printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\n\r",
-                  ext2_rootfs.blocks_per_group,
-                  ext2_rootfs.inodes_per_group,
-                  ext2_rootfs.block_groups
-                 );
-		*/
+              ext2_rootfs.blocks_per_group,
+              ext2_rootfs.inodes_per_group,
+              ext2_rootfs.block_groups
+             );
+    */
 
     if (ext2_rootfs.block_groups != 1) {
         kernel_printf("FATAL: ext2_rootfs.block_groups != 1\n\r");
@@ -413,8 +413,8 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
         }
 
 
-        //      kernel_printf(" -> %4d %u/%u | %s\r\n", nm_uint32(current_entry.inode), current_entry.name_len, strlen(pathelement), current_entry.name);
-        if ((current_entry.name_len == strlen(pathelement)) &&
+        //      kernel_printf(" -> %4d %u/%u | %s\r\n", nm_uint32(current_entry.inode), current_entry.name_len, kstrlen(pathelement), current_entry.name);
+        if ((current_entry.name_len == kstrlen(pathelement)) &&
                 kernel_strncmp(current_entry.name, pathelement, current_entry.name_len) == 0) {
 //           kernel_printf("--> returning %lu\r\n", nm_uint32(current_entry.inode));
             return nm_uint32(current_entry.inode);
@@ -469,6 +469,11 @@ bool isdirectory(uint32_t inode)
 
 #define MAX_PATH_ELEMENT_LEN    256
 
+uint32_t ext2_get_cwd_inode()
+{
+    return ext2_rootfs.cwd_inode;
+}
+
 uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
 {
     unsigned char path_element[MAX_PATH_ELEMENT_LEN];
@@ -481,21 +486,21 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
     char *p = path;
     uint32_t il = 0;
 
-    if (strlen(path) == 1 && path[0] == '/') {
+    if (kstrlen(path) == 1 && path[0] == '/') {
         return EXT2_ROOT_INODE;
     }
 
-    if (strlen(path) > 1) {
-        while (path[strlen(path) - 1] == 0x2F) {
+    if (kstrlen(path) > 1) {
+        while (path[kstrlen(path) - 1] == 0x2F) {
             /* chomp trailing backslashes */
-            path[strlen(path) - 1] = '\0';
+            path[kstrlen(path) - 1] = '\0';
         }
 
         /* collapse leading slashes */
     }
 
-    if (strlen(path) > 1) {
-        while (path[0] == 0x2F && path[1] == 0x2F && strlen(path) >= 2) {
+    if (kstrlen(path) > 1) {
+        while (path[0] == 0x2F && path[1] == 0x2F && kstrlen(path) >= 2) {
             path++;
         }
     }
@@ -515,7 +520,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
         //kernel_printf("[root pivot]\r\n");
         //puts("\r\n");
         traverse_inode = EXT2_ROOT_INODE;
-        if (strlen(p) == 1) {
+        if (kstrlen(p) == 1) {
             /* just looking for root inode thanks */
             return traverse_inode;
         }
@@ -561,7 +566,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
         switch ((nm_uint16(target_inode.i_mode) & 0xE000)) {
         case 0x4000:
             //          kernel_printf("inode %lu: it's a directory!\r\n", lookup_inode);
-            if (strlen(p)) {
+            if (kstrlen(p)) {
                 //            kernel_printf("we need to go deeper!\r\n");
                 //assert(NULL);
                 p++;
@@ -574,7 +579,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
             break;
         case 0x8000:
             //                kernel_printf("inode %lu: it's a file!\r\n", lookup_inode);
-            if (strlen(p)) {
+            if (kstrlen(p)) {
                 /* wanted to go further, but we must terminate here */
                 return lookup_inode;
             }
@@ -692,11 +697,11 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
     devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
     devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
 
-		if (!devices[fs->device_number].write) {
-				kernel_printf("FATAL: device is not writable!\n\r");	
-				set_errno(EROFS);
-				return 0;
-				}
+    if (!devices[fs->device_number].write) {
+        kernel_printf("FATAL: device is not writable!\n\r");
+        set_errno(EROFS);
+        return 0;
+    }
 
     bitmap_byte = bitmap_index / 8;
     byte_offset = 128 >> (bitmap_index % 8);
@@ -713,14 +718,14 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
             } else {
                 kernel_printf("inode %04u: [%03u:%03u] FREE\n\r", bitmap_index+1, bitmap_byte, byte_offset);
 
-								kernel_printf("was: %02x\n", block_bitmap[bitmap_byte]); 
-								block_bitmap[bitmap_byte] |= byte_offset;
-								kernel_printf("now: %02x\n", block_bitmap[bitmap_byte]); 
+                kernel_printf("was: %02x\n", block_bitmap[bitmap_byte]);
+                block_bitmap[bitmap_byte] |= byte_offset;
+                kernel_printf("now: %02x\n", block_bitmap[bitmap_byte]);
 
-								/* write the modified bitmap block */
-    						devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
-						    devices[fs->device_number].write(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
-									
+                /* write the modified bitmap block */
+                devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
+                devices[fs->device_number].write(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
+
                 return bitmap_index+1;
             }
             break;

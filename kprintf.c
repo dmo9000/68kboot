@@ -129,7 +129,7 @@ static inline void _out_fct(char character, void* buffer, size_t idx, size_t max
 }
 
 
-// internal strlen
+// internal kstrlen
 // \return The length of the string (excluding the terminating 0)
 static inline unsigned int _strlen(const char* str)
 {

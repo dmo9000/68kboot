@@ -73,11 +73,11 @@ ssize_t kread(int fd, void *buf, size_t count)
             kbdata[total_bytes_read] =kernel_getchar();
             /* ECHO IN COOKED MODE */
 
-						if(ktermios.c_lflag & ECHO){
-							if (kbdata[total_bytes_read] != 0x08) {
-		            	kernel_putchar(kbdata[total_bytes_read]);
-									}
-							}
+            if(ktermios.c_lflag & ECHO) {
+                if (kbdata[total_bytes_read] != 0x08) {
+                    kernel_putchar(kbdata[total_bytes_read]);
+                }
+            }
 
             //printf("byte -> %c\r\n", kbdata[total_bytes_read]);
             /* exit early on RETURN, regardless of how much is read */

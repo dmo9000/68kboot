@@ -8,7 +8,7 @@ const char *kernel_strerror(int en)
     case 0:
         return (const char *) "Success";
         break;
-		case EPERM:
+    case EPERM:
         return (const char *) "Permission denied";
         break;
     case ENOENT:

@@ -87,7 +87,7 @@ char parseString[MAX_STRING];
 
 
 typedef unsigned long size_t;
-size_t strlen(const char *t);
+//size_t kstrlen(const char *t);
 
 
 #define ETX		0x03			/* end of text */
@@ -120,7 +120,7 @@ void _ASSERT(char *error, char *file, int line)
 {
     kernel_puts("\r\n");
     kernel_printf("+++ assert '%s' at %s, line %d\r\n", error, file, line);
-		while (1) { } 
+    while (1) { }
 }
 
 int main()
@@ -142,12 +142,12 @@ int supermain()
         kernel_printf("%c[37m""shim> ", 27);
         kernel_memset(&command, 0, 2048);
         //c =kernel_getchar();
-				n = bdvt._read(STDIN_FILENO, &buf, 1); 
-				c = buf[0];
+        n = bdvt._read(STDIN_FILENO, &buf, 1);
+        c = buf[0];
         while (c != '\r') {
             switch (c) {
-						case 27:
-								break;
+            case 27:
+                break;
             case BS:
                 if (length) {
                     /* move cursor back, erase, move cursor back */
@@ -168,13 +168,13 @@ int supermain()
                 quit(NULL);
                 break;
             default:
-               // kernel_printf("%c", c);
+                // kernel_printf("%c", c);
                 command[length] = c;
                 length++;
             }
             //c =kernel_getchar();
-		        n = bdvt._read(STDIN_FILENO, &buf, 1);
- 			      c = buf[0];
+            n = bdvt._read(STDIN_FILENO, &buf, 1);
+            c = buf[0];
 
         }
         if (length == 0) {
@@ -202,13 +202,15 @@ read_prompt:
     return 0;
 }
 
-size_t strlen(const char *t)
+/*
+size_t kstrlen(const char *t)
 {
     size_t ct = 0;
     while (*t++)
         ct++;
     return ct;
 }
+*/
 
 int get_inode(char *s)
 {
@@ -313,7 +315,7 @@ parseFactor ()
         parseToken ();
         jumpPtr = jmptbl[jmpIndex].cmdptr;
 
-        if (!strlen (parseString))
+        if (!kstrlen (parseString))
         {
             errorFlag = true;
             return 0;
@@ -324,8 +326,8 @@ parseFactor ()
             //kernel_printf("%u: %s ? %s\n", jmpIndex, jmptbl[jmpIndex].command, parseString);
             if (kernel_strncmp
                     (jmptbl[jmpIndex].command, parseString,
-                     strlen (jmptbl[jmpIndex].command)) == 0 &&
-                    strlen (jmptbl[jmpIndex].command) == strlen(parseString))
+                     kstrlen (jmptbl[jmpIndex].command)) == 0 &&
+                    kstrlen (jmptbl[jmpIndex].command) == kstrlen(parseString))
             {
                 command_was_executed = true;
                 return jumpPtr (x);
@@ -444,7 +446,7 @@ int cpmsim_write(struct _device *d, unsigned char *buf, uint32_t size)
     unsigned char *ptr = buf;
     kernel_printf("cpm_write(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
 
-//		while (1) { } 
+//		while (1) { }
     start_sector = d->offset / SECTOR_SIZE;
     sector_offset = d->offset % SECTOR_SIZE;
     //sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
@@ -752,7 +754,7 @@ char *search_path(char *s)
     char *path = kgetenv("PATH");
 
     if (path) {
-        pl = strlen(path);
+        pl = kstrlen(path);
         //kernel_printf("Searching PATH (length=%u): %s\r\n", pl, path);
         p1 = (char *) path;
         p2= (char *) p1;
@@ -768,21 +770,21 @@ char *search_path(char *s)
             p2++;
             p = 0;
 
-            if ((strlen(s) + strlen(pathbuf) + 1) < MAX_PATH) {
+            if ((kstrlen(s) + kstrlen(pathbuf) + 1) < MAX_PATH) {
                 sb = kernel_stat(&pathbuf, &statbuf);
 
                 if (sb == 0 && S_ISDIR(statbuf.st_mode)) {
 //										kernel_printf(" ++ [%s] is a directory\r\n", pathbuf);
-                    assert(strlen(pathbuf) < MAX_PATH);
-//										if (strlen(pathbuf) < MAX_PATH) {
+                    assert(kstrlen(pathbuf) < MAX_PATH);
+//										if (kstrlen(pathbuf) < MAX_PATH) {
 //		                    strcat(&pathbuf, "/");
                     //											}
-                   kernel_strncat((char *) &pathbuf, "/", strlen("/"));
-                   kernel_strncat((char *) &pathbuf, s, strlen(s));
+                    kernel_strncat((char *) &pathbuf, "/", kstrlen("/"));
+                    kernel_strncat((char *) &pathbuf, s, kstrlen(s));
                     p4 = (char *) &pathbuf;
 
-                    if (strlen(p4) > 1) {
-                        while (p4[0] == 0x2F && p4[1] == 0x2F && strlen(p4) >= 2) {
+                    if (kstrlen(p4) > 1) {
+                        while (p4[0] == 0x2F && p4[1] == 0x2F && kstrlen(p4) >= 2) {
                             p4++;
                         }
                     }

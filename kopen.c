@@ -23,23 +23,23 @@ int kopen(const char *pathname, int flags)
     if (file_inode == 0) {
         /* file not found */
 
-				if (flags & O_CREAT) {
-					/* check for free inode and free block */
+        if (flags & O_CREAT) {
+            /* check for free inode and free block */
 
-				if (nm_uint32(ext2_rootfs.blck.s_free_inodes_count) &&
-					        nm_uint32(ext2_rootfs.blck.s_inodes_count)) {
-									file_inode = fcntl_new_inode();	
-									if (!file_inode) {
-											return -1;	
-											}
-									set_errno(0);
-									return -1;	
-									}
+            if (nm_uint32(ext2_rootfs.blck.s_free_inodes_count) &&
+                    nm_uint32(ext2_rootfs.blck.s_inodes_count)) {
+                file_inode = fcntl_new_inode();
+                if (!file_inode) {
+                    return -1;
+                }
+                set_errno(0);
+                return -1;
+            }
 
-					/* write was requested, should create file - but not supported yet */
-						set_errno(EPERM);
-						return -1;
-						}
+            /* write was requested, should create file - but not supported yet */
+            set_errno(EPERM);
+            return -1;
+        }
 
         if (!errno) {
             /* catch all, if errno not already set */

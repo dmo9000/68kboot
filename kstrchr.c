@@ -5,7 +5,7 @@ char *kernel_strchr(const char *s, int c)
     int l = 0;
     int i = 0;
 
-    l = strlen(s);
+    l = kstrlen(s);
 
     for (i = 0; i< l; i++)
     {

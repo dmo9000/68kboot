@@ -2,7 +2,7 @@ CC=/usr/local/gcc-68k/bin/m68k-elf-gcc
 CFLAGS=-Wall -Wno-switch-bool -Wno-unused-value -Wno-unused-but-set-variable -m68000 -nostdlib -nodefaultlibs -nostdinc -Os -ffunction-sections -fdata-sections -I/usr/local/madlibc/include
 
 BDOS_OBJS=fcntl.o kopen.o klseek.o kread.o kwrite.o kclose.o kstat.o exit.o vfs.o disk.o devices.o ext2.o bdos.o kperror.o kgetenv.o kchdir.o ktime.o kputenv.o kprintf.o kmemset.o	\
-					endian.o kmemcpy.o kstrncmp.o kgetchar.o kstrtoul.o kstrncat.o kstrerror.o kstrchr.o modules.o dump.o ktermios.o
+					endian.o kmemcpy.o kstrncmp.o kgetchar.o kstrtoul.o kstrncat.o kstrerror.o kstrchr.o modules.o dump.o ktermios.o kgetcwd.o kstrlen.o
 
 
 all: bootldr shim bootldr.img 

@@ -12,11 +12,11 @@ char *matchenv(char *e, char *v)
     assert(v);
 //	printf("[%s] <=> [%s]\r\n", e, v);
     /* if the environment string is shorter than the variable being search for, this can't be it */
-    if (strlen(e) < strlen(v)+1) {
+    if (kstrlen(e) < kstrlen(v)+1) {
         return NULL;
     }
-    if (kernel_strncmp(e, v, strlen(v)) ==0 && e[strlen(v)] == '=') {
-        return e+strlen(v)+1;
+    if (kernel_strncmp(e, v, kstrlen(v)) ==0 && e[kstrlen(v)] == '=') {
+        return e+kstrlen(v)+1;
     }
     return NULL;
 }
@@ -33,8 +33,8 @@ char *kgetenv(const char *name)
     while (offset < (MAX_ENVIRON-1)) {
         ep = p + offset;
         assert(ep);
-//				printf("offset = %lu %u [%s]\r\n", offset, strlen(ep), ep);
-        if (!strlen(ep)) {
+//				printf("offset = %lu %u [%s]\r\n", offset, kstrlen(ep), ep);
+        if (!kstrlen(ep)) {
             /* end of environment */
             return NULL;
         }
@@ -44,7 +44,7 @@ char *kgetenv(const char *name)
             return ret;
         }
         /* skip forward to next environment string, or end of environment */
-        offset+=strlen(ep)+1;
+        offset+=kstrlen(ep)+1;
     }
 
     assert(NULL);
