@@ -84,7 +84,7 @@ bool isWhitespace (char c);
 
 char parseString[MAX_STRING];
 
-
+#define CHAR_ESCAPE 27 
 
 typedef unsigned long size_t;
 //size_t kstrlen(const char *t);
@@ -138,14 +138,27 @@ int supermain()
     static char command[2048];
     char buf[2];
 
+    kernel_memset(&command, 0, 2048);
+prompt_start:
     while (1) {
         kprintf("%c[37m""shim> ", 27);
-        kernel_memset(&command, 0, 2048);
+				if (length) {
+						/* in case screen was cleared, we don't cancel input */
+						kprintf("%s", command);
+						}
         //c =kernel_getchar();
         n = bdvt._read(STDIN_FILENO, &buf, 1);
         c = buf[0];
         while (c != '\r') {
             switch (c) {
+						case 12:
+								/* CTRL+L */
+								//kprintf("/* clear screen */\r\n");
+								/* DIRTY LOL */
+				        kprintf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+ 				        kprintf ("%c[1;1H", CHAR_ESCAPE);
+								goto prompt_start;
+								break;
             case 27:
                 break;
             case BS:
@@ -168,14 +181,12 @@ int supermain()
                 quit(NULL);
                 break;
             default:
-                // kprintf("%c", c);
                 command[length] = c;
                 length++;
             }
             //c =kernel_getchar();
             n = bdvt._read(STDIN_FILENO, &buf, 1);
             c = buf[0];
-
         }
         if (length == 0) {
             //return 0;
@@ -183,6 +194,7 @@ int supermain()
             kernel_puts("\r\n");
             goto read_prompt;
         } else {
+						command[length] = '\0';
             kernel_puts("\r\n");
         }
 
