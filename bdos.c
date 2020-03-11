@@ -19,7 +19,7 @@
 #include "shim.h"
 #include "environ.h"
 #include "termios.h"
-#include "kgetcwd.h"
+//#include "kgetcwd.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
 extern int main(int argc, char *argv[]);
@@ -45,7 +45,7 @@ int bdos_init()
         bdvt._stat = kernel_stat;
         bdvt._lseek = klseek;
         bdvt._chdir = kchdir;
-        bdvt._getcwd = kgetcwd;
+        //bdvt._getcwd = kgetcwd;
         bdvt._time = ktime;
         bdvt._getenv = kgetenv;
         bdvt._fcntl = kfcntl;
