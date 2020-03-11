@@ -16,7 +16,7 @@ uint32_t ext2_inode_size(uint32_t inode_lookup)
 
     kernel_memset(&my_inode, 0, sizeof(ext2_inode));
     if (!ext2_inode_lookup(inode_lookup, &my_inode, false)) {
-        kernel_printf("ext2_inode_size() failed\r\n");
+        kprintf("ext2_inode_size() failed\r\n");
         set_errno(ENOENT);
         return 0;
     }

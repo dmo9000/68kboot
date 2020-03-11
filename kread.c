@@ -35,8 +35,8 @@ ssize_t kread(int fd, void *buf, size_t count)
 
     assert(descriptor);
 
-    //kernel_printf("__read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
-    //kernel_printf("_read(%d, 0x%lx, %u)\r\n", fd, buf, count);
+    //kprintf("__read(%d, 0x%08lx, %u@[%lu/%lu])\r\n", fd, buf, count, descriptor->offset, nm_uint32(descriptor->fd_inode.i_size));
+    //kprintf("_read(%d, 0x%lx, %u)\r\n", fd, buf, count);
 
     if (descriptor->state == FD_STATE_STDIN && fd == 0) {
         //printf("read(%d, 0x%lx, %u)\r\n", fd, buf, count);
@@ -96,7 +96,7 @@ ssize_t kread(int fd, void *buf, size_t count)
     if (descriptor->offset >= ((EXT2_NDIR_BLOCKS * descriptor->fs->block_size) + 256 * (descriptor->fs->block_size) +
                                ((256*256) * (descriptor->fs->block_size)))
        ) {
-        kernel_printf("read() - offset %lu is out of range\r\n", descriptor->offset);
+        kprintf("read() - offset %lu is out of range\r\n", descriptor->offset);
         // EOF - return 0 */
         //return 0;
         set_errno(EIO);

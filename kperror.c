@@ -8,7 +8,7 @@ int errno;
 
 void perror(const char *s)
 {
-    kernel_printf("%s: %s (%u)\r\n", (const char *) s, (const char *) kernel_strerror(errno), errno);
+    kprintf("%s: %s (%u)\r\n", (const char *) s, (const char *) kernel_strerror(errno), errno);
 
 }
 

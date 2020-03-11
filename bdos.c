@@ -69,11 +69,11 @@ int bdos_init()
         path = kgetenv("PATH");
         kernel_puts("\n\r");
         if (path) {
-            kernel_printf("PATH=%s\n\r", path);
+            kprintf("PATH=%s\n\r", path);
         }
         term = kgetenv("TERM");
         if (term) {
-            kernel_printf("TERM=%s\n\r", term);
+            kprintf("TERM=%s\n\r", term);
         }
 
         kernel_puts("\n\r");
@@ -83,7 +83,7 @@ int bdos_init()
 
 int bdos_version(char *s)
 {
-    kernel_printf("\n\r68000 BDOS %u.%u.%u\n\r(c) Copyright 2018-2020 - all rights reserved.\n\r\n\r", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
+    kprintf("\n\r68000 BDOS %u.%u.%u\n\r(c) Copyright 2018-2020 - all rights reserved.\n\r\n\r", bdvt.ver_maj, bdvt.ver_min, bdvt.ver_rev);
     //printf("main = 0x%lx\n\r", main);
     //puts("\n\r");
     return 1;

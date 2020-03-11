@@ -58,7 +58,7 @@ int ext2_probe()
 
     for (i = 0; i <= device_free ; i++) {
         if (devices[i].type == DEVTYPE_BLOCK) {
-            //kernel_printf("EXT2: probing device %s\r\n", devices[i].name);
+            //kprintf("EXT2: probing device %s\r\n", devices[i].name);
             if (devices[i].seek) {
                 devices[i].seek(&devices[i], 0);
                 devices[i].read(&devices[i], (unsigned char *) &buffer, 4096);
@@ -66,22 +66,22 @@ int ext2_probe()
                     blck = (ext2_super_block *) p;
 
                     if (blck->s_magic == EXT2_SUPER_MAGIC || (is_big_endian() && swap_uint16(blck->s_magic) == EXT2_SUPER_MAGIC)) {
-                        //kernel_printf("EXT2: found superblock magic == 0x%04X\r\n", swap_uint16(blck->s_magic));
+                        //kprintf("EXT2: found superblock magic == 0x%04X\r\n", swap_uint16(blck->s_magic));
                         goto found_rootfs;
                     }
                     p+=1024;
                     offset +=1024;
                 }
             } else {
-                kernel_printf("<driver not implemented!>\r\n");
+                kprintf("<driver not implemented!>\r\n");
                 kernel_puts("\r\n");
             }
         }
     }
 
-    //kernel_printf("EXT2: no filesystem found\r\n");
+    //kprintf("EXT2: no filesystem found\r\n");
     ext2_rootfs.active = 0;
-    kernel_printf("\r\n");
+    kprintf("\r\n");
     kernel_puts("\r\n");
     return(-1);
 
@@ -95,7 +95,7 @@ found_rootfs:
     ext2_rootfs.device = &devices[i];
     ext2_rootfs.device_number = i;
 
-    kernel_printf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n      device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
+    kprintf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n      device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
                   nm_uint32(ext2_rootfs.blck.s_rev_level),
                   nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
                   (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
@@ -105,7 +105,7 @@ found_rootfs:
                   offset, offset);
 
     /*
-    kernel_printf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
+    kprintf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
                    nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
                    nm_uint32(ext2_rootfs.blck.s_inodes_count),
                    nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
@@ -123,7 +123,7 @@ found_rootfs:
                        nm_uint32(ext2_rootfs.blck.s_free_blocks_count);
     used_blocks_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_blocks_count)) * used_block_count;
 
-    kernel_printf ("      blocks=%.02f%%, inodes=%.02f%%\r\n",
+    kprintf ("      blocks=%.02f%%, inodes=%.02f%%\r\n",
                    used_blocks_percent, used_inodes_percent);
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
@@ -134,7 +134,7 @@ found_rootfs:
     ext2_rootfs.inodes_per_group = nm_uint32(ext2_rootfs.blck.s_inodes_per_group);
 
     /*
-    kernel_printf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\n\r",
+    kprintf("ext2: blocks per group=%u, inodes per group=%u, block groups=%u\n\r",
               ext2_rootfs.blocks_per_group,
               ext2_rootfs.inodes_per_group,
               ext2_rootfs.block_groups
@@ -142,12 +142,12 @@ found_rootfs:
     */
 
     if (ext2_rootfs.block_groups != 1) {
-        kernel_printf("FATAL: ext2_rootfs.block_groups != 1\n\r");
+        kprintf("FATAL: ext2_rootfs.block_groups != 1\n\r");
         while (1) { }
     }
 
     if (ext2_rootfs.block_size != 1024) {
-        kernel_printf("FATAL: ext2_rootfs.block_size != 1024\n\r");
+        kprintf("FATAL: ext2_rootfs.block_size != 1024\n\r");
         while (1) { }
     }
 
@@ -155,7 +155,7 @@ found_rootfs:
     assert(ext2_rootfs.block_size == 1024);
 
     if ((offset + ext2_rootfs.block_size) > 4096) {
-        kernel_printf("EXT2: seek required!!\n");
+        kprintf("EXT2: seek required!!\n");
         panic();
     } else {
         p += ext2_rootfs.block_size;
@@ -164,19 +164,19 @@ found_rootfs:
 
     /* we should now be looking at the group descriptor block */
 
-//    kernel_printf("EXT2: group descriptor (gr_desc) offset = 0x%x (%u)\r\n", offset, offset);
+//    kprintf("EXT2: group descriptor (gr_desc) offset = 0x%x (%u)\r\n", offset, offset);
 
 
     ext2_rootfs.group_size =
         (sizeof(ext2_group_desc) * ext2_rootfs.block_groups);
-//    kernel_printf("EXT2: group_size = %u\r\n", ext2_rootfs.group_size);
+//    kprintf("EXT2: group_size = %u\r\n", ext2_rootfs.group_size);
     //block_offset = div2(ext2_rootfs.group_size, ext2_rootfs.block_size);
-//    kernel_printf("EXT2: block_offset = 0x%08lx\r\n", block_offset);
+//    kprintf("EXT2: block_offset = 0x%08lx\r\n", block_offset);
 
     /* FIXME: group_descriptor is not always at offset 2048 */
     assert(offset == 0x0800);
 
-    //  kernel_printf("EXT2: reading %u bytes for group descriptor\r\n", sizeof(ext2_group_desc));
+    //  kprintf("EXT2: reading %u bytes for group descriptor\r\n", sizeof(ext2_group_desc));
     kernel_memset(&ext2_rootfs.group_descriptor, 0, sizeof(ext2_group_desc));
     devices[i].seek(&devices[i], offset);
     devices[i].read(&devices[i], (unsigned char *) &ext2_rootfs.group_descriptor, sizeof(ext2_group_desc));
@@ -186,10 +186,10 @@ found_rootfs:
     ext2_rootfs.inode_table = nm_uint32(ext2_rootfs.group_descriptor.bg_inode_table);
 
     /*
-        kernel_printf("EXT2: bg_block_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.block_bitmap, ext2_rootfs.block_bitmap * ext2_rootfs.block_size);
-        kernel_printf("EXT2: bg_inode_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_bitmap, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
-        kernel_printf("EXT2: bg_inode_table  = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_table, ext2_rootfs.inode_table * ext2_rootfs.block_size);
-        kernel_printf("EXT2: directory_count = 0x%08lx\r\n", nm_uint16(ext2_rootfs.group_descriptor.bg_used_dirs_count));
+        kprintf("EXT2: bg_block_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.block_bitmap, ext2_rootfs.block_bitmap * ext2_rootfs.block_size);
+        kprintf("EXT2: bg_inode_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_bitmap, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+        kprintf("EXT2: bg_inode_table  = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_table, ext2_rootfs.inode_table * ext2_rootfs.block_size);
+        kprintf("EXT2: directory_count = 0x%08lx\r\n", nm_uint16(ext2_rootfs.group_descriptor.bg_used_dirs_count));
     */
     ext2_rootfs.active = 1;
     ext2_rootfs.cwd_inode = EXT2_ROOT_INODE;
@@ -211,23 +211,23 @@ int ext2_list_directory(uint32_t directory_inode)
     unsigned char perms[12];
 
     //dirent_size = sizeof(ext2_dir_entry);
-//    kernel_printf("ext2_list_directory(%u)\r\n", directory_inode);
-//    kernel_printf("sizeof(ext2_dir_ent) == %u\r\n", dirent_size);
+//    kprintf("ext2_list_directory(%u)\r\n", directory_inode);
+//    kprintf("sizeof(ext2_dir_ent) == %u\r\n", dirent_size);
     assert(ext2_inode_lookup(directory_inode, &my_inode, false));
     /* check inode is a directory */
     assert((nm_uint16(my_inode.i_mode) & 0xE000) == 0x4000);
     /* check that the inode fits in one block for now - we'll handle longer directory listings later */
-//    kernel_printf("nm_uint32(my_inode.i_size) = %u\r\n", nm_uint32(my_inode.i_size));
+//    kprintf("nm_uint32(my_inode.i_size) = %u\r\n", nm_uint32(my_inode.i_size));
     //assert((nm_uint32(my_inode.i_size) <= 1024));
     /* check that the direct blocks list has exactly one block */
     //assert(!(my_inode.i_block[1]));
     assert(my_inode.i_block[0]);
     directory_address = (nm_uint32(my_inode.i_block[i]) * ext2_rootfs.block_size);
-    //kernel_printf("directory data at 0x%08lx ... \r\n", directory_address);
+    //kprintf("directory data at 0x%08lx ... \r\n", directory_address);
 
     directory_offset = 0;
     while (directory_offset <= 1024) {
-        //kernel_printf("%u[0x%08lx]: \r\n", inode_index, directory_address + directory_offset);
+        //kprintf("%u[0x%08lx]: \r\n", inode_index, directory_address + directory_offset);
         /* clear the dirent structure */
         kernel_memset(&current_entry, 0, sizeof(ext2_dir_entry));
         devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number], directory_address + directory_offset);
@@ -264,7 +264,7 @@ int ext2_list_directory(uint32_t directory_inode)
         kernel_memcpy(&fnbuf, &current_entry.name, current_entry.name_len);
 
         /*
-        kernel_printf("%010u:0x%08lx: %08u-> %8u %10ld %s %5u %5u %8lu %s%c\r\n",
+        kprintf("%010u:0x%08lx: %08u-> %8u %10ld %s %5u %5u %8lu %s%c\r\n",
                inode_index, directory_address + directory_offset,
                current_entry.name_len,
                nm_uint16(current_entry.rec_len),
@@ -278,7 +278,7 @@ int ext2_list_directory(uint32_t directory_inode)
 
         /* FIXME: ANSI codes in an ext2 drivers, lol */
 
-        kernel_printf("%10ld %s %5u %5u %8lu %s%c\r\n",
+        kprintf("%10ld %s %5u %5u %8lu %s%c\r\n",
                       nm_uint32(current_entry.inode),
                       perms,
                       nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
@@ -286,7 +286,7 @@ int ext2_list_directory(uint32_t directory_inode)
                       fnbuf,
                       (perms[0] == 'd' ? '/' : '\0'));
 
-        kernel_printf("%c[37m", 27);
+        kprintf("%c[37m", 27);
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
             /* looks like we have reached the end of the directory */
@@ -296,7 +296,7 @@ int ext2_list_directory(uint32_t directory_inode)
         directory_offset += nm_uint16(current_entry.rec_len);
     }
 
-    kernel_printf("too many entries\r\n");
+    kprintf("too many entries\r\n");
     return 0;
 
 }
@@ -310,11 +310,11 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
     uint32_t inode_offset = 0;
 
     if (debug) {
-        kernel_printf("ext2_inode_lookup(%lu)\r\n", inode_lookup);
+        kprintf("ext2_inode_lookup(%lu)\r\n", inode_lookup);
     }
 
     if (!ext2_rootfs.active) {
-        //kernel_printf("error: no active filesystem\r\n");
+        //kprintf("error: no active filesystem\r\n");
         //puts("\r\n");
         return 0;
     }
@@ -327,18 +327,18 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
 
     /* see https://wiki.osdev.org/Ext2#Inode_Type_and_Permissions */
     inode_block_group = (inode_lookup - 1) / ext2_rootfs.inodes_per_group;
-//    kernel_printf("block group for inode %u is %u\r\n", inode_lookup, inode_block_group);
+//    kprintf("block group for inode %u is %u\r\n", inode_lookup, inode_block_group);
     /* must be group zero for now - deal with multiple block groups later */
     if (inode_block_group) {
-        kernel_printf("inode_block_group = %u, inode_lookup = %lu\r\n", inode_block_group, inode_lookup);
+        kprintf("inode_block_group = %u, inode_lookup = %lu\r\n", inode_block_group, inode_lookup);
         while(1) { }
     }
 
     assert(!inode_block_group);
     inode_index = (inode_lookup - 1) % ext2_rootfs.inodes_per_group;
-//    kernel_printf("inode_index = %u\r\n", inode_index);
+//    kprintf("inode_index = %u\r\n", inode_index);
 //    containing_block = (inode_index * nm_uint16(ext2_rootfs.blck.s_inode_size)) / ext2_rootfs.block_size;
-//    kernel_printf("containing_block = %u (0x%08lx)\r\n", containing_block,
+//    kprintf("containing_block = %u (0x%08lx)\r\n", containing_block,
     //      (ext2_rootfs.inode_table * ext2_rootfs.block_size) + (inode_index * nm_uint16(ext2_rootfs.blck.s_inode_size)));
 
     inode_offset = (ext2_rootfs.inode_table * ext2_rootfs.block_size) + (inode_index * nm_uint16(ext2_rootfs.blck.s_inode_size));
@@ -350,25 +350,25 @@ int ext2_inode_lookup(uint32_t inode_lookup, ext2_inode *my_inode, bool debug)
 
     if (!my_inode->i_mode) {
         /* deleted or non-existent */
-        kernel_printf("inode %lu is invalid or deleted\r\n", inode_lookup);
+        kprintf("inode %lu is invalid or deleted\r\n", inode_lookup);
         return 0;
     }
 
     if (debug) {
-        kernel_printf("i_mode   = 0x%04x\r\n", (uint16_t) nm_uint16(my_inode->i_mode) & 0xE000);
-        kernel_printf("i_mode   = 0x%04x\r\n", (uint16_t) nm_uint16(my_inode->i_mode) & 0x1FFF);
-        kernel_printf("i_uid    = %u\r\n", nm_uint16(my_inode->i_uid));
-        kernel_printf("i_gid    = %u\r\n", nm_uint16(my_inode->i_gid));
-        kernel_printf("i_size   = %lu\r\n", nm_uint32(my_inode->i_size));
-        kernel_printf("i_flags  = %lu\r\n", nm_uint32(my_inode->i_flags));
-        kernel_printf("i_blocks = %lu\r\n", nm_uint32(my_inode->i_blocks));
-        kernel_printf("i_block pointers:\r\n  ");
+        kprintf("i_mode   = 0x%04x\r\n", (uint16_t) nm_uint16(my_inode->i_mode) & 0xE000);
+        kprintf("i_mode   = 0x%04x\r\n", (uint16_t) nm_uint16(my_inode->i_mode) & 0x1FFF);
+        kprintf("i_uid    = %u\r\n", nm_uint16(my_inode->i_uid));
+        kprintf("i_gid    = %u\r\n", nm_uint16(my_inode->i_gid));
+        kprintf("i_size   = %lu\r\n", nm_uint32(my_inode->i_size));
+        kprintf("i_flags  = %lu\r\n", nm_uint32(my_inode->i_flags));
+        kprintf("i_blocks = %lu\r\n", nm_uint32(my_inode->i_blocks));
+        kprintf("i_block pointers:\r\n  ");
         for (i = 0; i < EXT2_N_BLOCKS ; i++) {
             if (nm_uint32(my_inode->i_block[i])) {
-                kernel_printf("[%u: %08lx:%08lx] ", i, nm_uint32(my_inode->i_block[i]), nm_uint32(my_inode->i_block[i]) * ext2_rootfs.block_size);
+                kprintf("[%u: %08lx:%08lx] ", i, nm_uint32(my_inode->i_block[i]), nm_uint32(my_inode->i_block[i]) * ext2_rootfs.block_size);
             }
         }
-        kernel_printf("\r\n");
+        kprintf("\r\n");
         kernel_puts("\r\n");
     }
 
@@ -386,7 +386,7 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
     //uint16_t dirent_size;
     uint32_t inode_index = 0;
     //dirent_size = sizeof(ext2_dir_entry);
-//    kernel_printf("ext2_get_inode_from_dirent(%u, %s)\r\n", search_inode, pathelement);
+//    kprintf("ext2_get_inode_from_dirent(%u, %s)\r\n", search_inode, pathelement);
 
     assert(ext2_inode_lookup(search_inode, &my_inode, false));
     assert((nm_uint16(my_inode.i_mode) & 0xE000) == 0x4000);
@@ -396,7 +396,7 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
     directory_address = (nm_uint32(my_inode.i_block[i]) * ext2_rootfs.block_size);
     directory_offset = 0;
     while (directory_offset <= 1024) {
-        //kernel_printf("%u[0x%08lx]: \r\n", inode_index, directory_address + directory_offset);
+        //kprintf("%u[0x%08lx]: \r\n", inode_index, directory_address + directory_offset);
         /* clear the dirent structure */
         kernel_memset(&current_entry, 0, sizeof(ext2_dir_entry));
         devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number], directory_address + directory_offset);
@@ -407,21 +407,17 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
         assert(ext2_inode_lookup(nm_uint32(current_entry.inode), &iter_inode, false));
 
         if (nm_uint16(current_entry.rec_len) == 0) {
-            //          kernel_printf("--- end of directory --- \r\n");
             /* end of directory */
             return 0;
         }
 
 
-        //      kernel_printf(" -> %4d %u/%u | %s\r\n", nm_uint32(current_entry.inode), current_entry.name_len, kstrlen(pathelement), current_entry.name);
         if ((current_entry.name_len == kstrlen(pathelement)) &&
                 kernel_strncmp(current_entry.name, pathelement, current_entry.name_len) == 0) {
-//           kernel_printf("--> returning %lu\r\n", nm_uint32(current_entry.inode));
             return nm_uint32(current_entry.inode);
         }
 
         if (nm_uint16(current_entry.rec_len) > sizeof(ext2_dir_entry)) {
-            //         kernel_printf("-- end of directory (2)? --\r\n");
             /* looks like we have reached the end of the directory */
             return 0;
         }
@@ -429,7 +425,7 @@ uint32_t ext2_get_inode_from_dirent(uint32_t search_inode, char *pathelement)
         directory_offset += nm_uint16(current_entry.rec_len);
     }
 
-    kernel_printf("too many entries\r\n");
+    kprintf("too many entries\r\n");
     assert(NULL);
     return (0);
 }
@@ -443,26 +439,26 @@ bool isdirectory(uint32_t inode)
         return false;
     }
     assert(ext2_inode_lookup(inode, &target_inode, false));
-    //kernel_printf("isdirectory(%lu) == 0x%04x?\r\n", inode, (uint16_t) nm_uint16(target_inode.i_mode) & 0xE000);
+    //kprintf("isdirectory(%lu) == 0x%04x?\r\n", inode, (uint16_t) nm_uint16(target_inode.i_mode) & 0xE000);
     if ((nm_uint16(target_inode.i_mode) & 0xE000) == 0x4000) {
         return true;
     }
     switch (nm_uint16(target_inode.i_mode) & 0xE000) {
     case 0x4000:
-        //    kernel_printf("isdirectory(%lu) == true\r\n", inode);
+        //    kprintf("isdirectory(%lu) == true\r\n", inode);
         return true;
         break;
     case 0x8000:
-        //   kernel_printf("isdirectory(%lu) == false\r\n", inode);
+        //   kprintf("isdirectory(%lu) == false\r\n", inode);
         return false;
         break;
     default:
-        kernel_printf("dunno1!\r\n");
+        kprintf("dunno1!\r\n");
         assert(NULL);
         break;
     }
 
-    kernel_printf("dunno2!\r\n");
+    kprintf("dunno2!\r\n");
     return false;
 }
 
@@ -505,7 +501,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
         }
     }
 
-//    kernel_printf("ext2_path_to_inode(%s, '%c', %u)\r\n", path, p[0], traverse_inode);
+//    kprintf("ext2_path_to_inode(%s, '%c', %u)\r\n", path, p[0], traverse_inode);
 
 //		traverse_inode = ext2_rootfs.cwd_inode;
 
@@ -517,7 +513,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
 
     if (p[0] == '/') {
         /* if leading slash specified, path is absolute, so switch to EXT2_ROOT_INODE before descending */
-        //kernel_printf("[root pivot]\r\n");
+        //kprintf("[root pivot]\r\n");
         //puts("\r\n");
         traverse_inode = EXT2_ROOT_INODE;
         if (kstrlen(p) == 1) {
@@ -526,11 +522,11 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
         }
         p++;
     }
-    // kernel_printf("[");
+    // kprintf("[");
 
     kernel_memset(&path_element, 0, MAX_PATH_ELEMENT_LEN);
     while (p[0] != '\0' && p[0] != '/' && path_element_len < MAX_PATH_ELEMENT_LEN) {
-        //      kernel_printf("%c", p[0]);
+        //      kprintf("%c", p[0]);
         path_element[path_element_len] = p[0];
         p++;
         path_element_len ++;
@@ -542,7 +538,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
     }
 
     il = ext2_inode_lookup(traverse_inode, &recurse_inode, false);
-//		kernel_printf("(il = %lu)\r\n", il);
+//		kprintf("(il = %lu)\r\n", il);
 
 //    assert(ext2_inode_lookup(current_inode, &recurse_inode, false));
 //		assert(il);
@@ -551,23 +547,23 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
     switch ((nm_uint16(recurse_inode.i_mode) & 0xE000)) {
     case 0x4000:
         /* directory - open and search it for name */
-        //      kernel_printf("inode %lu: it's a directory!\r\n", current_inode);
+        //      kprintf("inode %lu: it's a directory!\r\n", current_inode);
         lookup_inode = ext2_get_inode_from_dirent(traverse_inode, (char *) &path_element);
         if (!lookup_inode) {
             set_errno(ENOENT);
-            //    kernel_printf("%s: not found\r\n", path_element);
+            //    kprintf("%s: not found\r\n", path_element);
 
             return 0;
         }
-//       kernel_printf("lookup_inode = %u\r\n", lookup_inode);
+//       kprintf("lookup_inode = %u\r\n", lookup_inode);
 
         assert(ext2_inode_lookup(lookup_inode, &target_inode, false));
 
         switch ((nm_uint16(target_inode.i_mode) & 0xE000)) {
         case 0x4000:
-            //          kernel_printf("inode %lu: it's a directory!\r\n", lookup_inode);
+            //          kprintf("inode %lu: it's a directory!\r\n", lookup_inode);
             if (kstrlen(p)) {
-                //            kernel_printf("we need to go deeper!\r\n");
+                //            kprintf("we need to go deeper!\r\n");
                 //assert(NULL);
                 p++;
                 //ext2_rootfs.cwd_inode = lookup_inode;
@@ -578,7 +574,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
             return lookup_inode;
             break;
         case 0x8000:
-            //                kernel_printf("inode %lu: it's a file!\r\n", lookup_inode);
+            //                kprintf("inode %lu: it's a file!\r\n", lookup_inode);
             if (kstrlen(p)) {
                 /* wanted to go further, but we must terminate here */
                 return lookup_inode;
@@ -587,7 +583,7 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
             return lookup_inode;
             break;
         default:
-            kernel_printf("inode %lu: it has mode 0x%04x\n", lookup_inode, (nm_uint16(target_inode.i_mode) & 0xE000));
+            kprintf("inode %lu: it has mode 0x%04x\n", lookup_inode, (nm_uint16(target_inode.i_mode) & 0xE000));
             assert(NULL);
             break;
         }
@@ -595,12 +591,12 @@ uint32_t ext2_path_to_inode(char *path, uint32_t traverse_inode)
         break;
     case 0x8000:
         /* it's a regular file */
-//        kernel_printf("inode %lu: it's a regular file!\r\n", current_inode);
+//        kprintf("inode %lu: it's a regular file!\r\n", current_inode);
         assert(NULL);
         break;
     default:
         /* it's something else! */
-        kernel_printf("inode %lu: it has mode 0x%04x\n", traverse_inode, (nm_uint16(recurse_inode.i_mode) & 0xE000));
+        kprintf("inode %lu: it has mode 0x%04x\n", traverse_inode, (nm_uint16(recurse_inode.i_mode) & 0xE000));
         assert(NULL);
         break;
     }
@@ -620,14 +616,14 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
 
     if (file_block_id >=0 && file_block_id < EXT2_NDIR_BLOCKS) {
         /* DIRECT BLOCK */
-        //kernel_printf("-- inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
+        //kprintf("-- inode->block_id[%lu] = 0x%08lx [*DIRECT_BLOCK]\r\n", file_block_id, nm_uint32(e2i->i_block[file_block_id]));
         return nm_uint32(e2i->i_block[file_block_id]);
     }
 
     assert(!(file_block_id < 0 || file_block_id >= ((EXT2_NDIR_BLOCKS + ext2_rootfs.block_size / sizeof(uint32_t)) + ((EXT2_NDIR_BLOCKS^2) * (ext2_rootfs.block_size / sizeof(uint32_t))))));
 
     /*
-    kernel_printf("/ INDIRECT BLOCK id=%lu (%lu) indirect_block_index = 0x%lx, address = 0x%08lx \r\n",
+    kprintf("/ INDIRECT BLOCK id=%lu (%lu) indirect_block_index = 0x%lx, address = 0x%08lx \r\n",
                     file_block_id, file_block_id - EXT2_NDIR_BLOCKS,
                     nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]),
                     nm_uint32(e2i->i_block[EXT2_NDIR_BLOCKS]) * ext2_rootfs.block_size);
@@ -641,13 +637,13 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
         block_deref = file_block_id - (EXT2_IND_BLOCKS + EXT2_NDIR_BLOCKS);
         block_page = block_deref / (ext2_rootfs.block_size / sizeof(uint32_t));
         block_page_index = block_deref % (ext2_rootfs.block_size / sizeof(uint32_t));
-        //kernel_printf("+ double indirect block, block_id=%lu(0x%08lx) -> %u (%u, %u)\r\n", file_block_id, file_block_id, block_deref, block_page, block_page_index);
+        //kprintf("+ double indirect block, block_id=%lu(0x%08lx) -> %u (%u, %u)\r\n", file_block_id, file_block_id, block_deref, block_page, block_page_index);
         devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32(e2i->i_block[EXT2_DIND_BLOCK]) * ext2_rootfs.block_size);
         devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &double_indirect_cache, ext2_rootfs.block_size);
         dcp = (uint32_t *) &double_indirect_cache;
         //ptr_dump(&double_indirect_cache);
         dcp += block_page;
-        //kernel_printf("dcp = %08lx\r\n", nm_uint32(*dcp));
+        //kprintf("dcp = %08lx\r\n", nm_uint32(*dcp));
         /* we have deferenced the double indirect block here, and block_page_index should be an offset into the next page we fetch, which is indirect */
         devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32((*dcp)) * ext2_rootfs.block_size);
         devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &indirect_cache, ext2_rootfs.block_size);
@@ -655,17 +651,17 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
         /* dereference the indirect block */
         icp = (uint32_t *) &indirect_cache;
         icp += block_page_index;
-        //kernel_printf("icp = %08lx\r\n", nm_uint32(*icp));
+        //kprintf("icp = %08lx\r\n", nm_uint32(*icp));
         return nm_uint32(*icp);
         //assert(NULL);
     } else {
         devices[ext2_rootfs.device_number].seek(&devices[ext2_rootfs.device_number],  nm_uint32(e2i->i_block[EXT2_IND_BLOCK]) * ext2_rootfs.block_size);
         devices[ext2_rootfs.device_number].read(&devices[ext2_rootfs.device_number], (unsigned char *) &indirect_cache, ext2_rootfs.block_size);
         icp = (uint32_t *) &indirect_cache;
-        //kernel_printf("icp[1] = 0x%08lx\r\n", icp);
+        //kprintf("icp[1] = 0x%08lx\r\n", icp);
         icp+= file_block_id - EXT2_NDIR_BLOCKS;
-        //kernel_printf("icp[2] = 0x%08lx\r\n", icp);
-        //kernel_printf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp));
+        //kprintf("icp[2] = 0x%08lx\r\n", icp);
+        //kprintf("indirect_block_pointer = %08lx\r\n", nm_uint32(*icp));
         //ptr_dump(&indirect_cache);
         return nm_uint32(*icp);
     }
@@ -680,7 +676,7 @@ uint32_t ext2_get_inode_block(ext2_inode *e2i, uint32_t file_block_id)
 uint32_t ext2_block_read(ext2_fs *fs, uint32_t dma_addr, uint32_t block_id)
 {
 
-    kernel_printf("ext2_block_read([%u], 0x%08lx, 0x%08lx)\r\n", fs->device_number, dma_addr, block_id);
+    kprintf("ext2_block_read([%u], 0x%08lx, 0x%08lx)\r\n", fs->device_number, dma_addr, block_id);
     devices[fs->device_number].seek(&devices[fs->device_number], block_id * fs->block_size);
     devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) dma_addr, fs->block_size);
     return 1;
@@ -693,12 +689,12 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
     uint16_t bitmap_byte = 0;
     uint8_t byte_offset = 128;
 
-    kernel_printf("ext2_next_free_inode(%s)\n\r", fs->device_number);
+    kprintf("ext2_next_free_inode(%s)\n\r", fs->device_number);
     devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
     devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
 
     if (!devices[fs->device_number].write) {
-        kernel_printf("FATAL: device is not writable!\n\r");
+        kprintf("FATAL: device is not writable!\n\r");
         set_errno(EROFS);
         return 0;
     }
@@ -712,15 +708,15 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
         switch (block_bitmap[bitmap_byte] & byte_offset) {
         case 0x00:
             if (bitmap_index < nm_uint32(ext2_rootfs.blck.s_first_ino)) {
-                kernel_printf("inode %04u: [%03u:%03u] RESV\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+                kprintf("inode %04u: [%03u:%03u] RESV\n\r", bitmap_index+1, bitmap_byte, byte_offset);
                 bitmap_index ++;
 
             } else {
-                kernel_printf("inode %04u: [%03u:%03u] FREE\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+                kprintf("inode %04u: [%03u:%03u] FREE\n\r", bitmap_index+1, bitmap_byte, byte_offset);
 
-                kernel_printf("was: %02x\n", block_bitmap[bitmap_byte]);
+                kprintf("was: %02x\n", block_bitmap[bitmap_byte]);
                 block_bitmap[bitmap_byte] |= byte_offset;
-                kernel_printf("now: %02x\n", block_bitmap[bitmap_byte]);
+                kprintf("now: %02x\n", block_bitmap[bitmap_byte]);
 
                 /* write the modified bitmap block */
                 devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
@@ -730,7 +726,7 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
             }
             break;
         case 0x01:
-            kernel_printf("inode %04u: [%03u:%03u] USED\n\r", bitmap_index+1, bitmap_byte, byte_offset);
+            kprintf("inode %04u: [%03u:%03u] USED\n\r", bitmap_index+1, bitmap_byte, byte_offset);
             break;
         }
     }

@@ -22,11 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// \brief Tiny kernel_printf, sprintf and (v)snprintf implementation, optimized for speed on
+// \brief Tiny kprintf, sprintf and (v)snprintf implementation, optimized for speed on
 //        embedded systems with a very limited resources. These routines are thread
 //        safe and reentrant!
-//        Use this instead of the bloated standard/newlib kernel_printf cause these use
-//        malloc for kernel_printf (and may not be thread safe).
+//        Use this instead of the bloated standard/newlib kprintf cause these use
+//        malloc for kprintf (and may not be thread safe).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -330,7 +330,7 @@ static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
     }
 
     // TBD: for very large numbers switch back to native sprintf for exponentials. Anyone want to write code to replace this?
-    // Normal kernel_printf behavior is to print EVERY whole number digit which can be 100s of characters overflowing your buffers == bad
+    // Normal kprintf behavior is to print EVERY whole number digit which can be 100s of characters overflowing your buffers == bad
     if (value > thres_max) {
         return 0U;
     }
@@ -718,7 +718,7 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 ///////////////////////////////////////////////////////////////////////////////
 
 
-int kernel_printf(const char* format, ...)
+int kprintf(const char* format, ...)
 {
     va_list va;
     va_start(va, format);

@@ -13,7 +13,7 @@ int ptr_dump(uint32_t offset, uint32_t limit)
     char ptr_addr[32];
     //printf("ptr_dump(0x%08lx)\n\r", offset);
     snprintf((char *) &ptr_addr, 31, "0x%08lx", offset);
-//    kernel_printf("address = %s\n\r", ptr_addr);
+//    kprintf("address = %s\n\r", ptr_addr);
     realdump(ptr_addr, limit);
     return 0;
 
@@ -40,19 +40,19 @@ int realdump(char *payload, uint32_t limit)
         addr = kernel_strtoul(payload, NULL, 10);
     }
     if (addr > 0xffffffff) {
-        kernel_printf("dump: address out of range\n\r");
+        kprintf("dump: address out of range\n\r");
         return -1;
     }
 
     while (lines < 16 && addr <= 0xffffffff && (limit && limit_counter < limit)) {
-        kernel_printf("0x%08lx %c ", addr, DFS);
+        kprintf("0x%08lx %c ", addr, DFS);
         for (i = 0 ; i < 16; i++) {
             ptr = (unsigned char *) addr + i;
-            kernel_printf("%02x ", ptr[0]);
+            kprintf("%02x ", ptr[0]);
             ptr++;
         }
         ptr -= 16;
-        kernel_printf("%c", DFS);
+        kprintf("%c", DFS);
 
         for (i = 0 ; i < 16; i++) {
             ptr = (unsigned char *) addr + i;
@@ -60,7 +60,7 @@ int realdump(char *payload, uint32_t limit)
                 //printf("%c", ptr[0]);
                 kernel_putchar(ptr[0]);
             } else {
-                kernel_printf(".");
+                kprintf(".");
             }
             ptr++;
         }
@@ -78,13 +78,13 @@ int realdump(char *payload, uint32_t limit)
         if (lines >= 16 && (limit && limit_counter < limit)) {
             if (continue_or_exit()) {
                 lines = 0;
-                kernel_printf("\n\r");
+                kprintf("\n\r");
             }
         }
     }
 
 
-    kernel_printf("\n\r");
+    kprintf("\n\r");
 
     return 0;
 }
@@ -94,7 +94,7 @@ extern bool continue_or_exit ()
 {
 
     char c = 0;
-    kernel_printf("Zontinue or exit [Y/n]?\n\r");
+    kprintf("Zontinue or exit [Y/n]?\n\r");
     kernel_puts("\n\r");
 
     while (1) {

@@ -81,9 +81,9 @@ int fcntl_open_inode(uint32_t inode, int flags)
             + (EXT2_IND_BLOCKS * ext2_rootfs.block_size * EXT2_IND_BLOCKS)
                                                                 ))) {
         // quick check for now - we can only handle files with direct and indirect blocks, anything else is too large
-        // kernel_printf("FILE TOO BIG!\r\n");
+        // kprintf("FILE TOO BIG!\r\n");
         set_errno(EFBIG);
-        // kernel_printf("returning errno = %d\r\n", errno);
+        // kprintf("returning errno = %d\r\n", errno);
         return -1;
     }
 
@@ -124,7 +124,7 @@ int fcntl_close(int fildes)
 _fd *fcntl_get_descriptor(int fd)
 {
 
-//    kernel_printf("my->fd = %d\r\n", fd);
+//    kprintf("my->fd = %d\r\n", fd);
     assert(!(fd < 0 || fd >= MAX_FDS));
     return (_fd *) &file_descriptor[fd];
 }
@@ -145,7 +145,7 @@ int kfcntl(int fd, int cmd, int tf)
         return 0;
         break;
     default:
-        kernel_printf("kfcntl(%d, <UNHANDLED>, %d)\n", fd, tf);
+        kprintf("kfcntl(%d, <UNHANDLED>, %d)\n", fd, tf);
         break;
     }
     return 0;

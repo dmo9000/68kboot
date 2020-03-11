@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
     char *p = NULL, *q = NULL;
 
     for (int i = 0; i < argc; i++) {
-        kernel_printf("argv[%d] = '%s'\n", i, argv[i]);
+        kprintf("argv[%d] = '%s'\n", i, argv[i]);
     }
     assert(argc == 2);
     assert(argv[1]);
     c = stat(argv[1], &sbuf);
     assert(stat(argv[1], &sbuf) == 0 );
-    kernel_printf("size = %lu\r\n", sbuf.st_size);
+    kprintf("size = %lu\r\n", sbuf.st_size);
     p = malloc(sbuf.st_size);
     assert(p);
     q = p;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     }
 
     assert(total == sbuf.st_size);
-    kernel_printf("fletcher16 result = 0x%x\r\n", fletcher16(p, total));
+    kprintf("fletcher16 result = 0x%x\r\n", fletcher16(p, total));
 
     close(fd);
     exit(0);

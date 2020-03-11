@@ -20,7 +20,7 @@ int ktermios_init()
 
 int ktcgetattr(int fd, struct termios *termios_p)
 {
-    //kernel_printf("ktcgetattr(%d, 0x%08x)\n", fd, termios_p);
+    //kprintf("ktcgetattr(%d, 0x%08x)\n", fd, termios_p);
     if (fd > STDERR_FILENO) {
         set_errno(ENOTTY);
         return -1;
@@ -32,7 +32,7 @@ int ktcgetattr(int fd, struct termios *termios_p)
 
 int ktcsetattr(int fd, int optional_actions, const struct termios *termios_p)
 {
-    //kernel_printf("ktcsetattr(%d, %d, 0x%08x)\n", fd, optional_actions, termios_p);
+    //kprintf("ktcsetattr(%d, %d, 0x%08x)\n", fd, optional_actions, termios_p);
     if (fd > STDERR_FILENO) {
         set_errno(ENOTTY);
         return -1;

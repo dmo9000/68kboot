@@ -9,7 +9,7 @@ off_t klseek(int fd, off_t offset, int whence)
     _fd *descriptor;
     /* here we just verify offsets and tweak the pointer around. the real magic happens in read/write */
 
-//    kernel_printf("\n+lseek(%d, %u, %d)\r\n", fd, offset, whence);
+//    kprintf("\n+lseek(%d, %u, %d)\r\n", fd, offset, whence);
 
     descriptor = fcntl_get_descriptor(fd);
 

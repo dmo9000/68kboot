@@ -14,7 +14,7 @@
 
 int disk_set_drive(int disk)
 {
-//    kernel_printf("disk_set_drive(%d)\r\n", disk);
+//    kprintf("disk_set_drive(%d)\r\n", disk);
     uint32_t * p = (uint32_t *)((char *)DISK_SET_DRIVE);
     p[0] = disk;
     return 0;
@@ -23,7 +23,7 @@ int disk_set_drive(int disk)
 
 int disk_set_dma(uint32_t addr)
 {
-//    kernel_printf("disk_set_dma(0x%08x)\r\n", addr);
+//    kprintf("disk_set_dma(0x%08x)\r\n", addr);
     uint32_t *p = (uint32_t *)((char *)DISK_SET_DMA);
 // LITTLE ENDIAN ONLY;
 //    p = htonl(addr);
@@ -33,7 +33,7 @@ int disk_set_dma(uint32_t addr)
 
 int disk_read_sector(uint32_t sector)
 {
-    //  kernel_printf("disk_read_sector([%d] 0x%08x)\r\n", sector, sector);
+    //  kprintf("disk_read_sector([%d] 0x%08x)\r\n", sector, sector);
     uint32_t *p = (uint32_t *)((char *)DISK_READ);
     p[0] = sector;
     return 0;
@@ -41,7 +41,7 @@ int disk_read_sector(uint32_t sector)
 
 int disk_write_sector(uint32_t sector)
 {
-    //  kernel_printf("disk_read_sector([%d] 0x%08x)\r\n", sector, sector);
+    //  kprintf("disk_read_sector([%d] 0x%08x)\r\n", sector, sector);
     uint32_t *p = (uint32_t *)((char *)DISK_WRITE);
     p[0] = sector;
     return 0;
