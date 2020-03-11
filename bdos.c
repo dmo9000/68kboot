@@ -19,6 +19,7 @@
 #include "shim.h"
 #include "environ.h"
 #include "termios.h"
+#include "blkdev.h"
 //#include "kgetcwd.h"
 
 _bdos_vtable bdvt       __attribute__((section(".bdos_vtable")));
@@ -51,6 +52,9 @@ int bdos_init()
         bdvt._fcntl = kfcntl;
         bdvt._tcgetattr = ktcgetattr;
         bdvt._tcsetattr = ktcsetattr;
+        bdvt._blkdevseek = blkdevseek;
+        bdvt._blkdevread = blkdevread;
+        bdvt._blkdevwrite = blkdevwrite;
 
         kernel_memset(&environment, 0, MAX_ENVIRON);
         //snprintf(&environment, 1024, "PATH=/usr/bin/:/bin/\nTERM=ansi\n");
