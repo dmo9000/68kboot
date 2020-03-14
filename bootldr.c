@@ -7,6 +7,21 @@
 
 /* 32K = 256 sectors */
 
+char *spinner = "|/-\\|/-\\";
+
+void boot_spinner()
+{
+	for (int i = 0; i < 8; i++) {
+		boot_putchar(spinner[i]);
+		boot_putchar(0x08);
+		for (int j = 0; j < 100000000; j++) {
+				/* delay */
+				}
+		} 
+		boot_putchar('.');
+	return;
+}
+
 int boot_putchar(int c)
 {
     char * p = (char *)0xff1002;
@@ -43,6 +58,7 @@ int main(int argc, char *argv[])
         sector_count ++;
         if (!(sector_count % 8)) {
             boot_putchar('.');
+//							boot_spinner();
         }
     }
     boot_putchar('\r');

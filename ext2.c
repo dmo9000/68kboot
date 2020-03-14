@@ -185,9 +185,9 @@ found_rootfs:
     ext2_rootfs.inode_bitmap = nm_uint32(ext2_rootfs.group_descriptor.bg_inode_bitmap);
     ext2_rootfs.inode_table = nm_uint32(ext2_rootfs.group_descriptor.bg_inode_table);
 
-    /*
         kprintf("EXT2: bg_block_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.block_bitmap, ext2_rootfs.block_bitmap * ext2_rootfs.block_size);
         kprintf("EXT2: bg_inode_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_bitmap, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+		/*
         kprintf("EXT2: bg_inode_table  = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_table, ext2_rootfs.inode_table * ext2_rootfs.block_size);
         kprintf("EXT2: directory_count = 0x%08lx\r\n", nm_uint16(ext2_rootfs.group_descriptor.bg_used_dirs_count));
     */
