@@ -4,6 +4,7 @@
 #include "stdio.h"
 #include "stdbool.h"
 #include "kernel.h"
+#include "kstring.h"
 #include <sys/types.h>
 #include "devices.h"
 #include "ext2.h"
@@ -11,6 +12,8 @@
 #include "byteorder.h"
 #include "errno.h"
 #include "dump.h"
+#include "blkdev.h"
+#include "kstat.h"
 
 unsigned long ext2_base = 0;
 extern _device devices[MAX_DEVICES];
@@ -20,6 +23,8 @@ bool ext2_backwards = false;
 
 char dir_entry_type[] = {'?', '-', 'd'};
 
+
+//char inode_bitmap[256];
 
 #define panic() assert(!("PANIC"));
 uint32_t EXT2_BLOCK_SIZE(ext2_super_block *s)
@@ -74,7 +79,7 @@ int ext2_probe()
                 }
             } else {
                 kprintf("<driver not implemented!>\r\n");
-                kernel_puts("\r\n");
+                kernel_puts("\n\r");
             }
         }
     }
@@ -96,25 +101,23 @@ found_rootfs:
     ext2_rootfs.device_number = i;
 
     kprintf("ext2: found root ext2fs v%lu.%u (%s) (state %s) \r\n      device %u:%u (%s) at offset 0x%08lx (%lu)\r\n",
-                  nm_uint32(ext2_rootfs.blck.s_rev_level),
-                  nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
-                  (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
-                  (nm_uint16(ext2_rootfs.blck.s_state)  == 1 ? "EXT2_VALID_FS" : "EXT2_ERROR_FS"),
-                  ext2_rootfs.device->maj, ext2_rootfs.device->min,
-                  ext2_rootfs.device->name,
-                  offset, offset);
+            nm_uint32(ext2_rootfs.blck.s_rev_level),
+            nm_uint16(ext2_rootfs.blck.s_minor_rev_level),
+            (nm_uint32(ext2_rootfs.blck.s_rev_level) ? "dynamic" : "legacy"),
+            (nm_uint16(ext2_rootfs.blck.s_state)  == 1 ? "EXT2_VALID_FS" : "EXT2_ERROR_FS"),
+            ext2_rootfs.device->maj, ext2_rootfs.device->min,
+            ext2_rootfs.device->name,
+            offset, offset);
 
-    /*
     kprintf ("ext2: free inodes=%lu/%lu, free blocks=%lu/%lu, block size=%lu, \r\n  first_inode=%lu, inode_size=%u\r\n",
-                   nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
-                   nm_uint32(ext2_rootfs.blck.s_inodes_count),
-                   nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
-                   nm_uint32(ext2_rootfs.blck.s_blocks_count),
-                   EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
-                   nm_uint32(ext2_rootfs.blck.s_first_ino),
-                   nm_uint16(ext2_rootfs.blck.s_inode_size)
-                  );
-    	*/
+             nm_uint32(ext2_rootfs.blck.s_free_inodes_count),
+             nm_uint32(ext2_rootfs.blck.s_inodes_count),
+             nm_uint32(ext2_rootfs.blck.s_free_blocks_count),
+             nm_uint32(ext2_rootfs.blck.s_blocks_count),
+             EXT2_BLOCK_SIZE (&ext2_rootfs.blck),
+             nm_uint32(ext2_rootfs.blck.s_first_ino),
+             nm_uint16(ext2_rootfs.blck.s_inode_size)
+            );
 
     used_inode_count = nm_uint32(ext2_rootfs.blck.s_inodes_count) -
                        nm_uint32(ext2_rootfs.blck.s_free_inodes_count);
@@ -124,7 +127,7 @@ found_rootfs:
     used_blocks_percent = (double) (100.0 / nm_uint32(ext2_rootfs.blck.s_blocks_count)) * used_block_count;
 
     kprintf ("      blocks=%.02f%%, inodes=%.02f%%\r\n",
-                   used_blocks_percent, used_inodes_percent);
+             used_blocks_percent, used_inodes_percent);
 
     ext2_rootfs.block_size = EXT2_BLOCK_SIZE (&ext2_rootfs.blck);
     ext2_rootfs.blocks_per_group = nm_uint32(ext2_rootfs.blck.s_blocks_per_group);
@@ -185,11 +188,11 @@ found_rootfs:
     ext2_rootfs.inode_bitmap = nm_uint32(ext2_rootfs.group_descriptor.bg_inode_bitmap);
     ext2_rootfs.inode_table = nm_uint32(ext2_rootfs.group_descriptor.bg_inode_table);
 
-        kprintf("EXT2: bg_block_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.block_bitmap, ext2_rootfs.block_bitmap * ext2_rootfs.block_size);
-        kprintf("EXT2: bg_inode_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_bitmap, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
-		/*
-        kprintf("EXT2: bg_inode_table  = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_table, ext2_rootfs.inode_table * ext2_rootfs.block_size);
-        kprintf("EXT2: directory_count = 0x%08lx\r\n", nm_uint16(ext2_rootfs.group_descriptor.bg_used_dirs_count));
+    kprintf("EXT2: bg_block_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.block_bitmap, ext2_rootfs.block_bitmap * ext2_rootfs.block_size);
+    kprintf("EXT2: bg_inode_bitmap = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_bitmap, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    /*
+    kprintf("EXT2: bg_inode_table  = 0x%08lx (0x%08lx)\r\n", ext2_rootfs.inode_table, ext2_rootfs.inode_table * ext2_rootfs.block_size);
+    kprintf("EXT2: directory_count = 0x%08lx\r\n", nm_uint16(ext2_rootfs.group_descriptor.bg_used_dirs_count));
     */
     ext2_rootfs.active = 1;
     ext2_rootfs.cwd_inode = EXT2_ROOT_INODE;
@@ -279,12 +282,12 @@ int ext2_list_directory(uint32_t directory_inode)
         /* FIXME: ANSI codes in an ext2 drivers, lol */
 
         kprintf("%10ld %s %5u %5u %8lu %s%c\r\n",
-                      nm_uint32(current_entry.inode),
-                      perms,
-                      nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
-                      nm_uint32(iter_inode.i_size),
-                      fnbuf,
-                      (perms[0] == 'd' ? '/' : '\0'));
+                nm_uint32(current_entry.inode),
+                perms,
+                nm_uint16(iter_inode.i_uid), nm_uint16(iter_inode.i_gid),
+                nm_uint32(iter_inode.i_size),
+                fnbuf,
+                (perms[0] == 'd' ? '/' : '\0'));
 
         kprintf("%c[37m", 27);
 
@@ -684,52 +687,70 @@ uint32_t ext2_block_read(ext2_fs *fs, uint32_t dma_addr, uint32_t block_id)
 
 uint32_t ext2_next_free_inode(ext2_fs *fs)
 {
-    unsigned char block_bitmap[fs->block_size];
-    uint32_t bitmap_index = 0;
-    uint16_t bitmap_byte = 0;
-    uint8_t byte_offset = 128;
+    unsigned char inode_bitmap[256];
+    uint32_t inode_index = 0;
+    uint8_t byte_offset = 0;
+    uint8_t bit_offset = 0;
+    int i = 0;
 
-    kprintf("ext2_next_free_inode(%s)\n\r", fs->device_number);
-    devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
-    devices[fs->device_number].read(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
+    kprintf("ext2_next_free_inode(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    assert(EXT2_BLOCK_SIZE(&ext2_rootfs.blck) == 1024);
 
-    if (!devices[fs->device_number].write) {
-        kprintf("FATAL: device is not writable!\n\r");
-        set_errno(EROFS);
-        return 0;
-    }
+    blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
+    blkdevread(fs->device_number, (char *) &inode_bitmap, 256);
 
-    bitmap_byte = bitmap_index / 8;
-    byte_offset = 128 >> (bitmap_index % 8);
+    /* walk through the bitmap to find the next free inode */
 
-    while (bitmap_index < 2048) {
-        bitmap_byte = bitmap_index / 8;
-        byte_offset = 128 >> (bitmap_index % 8);
-        switch (block_bitmap[bitmap_byte] & byte_offset) {
-        case 0x00:
-            if (bitmap_index < nm_uint32(ext2_rootfs.blck.s_first_ino)) {
-                kprintf("inode %04u: [%03u:%03u] RESV\n\r", bitmap_index+1, bitmap_byte, byte_offset);
-                bitmap_index ++;
-
-            } else {
-                kprintf("inode %04u: [%03u:%03u] FREE\n\r", bitmap_index+1, bitmap_byte, byte_offset);
-
-                kprintf("was: %02x\n", block_bitmap[bitmap_byte]);
-                block_bitmap[bitmap_byte] |= byte_offset;
-                kprintf("now: %02x\n", block_bitmap[bitmap_byte]);
-
-                /* write the modified bitmap block */
-                devices[fs->device_number].seek(&devices[fs->device_number], ext2_rootfs.inode_bitmap);
-                devices[fs->device_number].write(&devices[fs->device_number], (unsigned char *) &block_bitmap, fs->block_size);
-
-                return bitmap_index+1;
+    while (inode_index < 256) {
+        byte_offset = inode_index/8;
+        bit_offset = 0;
+        if (inode_bitmap[byte_offset] != 0xFF) {
+            byte_offset = inode_index/8;
+            bit_offset = 0;
+            while (bit_offset < 8) {
+                inode_index++;
+                if (inode_bitmap[byte_offset] & (0x01 << bit_offset)) {
+                    //kprintf("used_inode =  %u\n\r", inode_index);
+                } else {
+                    //kprintf("free_inode =  %u\n\r", inode_index);
+                    return inode_index;
+                }
+                bit_offset++;
             }
-            break;
-        case 0x01:
-            kprintf("inode %04u: [%03u:%03u] USED\n\r", bitmap_index+1, bitmap_byte, byte_offset);
-            break;
+            set_errno(EIO);
+            return 0;
+        } else {
+            inode_index+=8;
         }
     }
 
+    /* no free inodes found */
+
     return 0;
 }
+
+
+bool ext2_get_inode_bitmap_state(ext2_fs *fs, uint32_t inode_query)
+{
+    unsigned char inode_bitmap[256];
+    uint32_t inode_index = 0;
+    uint8_t byte_offset = 0;
+    uint8_t bit_offset = 0;
+
+    kprintf("ext2_get_inode_state(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    assert(EXT2_BLOCK_SIZE(&ext2_rootfs.blck) == 1024);
+
+    blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
+    blkdevread(fs->device_number, (char *) &inode_bitmap, 256);
+
+    /* walk through the bitmap to find the next free inode */
+
+    byte_offset = inode_query / 8;
+    bit_offset = inode_query % 8;
+    bit_offset = (0x01 << bit_offset);
+    if (inode_bitmap[byte_offset] & bit_offset) {
+        return true;
+    }
+    return false;
+}
+

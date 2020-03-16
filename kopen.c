@@ -30,9 +30,12 @@ int kopen(const char *pathname, int flags)
                     nm_uint32(ext2_rootfs.blck.s_inodes_count)) {
                 file_inode = fcntl_new_inode();
                 if (!file_inode) {
+									  kprintf("kopen: create flag failed\n\r");
+										while (1) { } 
                     return -1;
                 }
-                set_errno(0);
+							  kprintf("kopen: create flag okay\n\r");
+                set_errno(EIO);
                 return -1;
             }
 

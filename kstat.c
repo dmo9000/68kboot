@@ -25,7 +25,8 @@ uint32_t ext2_inode_size(uint32_t inode_lookup)
 }
 
 
-int kernel_stat(const char *restrict path, struct stat *restrict buf)
+//int kernel_stat(const char *restrict path, struct stat *restrict buf)
+int kernel_stat(const char *path, struct stat *buf)
 {
     ext2_inode my_inode;
     uint32_t directory_inode = 0;
