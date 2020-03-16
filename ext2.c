@@ -693,7 +693,7 @@ uint32_t ext2_next_free_inode(ext2_fs *fs)
     uint8_t bit_offset = 0;
     int i = 0;
 
-    kprintf("ext2_next_free_inode(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    //kprintf("ext2_next_free_inode(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
     assert(EXT2_BLOCK_SIZE(&ext2_rootfs.blck) == 1024);
 
     blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
@@ -737,7 +737,8 @@ bool ext2_get_inode_bitmap_state(ext2_fs *fs, uint32_t inode_query)
     uint8_t byte_offset = 0;
     uint8_t bit_offset = 0;
 
-    kprintf("ext2_get_inode_state(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    //kprintf("ext2_get_inode_state(%u -> 0x%08lx)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size);
+    assert(inode_query < 2048);
     assert(EXT2_BLOCK_SIZE(&ext2_rootfs.blck) == 1024);
 
     blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
@@ -747,10 +748,76 @@ bool ext2_get_inode_bitmap_state(ext2_fs *fs, uint32_t inode_query)
 
     byte_offset = inode_query / 8;
     bit_offset = inode_query % 8;
-    bit_offset = (0x01 << bit_offset);
+
+    if (bit_offset) {
+        bit_offset = (0x01 << (bit_offset)) >> 1;
+    } else {
+        bit_offset = 0x80;
+        byte_offset -=1;
+    }
+
+    //kprintf("CHK [%u:%u]\n\r", byte_offset, bit_offset);
     if (inode_bitmap[byte_offset] & bit_offset) {
         return true;
     }
     return false;
+}
+
+bool ext2_set_inode_bitmap_state(ext2_fs *fs, uint32_t inode_query, bool state)
+{
+    unsigned char inode_bitmap[256];
+    uint32_t inode_index = 0;
+    uint8_t byte_offset = 0;
+    uint8_t bit_offset = 0;
+
+    //kprintf("ext2_set_inode_state(%u -> 0x%08lx, %s)\n\r", fs->device_number, ext2_rootfs.inode_bitmap * ext2_rootfs.block_size, (state ? "true" : "false"));
+    assert(inode_query < 2048);
+    assert(EXT2_BLOCK_SIZE(&ext2_rootfs.blck) == 1024);
+
+    blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
+    blkdevread(fs->device_number, (char *) &inode_bitmap, 256);
+
+    /* walk through the bitmap to find the next free inode */
+
+    byte_offset = inode_query / 8;
+    bit_offset = (inode_query % 8);
+
+    if (bit_offset) {
+        bit_offset = (0x01 << (bit_offset)) >> 1;
+    } else {
+        bit_offset = 0x80;
+        byte_offset -=1;
+    }
+    //kprintf("WAS = 0x%02x\n\r", inode_bitmap[byte_offset]);
+
+    switch (state) {
+    case true:
+        /* set bit */
+        inode_bitmap[byte_offset] |= bit_offset;
+        break;
+    case false:
+        /* clear bit */
+        inode_bitmap[byte_offset] &= ~(bit_offset);
+        break;
+    }
+
+    //kprintf("NOW = 0x%02x\n\r", inode_bitmap[byte_offset]);
+
+    /* FIXME: write the modified bitmap back to disk - don't think write works for data larger than one sector right now */
+
+    blkdevseek(fs->device_number, (ext2_rootfs.inode_bitmap * ext2_rootfs.block_size));
+    blkdevwrite(fs->device_number, (char *) &inode_bitmap, 256);
+
+		/* decrease the free inode count in the superblock */
+
+		if (is_big_endian) {
+			fs->blck.s_free_inodes_count = __builtin_bswap32(nm_uint32(ext2_rootfs.blck.s_free_inodes_count-1));
+			} else {
+			fs->blck.s_free_inodes_count = ext2_rootfs.blck.s_free_inodes_count - 1;
+			}
+
+	/* TODO: update superblock on disk */
+
+    return true;
 }
 

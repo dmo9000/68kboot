@@ -11,15 +11,15 @@ char *spinner = "|/-\\|/-\\";
 
 void boot_spinner()
 {
-	for (int i = 0; i < 8; i++) {
-		boot_putchar(spinner[i]);
-		boot_putchar(0x08);
-		for (int j = 0; j < 100000000; j++) {
-				/* delay */
-				}
-		} 
-		boot_putchar('.');
-	return;
+    for (int i = 0; i < 8; i++) {
+        boot_putchar(spinner[i]);
+        boot_putchar(0x08);
+        for (int j = 0; j < 100000000; j++) {
+            /* delay */
+        }
+    }
+    boot_putchar('.');
+    return;
 }
 
 int boot_putchar(int c)

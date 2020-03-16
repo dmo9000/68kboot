@@ -14,6 +14,10 @@
 #include "environ.h"
 #include "disk.h"
 #include "fletcher16.h"
+#include "kopen.h"
+#include "kread.h"
+#include "kclose.h"
+#include "kgetenv.h"
 
 int errno;
 
@@ -84,7 +88,7 @@ bool isWhitespace (char c);
 
 char parseString[MAX_STRING];
 
-#define CHAR_ESCAPE 27 
+#define CHAR_ESCAPE 27
 
 typedef unsigned long size_t;
 //size_t kstrlen(const char *t);
@@ -142,23 +146,23 @@ int supermain()
 prompt_start:
     while (1) {
         kprintf("%c[37m""shim> ", 27);
-				if (length) {
-						/* in case screen was cleared, we don't cancel input */
-						kprintf("%s", command);
-						}
+        if (length) {
+            /* in case screen was cleared, we don't cancel input */
+            kprintf("%s", command);
+        }
         //c =kernel_getchar();
         n = bdvt._read(STDIN_FILENO, &buf, 1);
         c = buf[0];
         while (c != '\r') {
             switch (c) {
-						case 12:
-								/* CTRL+L */
-								//kprintf("/* clear screen */\r\n");
-								/* DIRTY LOL */
-				        kprintf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
- 				        kprintf ("%c[1;1H", CHAR_ESCAPE);
-								goto prompt_start;
-								break;
+            case 12:
+                /* CTRL+L */
+                //kprintf("/* clear screen */\r\n");
+                /* DIRTY LOL */
+                kprintf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+                kprintf ("%c[1;1H", CHAR_ESCAPE);
+                goto prompt_start;
+                break;
             case 27:
                 break;
             case BS:
@@ -194,7 +198,7 @@ prompt_start:
             kernel_puts("\r\n");
             goto read_prompt;
         } else {
-						command[length] = '\0';
+            command[length] = '\0';
             kernel_puts("\r\n");
         }
 
@@ -447,22 +451,21 @@ int cpmsim_seek(struct _device *d, uint32_t address)
 int cpmsim_write(struct _device *d, unsigned char *buf, uint32_t size)
 {
     uint32_t start_sector = 0;
-    //uint32_t end_sector = 0;
+    uint32_t end_sector = 0;
     uint32_t current_sector = 0;
     uint32_t sector_offset = 0;
-    //uint32_t sector_count = 0;
+    uint32_t sector_count = 0;
     uint32_t remaining = size;
     //uint32_t byte_read_count = 0;
     uint32_t current_offset = 0;
     uint32_t bytes_available = 0;
     unsigned char *ptr = buf;
-    kprintf("cpm_write(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
+    //kprintf("cpm_write(d->%s, [0x%08lx]->0x%08lx, %lu)\r\n", d->name, d->offset, (uint32_t) buf, size);
 
-//		while (1) { }
     start_sector = d->offset / SECTOR_SIZE;
     sector_offset = d->offset % SECTOR_SIZE;
-    //sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
-    //end_sector = start_sector + sector_count;
+    sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
+    end_sector = start_sector + sector_count;
     //kprintf("->(sector=%u:offset=%u:sector_count=%u:end_sector=%u)\r\n", start_sector, sector_offset, sector_count, end_sector);
     // assert(!(d->offset % SECTOR_SIZE));
     disk_set_dma(0xF000);
@@ -485,8 +488,10 @@ int cpmsim_write(struct _device *d, unsigned char *buf, uint32_t size)
         if (bytes_available > remaining) {
             bytes_available = remaining;
         }
+        disk_set_dma(ptr);
+        //kernel_memcpy((const void *) 0xF000 + current_offset, ptr, bytes_available);
         disk_write_sector(current_sector);
-        kernel_memcpy((const void *) 0xF000 + current_offset, ptr, bytes_available);
+        //kernel_memcpy((const void *) 0xF000 + current_offset, ptr, bytes_available);
         remaining -= bytes_available;
         ptr+= bytes_available;
         current_offset = 0;
@@ -499,10 +504,10 @@ int cpmsim_write(struct _device *d, unsigned char *buf, uint32_t size)
 int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
 {
     uint32_t start_sector = 0;
-    //uint32_t end_sector = 0;
+    uint32_t end_sector = 0;
     uint32_t current_sector = 0;
     uint32_t sector_offset = 0;
-    //uint32_t sector_count = 0;
+    uint32_t sector_count = 0;
     uint32_t remaining = size;
     //uint32_t byte_read_count = 0;
     uint32_t current_offset = 0;
@@ -512,8 +517,8 @@ int cpmsim_read(struct _device *d, unsigned char *buf, uint32_t size)
 
     start_sector = d->offset / SECTOR_SIZE;
     sector_offset = d->offset % SECTOR_SIZE;
-    //sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
-    //end_sector = start_sector + sector_count;
+    sector_count = (size / SECTOR_SIZE) + (size % SECTOR_SIZE ? 1 : 0);
+    end_sector = start_sector + sector_count;
     //kprintf("->(sector=%u:offset=%u:sector_count=%u:end_sector=%u)\r\n", start_sector, sector_offset, sector_count, end_sector);
     // assert(!(d->offset % SECTOR_SIZE));
     disk_set_dma(0xF000);

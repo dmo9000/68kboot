@@ -87,7 +87,7 @@ int elf_load_binary(int elf_fd)
 
     if (Header->e_ident[EI_CLASS] != ELFCLASS32) {
         kprintf("Can't exec ELF class %u\r\n",
-                      Header->e_ident[EI_CLASS]);
+                Header->e_ident[EI_CLASS]);
         return(0);
     }
 
@@ -117,7 +117,7 @@ int elf_load_binary(int elf_fd)
 
     if (Header->e_ident[EI_VERSION] != EV_CURRENT) {
         kprintf("Can't exec ELF version %u\r\n",
-                      Header->e_ident[EI_VERSION]);
+                Header->e_ident[EI_VERSION]);
         return 0 ;
     }
 
@@ -125,7 +125,7 @@ int elf_load_binary(int elf_fd)
 
     if (Header->e_machine != EM_68K) {
         kprintf("Invalid ELF architecture (%u)\r\n",
-                      Header->e_machine);
+                Header->e_machine);
         return 0;
     }
 
@@ -161,8 +161,8 @@ int elf_load_binary(int elf_fd)
 
 #ifdef DEBUG_ELF
     kprintf("[ reading %u bytes of section header table from 0x%lx ]\r\n",
-                  (Header->e_shnum*Header->e_shentsize),
-                  Header->e_shoff);
+            (Header->e_shnum*Header->e_shentsize),
+            Header->e_shoff);
 #endif
     if (klseek(elf_fd, Header->e_shoff, SEEK_SET) == -1) {
         perror("klseek");
@@ -181,7 +181,7 @@ int elf_load_binary(int elf_fd)
 
 #ifdef DEBUG_ELF
     kprintf("(section name string table is section %u, offset = 0x%lx, size = 0x%lx)\r\n", e_shstrndx, SectionHeader->sh_offset,
-                  SectionHeader->sh_size);
+            SectionHeader->sh_size);
 #endif
 
     if (klseek(elf_fd, SectionHeader->sh_offset, SEEK_SET) == -1) {
@@ -200,7 +200,7 @@ int elf_load_binary(int elf_fd)
 
 #ifdef DEBUG_ELF
     kprintf("[ID] %17s %13s   ADDRESS  OFFSET SIZE ESZ F     L  I  A\r\n",
-                  "SECTION_NAME", "SECTION_TYPE");
+            "SECTION_NAME", "SECTION_TYPE");
     kernel_puts("\r\n");
 #endif
 
@@ -242,20 +242,20 @@ int elf_load_binary(int elf_fd)
         if ((SectionHeader->sh_type == SHT_PROGBITS || SectionHeader->sh_type == SHT_NOBITS) && SectionHeader->sh_addr) {
 #ifdef DEBUG_ELF
             kprintf("[%2u] 0x%08lx %17s sh_type=%14s sh_addr=%13u sh_offset=%6x sh_size=%6u sh_entsize=%u flags=%4s %4x %4x %4x\r\n",
-                          i,
-                          SectionHeader->sh_name,
-                          //"sh_strname",
-                          section_name,
-                          //&section_string_table + SectionHeader->sh_name,
-                          sh_types[SectionHeader->sh_type],
-                          SectionHeader->sh_addr,
-                          SectionHeader->sh_offset,
-                          SectionHeader->sh_size,
-                          SectionHeader->sh_entsize,
-                          flags,
-                          SectionHeader->sh_link,
-                          SectionHeader->sh_info,
-                          SectionHeader->sh_addralign);
+                    i,
+                    SectionHeader->sh_name,
+                    //"sh_strname",
+                    section_name,
+                    //&section_string_table + SectionHeader->sh_name,
+                    sh_types[SectionHeader->sh_type],
+                    SectionHeader->sh_addr,
+                    SectionHeader->sh_offset,
+                    SectionHeader->sh_size,
+                    SectionHeader->sh_entsize,
+                    flags,
+                    SectionHeader->sh_link,
+                    SectionHeader->sh_info,
+                    SectionHeader->sh_addralign);
 #endif
             if (SectionHeader->sh_addr && SectionHeader->sh_type == SHT_PROGBITS) {
 //                kprintf("Writing SHT_PROGBITS...\r\n");

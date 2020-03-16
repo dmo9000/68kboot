@@ -49,17 +49,27 @@ int fcntl_find_free_fd()
 
 int fcntl_new_inode()
 {
-		uint32_t new_inode = 0;
-		bool new_inode_state = false;
+    uint32_t new_inode = 0;
+    bool new_inode_state = false;
     if (!file_table_initialized) {
         initialize_file_table();
     }
     new_inode = ext2_next_free_inode(&ext2_rootfs);
-		kprintf("fcntl_new_inode = %lu\n", new_inode);
-		new_inode_state = ext2_get_inode_bitmap_state(&ext2_rootfs, new_inode );
-		kprintf("inode(%lu) state = %s\n\r", new_inode, (new_inode_state ? "true" : "false"));	
-		set_errno(EIO);
-		return -1;
+    new_inode_state = ext2_get_inode_bitmap_state(&ext2_rootfs, new_inode );
+    //kprintf("inode(%lu) state = %s\n\r", new_inode, (new_inode_state ? "true" : "false"));
+
+    if (new_inode_state == true) {
+        kprintf("+++ bitmap query says inode is allocated!!\n\r");
+        set_errno(EIO);
+        return -1;
+    }
+
+    /* set the inode bit to true */
+
+    ext2_set_inode_bitmap_state(&ext2_rootfs, new_inode, true);
+
+    set_errno(EIO);
+    return -1;
 }
 
 int fcntl_open_inode(uint32_t inode, int flags)

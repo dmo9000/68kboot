@@ -6,7 +6,7 @@
 #include "assert.h"
 #include "errno.h"
 #include "ext2.h"
-#include "stat.h"
+#include "sys/stat.h"
 
 extern ext2_fs ext2_rootfs;
 
@@ -30,11 +30,11 @@ int kopen(const char *pathname, int flags)
                     nm_uint32(ext2_rootfs.blck.s_inodes_count)) {
                 file_inode = fcntl_new_inode();
                 if (!file_inode) {
-									  kprintf("kopen: create flag failed\n\r");
-										while (1) { } 
+                    kprintf("kopen: create flag failed\n\r");
+                    while (1) { }
                     return -1;
                 }
-							  kprintf("kopen: create flag okay\n\r");
+                //kprintf("kopen: create flag okay\n\r");
                 set_errno(EIO);
                 return -1;
             }
